@@ -7,9 +7,14 @@ import {
   Send, Check, Layers, Building2, BriefcaseBusiness, LockKeyhole, TrendingUp,
   ChevronRight, LogOut, Bell, Filter, Edit3, Trash2, UploadCloud, UserCircle,
   ExternalLink, Image as ImageIcon, MessageSquare, DollarSign, FileText, CheckCircle2,
-  MapPin, Award, Handshake
+  MapPin, Award, Handshake, Trophy, Flame, Coffee, Crown, Shield, Lock, Eye, Download, Printer
 } from 'lucide-react';
 import Orb from './components/Orb';
+import AICopilot from './components/AICopilot';
+import Prototype3DViewer from './components/Prototype3DViewer';
+import DigitalNDAModal from './components/DigitalNDAModal';
+import IPCertificateModal from './components/IPCertificateModal';
+import MicroBackingModal from './components/MicroBackingModal';
 import { api, demoAI, uploadImage, setAuthToken, getAuthToken } from './services/api';
 
 const defaultCategoryMeta = [
@@ -36,6 +41,12 @@ function App() {
   const [categories, setCategories] = useState([]);
   const [menu, setMenu] = useState(false);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
+
+  const activeInnovationId = location.pathname.startsWith('/innovation/') ? location.pathname.split('/innovation/')[1] : null;
+  const activeContextItem = useMemo(() => {
+    return items.find(it => it.id === activeInnovationId) || null;
+  }, [items, activeInnovationId]);
 
   // Sync theme
   useEffect(() => {
@@ -160,6 +171,7 @@ function App() {
       </Routes>
 
       <Footer />
+      <AICopilot activeContext={activeContextItem} />
     </>
   );
 }
@@ -272,6 +284,101 @@ function Home({ items, categories }) {
           </div>
         </div>
       </section>
+
+      {/* Today's Innovation Leaderboard */}
+      {items.length > 0 && (
+        <section className="section wrap leaderboard-section">
+          <div className="leaderboard-banner">
+            <div className="leaderboard-head">
+              <div>
+                <span className="leaderboard-badge">
+                  <Trophy size={14} /> TODAY'S LEADERBOARD
+                </span>
+                <h2 style={{ margin: '8px 0 4px', fontSize: '28px' }}>
+                  Ranked by Community <span className="gradient-text">Upvotes & Velocity</span>
+                </h2>
+                <p style={{ margin: 0, fontSize: '13px' }}>
+                  The most promising concepts, inventions, and prototypes voted by inventors and investors today.
+                </p>
+              </div>
+              <Link to="/marketplace" className="text-link">
+                View all rankings <ArrowUpRight size={14} />
+              </Link>
+            </div>
+
+            <div className="leaderboard-grid">
+              {items[0] && (
+                <div className="leader-card-champion">
+                  <div className="crown-tag">
+                    <Crown size={13} /> #1 IDEA OF THE DAY
+                  </div>
+                  <div className="card-meta" style={{ marginTop: '10px' }}>
+                    <span className="badge-tag">{items[0].category}</span>
+                    <span>Velocity: +42% today</span>
+                  </div>
+                  <h3 className="leader-title">
+                    <Link to={`/innovation/${items[0].id}`}>{items[0].title}</Link>
+                  </h3>
+                  <p className="leader-desc">{items[0].desc || items[0].description}</p>
+                  <div className="leader-bottom">
+                    <span className="card-author" style={{ border: 0, padding: 0 }}>
+                      <span className="mini-avatar">
+                        {items[0].creator?.profile?.avatar ? (
+                          <img src={items[0].creator.profile.avatar} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                        ) : (
+                          items[0].author?.slice(0, 1)?.toUpperCase() || 'C'
+                        )}
+                      </span>
+                      <span>{items[0].author || 'Creator'}</span>
+                    </span>
+                    <Link to={`/innovation/${items[0].id}`} className="upvote-pill">
+                      <Flame size={14} /> {(items[0].likeCount || 0) + 12} Upvotes
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {items[1] && (
+                <div className="leader-card-runner">
+                  <span className="runner-rank">#2</span>
+                  <div className="card-meta">
+                    <span className="badge-tag">{items[1].category}</span>
+                  </div>
+                  <h3 className="leader-title">
+                    <Link to={`/innovation/${items[1].id}`}>{items[1].title}</Link>
+                  </h3>
+                  <p className="leader-desc">{items[1].desc || items[1].description}</p>
+                  <div className="leader-bottom">
+                    <span style={{ fontSize: '11px', color: 'var(--muted)' }}>By {items[1].author || 'Creator'}</span>
+                    <Link to={`/innovation/${items[1].id}`} className="upvote-pill">
+                      <Flame size={13} /> {(items[1].likeCount || 0) + 7}
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {items[2] && (
+                <div className="leader-card-runner">
+                  <span className="runner-rank">#3</span>
+                  <div className="card-meta">
+                    <span className="badge-tag">{items[2].category}</span>
+                  </div>
+                  <h3 className="leader-title">
+                    <Link to={`/innovation/${items[2].id}`}>{items[2].title}</Link>
+                  </h3>
+                  <p className="leader-desc">{items[2].desc || items[2].description}</p>
+                  <div className="leader-bottom">
+                    <span style={{ fontSize: '11px', color: 'var(--muted)' }}>By {items[2].author || 'Creator'}</span>
+                    <Link to={`/innovation/${items[2].id}`} className="upvote-pill">
+                      <Flame size={13} /> {(items[2].likeCount || 0) + 4}
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="section wrap">
         <div className="section-head">
@@ -623,6 +730,11 @@ function Detail({ user, onRefresh }) {
   const [deck, setDeck] = useState(null);
   const [loadingDeck, setLoadingDeck] = useState(false);
 
+  // NDA, Certificate & Micro-Backing state
+  const [showNDAModal, setShowNDAModal] = useState(false);
+  const [showCertificateModal, setShowCertificateModal] = useState(false);
+  const [showBackingModal, setShowBackingModal] = useState(false);
+
   const fetchDetail = useCallback(async () => {
     try {
       setLoading(true);
@@ -844,6 +956,25 @@ function Detail({ user, onRefresh }) {
               </span>
             </div>
 
+            {/* Interactive 3D CAD & Prototype Explorer */}
+            <Prototype3DViewer title={item.title} category={item.category} />
+
+            {/* Confidential Deal Room Banner */}
+            <div className="deal-room-banner">
+              <div className="deal-room-left">
+                <div className="deal-room-badge-icon">
+                  <Lock size={20} />
+                </div>
+                <div>
+                  <div className="deal-room-title">Confidential Deal Room & Technical IP</div>
+                  <div className="deal-room-desc">Full schematics, CAD models & pro-forma cap table protected under Mutual NDA.</div>
+                </div>
+              </div>
+              <button className="btn btn-primary small" onClick={() => setShowNDAModal(true)}>
+                <ShieldCheck size={14} /> Request Access & Sign NDA
+              </button>
+            </div>
+
             {/* Comments Section */}
             <div className="comments-section">
               <div className="comments-head">
@@ -986,6 +1117,16 @@ function Detail({ user, onRefresh }) {
             <FileText size={16} /> AI Investor One-Pager
           </button>
 
+          {/* Micro-Backing Pledge Button */}
+          <button className="btn btn-outline full" onClick={() => setShowBackingModal(true)} style={{ marginTop: '8px' }}>
+            <Coffee size={16} /> Back this Inventor ($5 - $100)
+          </button>
+
+          {/* Cryptographic IP Certificate Button */}
+          <button className="btn btn-ghost full small" onClick={() => setShowCertificateModal(true)} style={{ marginTop: '8px' }}>
+            <Award size={15} /> View Cryptographic IP Certificate
+          </button>
+
           <p className="detail-disclaimer">
             <LockKeyhole size={14} /> Direct encrypted communication. Proposals and negotiations are delivered privately to the creator's workspace.
           </p>
@@ -1125,6 +1266,36 @@ function Detail({ user, onRefresh }) {
             )}
           </div>
         </div>
+      )}
+
+      {/* 1-Click Digital Mutual NDA Modal */}
+      {showNDAModal && (
+        <DigitalNDAModal
+          innovation={item}
+          user={user}
+          onClose={() => setShowNDAModal(false)}
+        />
+      )}
+
+      {/* Cryptographic IP Proof of Creation Certificate Modal */}
+      {showCertificateModal && (
+        <IPCertificateModal
+          innovation={item}
+          onClose={() => setShowCertificateModal(false)}
+        />
+      )}
+
+      {/* Micro-Backing / Buy Coffee Modal */}
+      {showBackingModal && (
+        <MicroBackingModal
+          innovation={item}
+          user={user}
+          onClose={() => setShowBackingModal(false)}
+          onPledged={() => {
+            fetchDetail();
+            onRefresh();
+          }}
+        />
       )}
     </main>
   );
