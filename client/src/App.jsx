@@ -6,7 +6,8 @@ import {
   MessageCircle, Compass, Users, ChartNoAxesCombined, ShieldCheck, Zap, Sun, Moon,
   Send, Check, Layers, Building2, BriefcaseBusiness, LockKeyhole, TrendingUp,
   ChevronRight, LogOut, Bell, Filter, Edit3, Trash2, UploadCloud, UserCircle,
-  ExternalLink, Image as ImageIcon, MessageSquare
+  ExternalLink, Image as ImageIcon, MessageSquare, DollarSign, FileText, CheckCircle2,
+  MapPin, Award, Handshake
 } from 'lucide-react';
 import Orb from './components/Orb';
 import { api, demoAI, uploadImage, setAuthToken, getAuthToken } from './services/api';
@@ -53,7 +54,6 @@ function App() {
           }
         })
         .catch(() => {
-          // Token expired or invalid
           setAuthToken(null);
           setUser(null);
           localStorage.removeItem('i2i_user');
@@ -61,7 +61,7 @@ function App() {
     }
   }, []);
 
-  // Fetch innovations and categories from backend Neon PostgreSQL
+  // Fetch innovations and categories from backend
   const refreshData = useCallback(async () => {
     try {
       setLoading(true);
@@ -70,12 +70,8 @@ function App() {
         api('/categories').catch(() => ({ categories: [] }))
       ]);
 
-      if (invRes.items) {
-        setItems(invRes.items);
-      }
-      if (catRes.categories && catRes.categories.length > 0) {
-        setCategories(catRes.categories);
-      }
+      if (invRes.items) setItems(invRes.items);
+      if (catRes.categories && catRes.categories.length > 0) setCategories(catRes.categories);
     } catch (err) {
       console.error('Error fetching initial data:', err);
     } finally {
@@ -113,10 +109,11 @@ function App() {
           <span>IDEA<span className="brand-blue">2</span>IMPACT</span>
         </Link>
         <nav className={menu ? 'nav-links open' : 'nav-links'}>
-          <Link to="/marketplace" onClick={() => setMenu(false)}>Explore</Link>
-          <a href="/#how" onClick={() => setMenu(false)}>How it works</a>
+          <Link to="/marketplace" onClick={() => setMenu(false)}>Explore Ideas</Link>
+          <Link to="/talents" onClick={() => setMenu(false)}>Talent & Partners</Link>
           <Link to="/ai-studio" onClick={() => setMenu(false)}>AI Studio</Link>
           <Link to="/pricing" onClick={() => setMenu(false)}>Pricing</Link>
+          <a href="/#how" onClick={() => setMenu(false)}>How it works</a>
         </nav>
         <div className="nav-actions">
           <button className="icon-btn" aria-label="Toggle theme" onClick={() => setDark(!dark)}>
@@ -152,6 +149,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home items={items} categories={categories} />} />
         <Route path="/marketplace" element={<Marketplace items={items} categories={categories} onRefresh={refreshData} user={user} />} />
+        <Route path="/talents" element={<TalentDirectory />} />
         <Route path="/innovation/:id" element={<Detail user={user} onRefresh={refreshData} />} />
         <Route path="/login" element={<Auth mode="login" onAuth={auth} />} />
         <Route path="/signup" element={<Auth mode="signup" onAuth={auth} />} />
@@ -190,13 +188,13 @@ function Home({ items, categories }) {
             <Link to="/marketplace" className="btn btn-primary">
               Explore innovations <ArrowUpRight size={17} />
             </Link>
-            <Link to="/signup" className="btn btn-outline">
-              Start your journey <ArrowRight size={16} />
+            <Link to="/talents" className="btn btn-outline">
+              Find Partners & Builders <Users size={16} />
             </Link>
           </div>
           <div className="hero-proof">
             <div className="avatar-stack">
-              <i>MC</i><i>AR</i><i>KP</i><i>+</i>
+              <i>MC</i><i>MV</i><i>DB</i><i>ER</i><i>+</i>
             </div>
             <span>
               <b>Ideas move further together.</b>
@@ -307,31 +305,6 @@ function Home({ items, categories }) {
         </div>
       </section>
 
-      <section className="section wrap">
-        <div className="section-head">
-          <div>
-            <div className="eyebrow">WHY IDEA2IMPACT</div>
-            <h2>More than a marketplace.<br /><span className="gradient-text">A launchpad.</span></h2>
-          </div>
-        </div>
-        <div className="benefit-grid">
-          {[
-            [Layers, 'One innovation marketplace', 'Ideas, products and digital creations in one place.'],
-            [Sparkles, 'AI-powered evaluation', 'Structured feedback to help refine your next move.'],
-            [TrendingUp, 'Investor discovery', 'Make funding conversations easier to start.'],
-            [ShieldCheck, 'Protection-minded tools', 'Visibility controls and safer sharing workflows.'],
-            [Users, 'Build with others', 'Connect with people who bring missing skills.'],
-            [Building2, 'Company connections', 'Put useful innovation in front of relevant teams.']
-          ].map(([I, t, d]) => (
-            <div className="benefit" key={t}>
-              <I size={20} />
-              <h3>{t}</h3>
-              <p>{d}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
       <section className="cta-section">
         <div className="wrap cta-inner">
           <div className="eyebrow">THE NEXT CHAPTER IS YOURS</div>
@@ -402,6 +375,108 @@ function InnovationCard({ item }) {
         </div>
       </div>
     </Link>
+  );
+}
+
+function TalentDirectory() {
+  const [talents, setTalents] = useState([]);
+  const [roleFilter, setRoleFilter] = useState('All');
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    api('/talents')
+      .then(res => setTalents(res.talents || []))
+      .catch(() => setTalents([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filtered = useMemo(() => {
+    return talents.filter(t => {
+      const matchRole = roleFilter === 'All' || t.role === roleFilter;
+      const matchSearch = !search.trim() ||
+        `${t.name} ${t.headline} ${t.bio} ${t.skills.join(' ')} ${t.location}`.toLowerCase().includes(search.toLowerCase());
+      return matchRole && matchSearch;
+    });
+  }, [talents, roleFilter, search]);
+
+  const roles = ['All', 'Creator', 'Builder', 'Investor', 'Patent Professional'];
+
+  return (
+    <main className="page wrap">
+      <div className="page-top">
+        <div className="eyebrow">CREATOR & BUILDER ECOSYSTEM</div>
+        <h1>Meet the <span className="gradient-text">Makers & Believers.</span></h1>
+        <p>Discover skilled roboticists, patent attorneys, angel investors, and industrial designers ready to collaborate.</p>
+      </div>
+
+      <div className="market-toolbar">
+        <div className="search-box">
+          <Search size={18} />
+          <input
+            placeholder="Search by skill (e.g. IoT, PyTorch, Patent, Robotics, Seed Funding)..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </div>
+        <div className="select-wrap">
+          <Filter size={16} />
+          <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)}>
+            {roles.map(r => <option key={r}>{r}</option>)}
+          </select>
+        </div>
+      </div>
+
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '60px 0' }}>
+          <Sparkles className="pulse" size={32} />
+          <p style={{ marginTop: '14px' }}>Loading innovator profiles...</p>
+        </div>
+      ) : (
+        <div className="talent-grid">
+          {filtered.map(t => (
+            <div className="talent-card" key={t.id}>
+              <div className="talent-header">
+                <div className="talent-avatar">
+                  {t.avatar ? (
+                    <img src={t.avatar} alt={t.name} />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', display: 'grid', placeItems: 'center', color: '#8ff2ff', fontWeight: 'bold' }}>
+                      {t.name.slice(0, 1)}
+                    </div>
+                  )}
+                </div>
+                <div className="talent-meta">
+                  <span className={`talent-role-badge role-${t.role.toLowerCase().replace(/[^a-z0-9]/g, '_')}`}>
+                    {t.role}
+                  </span>
+                  <div className="talent-name">{t.name}</div>
+                  <div className="talent-headline">{t.headline}</div>
+                </div>
+              </div>
+
+              <p className="talent-bio">{t.bio}</p>
+
+              <div className="talent-skills">
+                {t.skills.map(s => (
+                  <span className="skill-chip" key={s}>{s}</span>
+                ))}
+              </div>
+
+              <div className="talent-footer">
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <MapPin size={13} /> {t.location}
+                </span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: 'var(--cyan)' }}>
+                  <Layers size={13} /> {t.projectsCount} {t.projectsCount === 1 ? 'Project' : 'Projects'}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </main>
   );
 }
 
@@ -527,13 +602,26 @@ function Detail({ user, onRefresh }) {
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [interest, setInterest] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [isSaved, setIsSaved] = useState(false);
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState('');
   const [postingComment, setPostingComment] = useState(false);
+
+  // Proposal modal state
+  const [showProposalModal, setShowProposalModal] = useState(false);
+  const [proposalType, setProposalType] = useState('Investment');
+  const [proposalAmount, setProposalAmount] = useState('');
+  const [proposalMessage, setProposalMessage] = useState('');
+  const [proposalContact, setProposalContact] = useState('');
+  const [submittingProposal, setSubmittingProposal] = useState(false);
+  const [proposalNotice, setProposalNotice] = useState('');
+
+  // Pitch Deck state
+  const [showDeckModal, setShowDeckModal] = useState(false);
+  const [deck, setDeck] = useState(null);
+  const [loadingDeck, setLoadingDeck] = useState(false);
 
   const fetchDetail = useCallback(async () => {
     try {
@@ -625,6 +713,50 @@ function Detail({ user, onRefresh }) {
     }
   };
 
+  const submitProposal = async (e) => {
+    e.preventDefault();
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    try {
+      setSubmittingProposal(true);
+      await api(`/innovations/${id}/proposal`, {
+        method: 'POST',
+        body: JSON.stringify({
+          proposalType,
+          amount: proposalAmount.trim() || undefined,
+          message: proposalMessage.trim(),
+          contactInfo: proposalContact.trim() || undefined
+        })
+      });
+      setProposalNotice('Your proposal has been delivered to the creator!');
+      setProposalMessage('');
+      setProposalAmount('');
+      setTimeout(() => {
+        setShowProposalModal(false);
+        setProposalNotice('');
+      }, 2000);
+    } catch (err) {
+      alert(err.message || 'Failed to send proposal');
+    } finally {
+      setSubmittingProposal(false);
+    }
+  };
+
+  const generatePitchDeck = async () => {
+    try {
+      setLoadingDeck(true);
+      setShowDeckModal(true);
+      const res = await api(`/innovations/${id}/pitch-deck`, { method: 'POST' });
+      if (res.deck) setDeck(res.deck);
+    } catch (err) {
+      alert(err.message || 'Failed to generate pitch summary');
+    } finally {
+      setLoadingDeck(false);
+    }
+  };
+
   if (loading) {
     return (
       <main className="page wrap detail-page">
@@ -668,12 +800,38 @@ function Detail({ user, onRefresh }) {
             </div>
           )}
 
+          {/* Development Lifecycle Tracker */}
+          <div className="milestone-container">
+            <div className="milestone-head">
+              <span>Innovation Lifecycle</span>
+              <span>Active Stage</span>
+            </div>
+            <div className="milestone-track">
+              <div className="milestone-step done">
+                <div className="milestone-dot"><Check size={12} /></div>
+                <span>Concept</span>
+              </div>
+              <div className="milestone-step done">
+                <div className="milestone-dot"><Check size={12} /></div>
+                <span>Prototype</span>
+              </div>
+              <div className="milestone-step active">
+                <div className="milestone-dot">3</div>
+                <span>IP / Patent</span>
+              </div>
+              <div className="milestone-step">
+                <div className="milestone-dot">4</div>
+                <span>Scale & Deal</span>
+              </div>
+            </div>
+          </div>
+
           <div className="detail-description">
             <div className="eyebrow">THE CONCEPT</div>
             <h2>About this innovation</h2>
             <p>{item.desc || item.description}</p>
             <p>
-              This listing is hosted on the IDEA2IMPACT production marketplace. Connect with the creator to discuss scope, collaboration, licensing, or investment possibilities.
+              This listing is verified on the IDEA2IMPACT production marketplace. Connect with the creator below to discuss direct collaboration, seed investment, technical co-founding, or licensing rights.
             </p>
 
             <div className="protection-note">
@@ -681,7 +839,7 @@ function Detail({ user, onRefresh }) {
               <span>
                 <b>Share thoughtfully</b>
                 <small>
-                  Public previews do not establish patent rights or legal protection. Review ownership and confidentiality before sharing proprietary details.
+                  Public previews do not establish patent rights or legal protection. Use the "Make an Offer" feature to initiate formal agreements and NDAs before exchanging sensitive technical blueprints.
                 </small>
               </span>
             </div>
@@ -699,7 +857,7 @@ function Detail({ user, onRefresh }) {
                 <form className="comment-form" onSubmit={submitComment}>
                   <textarea
                     rows={3}
-                    placeholder="Share feedback, ask a question, or suggest collaboration..."
+                    placeholder="Share feedback, ask technical questions, or connect with the creator..."
                     value={commentText}
                     onChange={e => setCommentText(e.target.value)}
                   />
@@ -818,21 +976,156 @@ function Detail({ user, onRefresh }) {
             </button>
           </div>
 
-          <button className="btn btn-primary full" onClick={() => setInterest(true)}>
-            {interest ? 'Interest recorded ✓' : 'Express interest'} <ArrowUpRight size={16} />
+          {/* Make an Offer Button */}
+          <button className="btn btn-primary full" onClick={() => setShowProposalModal(true)}>
+            <Handshake size={16} /> Make an Offer / Partner
           </button>
 
-          {interest && (
-            <div className="success-note">
-              Interest recorded! The creator has been notified. You can also leave a comment below to start a conversation.
-            </div>
-          )}
+          {/* AI Investor One-Pager Button */}
+          <button className="btn btn-outline full" onClick={generatePitchDeck} style={{ marginTop: '8px' }}>
+            <FileText size={16} /> AI Investor One-Pager
+          </button>
 
           <p className="detail-disclaimer">
-            <LockKeyhole size={14} /> No upfront payment collected. Expressing interest initiates direct contact and negotiation workflows.
+            <LockKeyhole size={14} /> Direct encrypted communication. Proposals and negotiations are delivered privately to the creator's workspace.
           </p>
         </aside>
       </div>
+
+      {/* Make an Offer Modal */}
+      {showProposalModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2>Submit Proposal / Offer</h2>
+              <button className="modal-close-btn" onClick={() => setShowProposalModal(false)}>
+                <X size={20} />
+              </button>
+            </div>
+
+            {proposalNotice && <div className="success-note">{proposalNotice}</div>}
+
+            <form onSubmit={submitProposal}>
+              <label>
+                Proposal Type
+                <select value={proposalType} onChange={e => setProposalType(e.target.value)}>
+                  <option>Investment</option>
+                  <option>Licensing</option>
+                  <option>Co-founder</option>
+                  <option>Acquisition</option>
+                  <option>Collaboration</option>
+                </select>
+              </label>
+
+              <label>
+                Proposed Amount / Budget ($)
+                <input
+                  value={proposalAmount}
+                  onChange={e => setProposalAmount(e.target.value)}
+                  placeholder="e.g. $25,000 seed tranche or 5% royalty"
+                />
+              </label>
+
+              <label>
+                Message & Scope
+                <textarea
+                  rows={4}
+                  required
+                  value={proposalMessage}
+                  onChange={e => setProposalMessage(e.target.value)}
+                  placeholder="Introduce yourself, your background, and describe your proposed terms or partnership vision..."
+                />
+              </label>
+
+              <label>
+                Your Contact Email or Phone
+                <input
+                  value={proposalContact}
+                  onChange={e => setProposalContact(e.target.value)}
+                  placeholder="you@fund.com or +1 415-..."
+                />
+              </label>
+
+              <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={submittingProposal}>
+                  {submittingProposal ? 'Sending...' : 'Send Offer to Creator'}
+                </button>
+                <button type="button" className="btn btn-outline" onClick={() => setShowProposalModal(false)}>
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* AI Pitch Deck Modal */}
+      {showDeckModal && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: '680px' }}>
+            <div className="modal-header">
+              <h2>
+                <Sparkles size={20} style={{ color: 'var(--cyan)' }} />
+                Investor One-Pager Executive Summary
+              </h2>
+              <button className="modal-close-btn" onClick={() => setShowDeckModal(false)}>
+                <X size={20} />
+              </button>
+            </div>
+
+            {loadingDeck || !deck ? (
+              <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                <Sparkles className="pulse" size={28} />
+                <p style={{ marginTop: '12px' }}>Synthesizing investor thesis...</p>
+              </div>
+            ) : (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid var(--line)', paddingBottom: '12px' }}>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '18px' }}>{deck.title}</h3>
+                    <small style={{ color: 'var(--muted)' }}>Lead: {deck.creator} · {deck.creatorTitle}</small>
+                  </div>
+                  <span className="status-pill">{deck.suggestedTranche}</span>
+                </div>
+
+                <div className="deck-card">
+                  <h4>The Problem & Opportunity</h4>
+                  <p>{deck.problemStatement}</p>
+                </div>
+
+                <div className="deck-card">
+                  <h4>Proprietary Innovation & Advantage</h4>
+                  <p>{deck.solutionAdvantage}</p>
+                </div>
+
+                <div className="deck-card">
+                  <h4>Target Market</h4>
+                  <p>{deck.marketOpportunity}</p>
+                </div>
+
+                <div className="deck-card">
+                  <h4>Execution Milestones</h4>
+                  {deck.milestones.map((m, i) => (
+                    <div key={i} style={{ marginBottom: '8px', fontSize: '12px' }}>
+                      <b style={{ color: 'var(--cyan)' }}>{m.phase}:</b> {m.detail}
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  className="btn btn-outline full"
+                  onClick={() => {
+                    navigator.clipboard.writeText(JSON.stringify(deck, null, 2));
+                    alert('Executive one-pager summary copied to clipboard!');
+                  }}
+                >
+                  Copy Summary Text
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </main>
   );
 }
@@ -966,6 +1259,7 @@ function Dashboard({ user, onRefresh, onUpdateUser }) {
   });
   const [myInnovations, setMyInnovations] = useState([]);
   const [savedInnovations, setSavedInnovations] = useState([]);
+  const [proposals, setProposals] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
   const [notice, setNotice] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -1004,16 +1298,18 @@ function Dashboard({ user, onRefresh, onUpdateUser }) {
   const loadDashboardData = useCallback(async () => {
     if (!user) return;
     try {
-      const [statsRes, myRes, savedRes] = await Promise.all([
+      const [statsRes, myRes, savedRes, propRes] = await Promise.all([
         api('/dashboard/stats').catch(() => ({ stats: {}, recentActivity: [] })),
         api('/dashboard/my-innovations').catch(() => ({ items: [] })),
-        api('/dashboard/saved').catch(() => ({ items: [] }))
+        api('/dashboard/saved').catch(() => ({ items: [] })),
+        api('/dashboard/proposals').catch(() => ({ proposals: [] }))
       ]);
 
       if (statsRes.stats) setStats(statsRes.stats);
       if (statsRes.recentActivity) setRecentActivity(statsRes.recentActivity);
       if (myRes.items) setMyInnovations(myRes.items);
       if (savedRes.items) setSavedInnovations(savedRes.items);
+      if (propRes.proposals) setProposals(propRes.proposals);
     } catch (err) {
       console.error('Error loading dashboard data:', err);
     }
@@ -1030,7 +1326,6 @@ function Dashboard({ user, onRefresh, onUpdateUser }) {
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
 
-    // Upload to server
     try {
       setUploadingImage(true);
       const url = await uploadImage(file);
@@ -1150,7 +1445,7 @@ function Dashboard({ user, onRefresh, onUpdateUser }) {
   };
 
   const role = user?.roles?.[0] || 'Creator';
-  const sections = ['Overview', 'My innovations', 'Upload innovation', 'Saved opportunities', 'Profile / Settings'];
+  const sections = ['Overview', 'My innovations', 'Upload innovation', 'Proposals & Offers', 'Saved opportunities', 'Profile / Settings'];
 
   return (
     <main className="dashboard wrap">
@@ -1171,7 +1466,7 @@ function Dashboard({ user, onRefresh, onUpdateUser }) {
 
         <div className="dash-label">WORKSPACE</div>
         {sections.map((s, i) => {
-          const icons = [Compass, Layers, Plus, Heart, SlidersHorizontal];
+          const icons = [Compass, Layers, Plus, Handshake, Heart, SlidersHorizontal];
           const I = icons[i] || Compass;
           return (
             <button
@@ -1183,6 +1478,9 @@ function Dashboard({ user, onRefresh, onUpdateUser }) {
               {s}
               {s === 'My innovations' && myInnovations.length > 0 && (
                 <i className="nav-count">{myInnovations.length}</i>
+              )}
+              {s === 'Proposals & Offers' && proposals.length > 0 && (
+                <i className="nav-count" style={{ background: '#5ce9c1', color: '#04111b' }}>{proposals.length}</i>
               )}
             </button>
           );
@@ -1218,6 +1516,11 @@ function Dashboard({ user, onRefresh, onUpdateUser }) {
                 <small><Layers size={14} /> Published on marketplace</small>
               </div>
               <div className="stat-card">
+                <span>Offers & Proposals</span>
+                <b>{proposals.length}</b>
+                <small><Handshake size={14} /> Partnership requests</small>
+              </div>
+              <div className="stat-card">
                 <span>Total likes received</span>
                 <b>{stats.totalLikesReceived || 0}</b>
                 <small><Heart size={14} /> Community appreciation</small>
@@ -1226,11 +1529,6 @@ function Dashboard({ user, onRefresh, onUpdateUser }) {
                 <span>Comments & Feedback</span>
                 <b>{stats.totalCommentsReceived || 0}</b>
                 <small><MessageCircle size={14} /> Creator discussions</small>
-              </div>
-              <div className="stat-card">
-                <span>Saved opportunities</span>
-                <b>{stats.savedCount || savedInnovations.length}</b>
-                <small><Heart size={14} /> Bookmarked concepts</small>
               </div>
             </div>
 
@@ -1337,6 +1635,47 @@ function Dashboard({ user, onRefresh, onUpdateUser }) {
                 <button className="btn btn-primary" onClick={() => setTab('Upload innovation')}>
                   Upload innovation <Plus size={15} />
                 </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Proposals & Offers Tab */}
+        {tab === 'Proposals & Offers' && (
+          <div>
+            {proposals.length > 0 ? (
+              proposals.map(p => (
+                <div className="proposal-card" key={p.id}>
+                  <div className="proposal-top">
+                    <div className="proposal-sender">
+                      <div className="proposal-avatar">
+                        {p.sender.avatar ? (
+                          <img src={p.sender.avatar} alt={p.sender.name} />
+                        ) : (
+                          <div style={{ width: '100%', height: '100%', display: 'grid', placeItems: 'center', color: '#8ff2ff', fontWeight: 'bold' }}>
+                            {p.sender.name.slice(0, 1)}
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <b>{p.sender.name}</b>
+                        <small style={{ display: 'block', color: 'var(--muted)' }}>{p.sender.headline} · {p.sender.location}</small>
+                      </div>
+                    </div>
+                    <span className="proposal-badge">Pending Review</span>
+                  </div>
+                  <div className="proposal-message">{p.message}</div>
+                  <div style={{ marginTop: '10px', fontSize: '11px', color: 'var(--muted)' }}>
+                    Sent on {new Date(p.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {p.sender.email && <span> · Contact: <a href={`mailto:${p.sender.email}`} style={{ color: 'var(--cyan)' }}>{p.sender.email}</a></span>}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="empty-state">
+                <Handshake size={32} />
+                <h3>No incoming proposals yet</h3>
+                <p>When investors, builders or companies submit partnership offers on your innovations, they will appear here.</p>
               </div>
             )}
           </div>
@@ -1745,6 +2084,7 @@ function Footer() {
             <div>
               <b>EXPLORE</b>
               <Link to="/marketplace">Marketplace</Link>
+              <Link to="/talents">Talent & Builders</Link>
               <Link to="/ai-studio">AI Studio</Link>
               <Link to="/pricing">Pricing</Link>
             </div>

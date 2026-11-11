@@ -639,3 +639,95 @@ innovationsRouter.delete('/:id/comments/:commentId', requireAuth, async (req, re
     res.status(500).json({ error: 'Failed to delete comment' });
   }
 });
+
+
+// POST /api/innovations/:id/proposal - Submit offer / proposal to creator
+innovationsRouter.post('/:id/proposal', requireAuth, async (req, res) => {
+  try {
+    const schema = z.object({
+      proposalType: z.enum(['Investment', 'Licensing', 'Co-founder', 'Acquisition', 'Collaboration']).default('Collaboration'),
+      amount: z.string().optional(),
+      message: z.string().min(10, 'Message must be at least 10 characters').max(2000),
+      contactInfo: z.string().max(160).optional()
+    });
+
+    const parsed = schema.parse(req.body);
+    const innovation = await prisma.innovation.findUnique({
+      where: { id: req.params.id },
+      include: { creator: true }
+    });
+
+    if (!innovation) {
+      return res.status(404).json({ error: 'Innovation not found' });
+    }
+
+    if (innovation.creatorId === req.user.id) {
+      return res.status(400).json({ error: 'You cannot submit an offer on your own innovation' });
+    }
+
+    const fullMessage = `[${parsed.proposalType.toUpperCase()} OFFER${parsed.amount ? ` - ${parsed.amount}` : ''}] ${parsed.message}${parsed.contactInfo ? `\n\nContact: ${parsed.contactInfo}` : ''}\n\nRe: Innovation "${innovation.title}"`;
+
+    const request = await prisma.collaborationRequest.create({
+      data: {
+        requesterId: req.user.id,
+        recipientId: innovation.creatorId,
+        status: 'PENDING',
+        message: fullMessage
+      },
+      include: {
+        requester: { select: { id: true, name: true, email: true, profile: true } }
+      }
+    });
+
+    res.status(201).json({
+      proposal: request,
+      message: 'Your proposal was sent directly to the creator!'
+    });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ error: err.errors[0]?.message || 'Invalid proposal' });
+    }
+    console.error('Error submitting proposal:', err);
+    res.status(500).json({ error: 'Failed to submit proposal' });
+  }
+});
+
+// POST /api/innovations/:id/pitch-deck - Generate AI Investor One-Pager
+innovationsRouter.post('/:id/pitch-deck', async (req, res) => {
+  try {
+    const item = await prisma.innovation.findUnique({
+      where: { id: req.params.id },
+      include: {
+        category: true,
+        creator: { select: { name: true, profile: true } }
+      }
+    });
+
+    if (!item) {
+      return res.status(404).json({ error: 'Innovation not found' });
+    }
+
+    const deck = {
+      title: item.title,
+      category: item.category.name,
+      creator: item.creator.name,
+      creatorTitle: item.creator.profile?.headline || 'Innovator & Founder',
+      valuationIndicative: item.price ? `$${Number(item.price) * 1000}` : 'Early Stage / Open',
+      executiveSummary: `A high-potential ${item.category.name.toLowerCase()} venture solving critical real-world friction through proprietary innovation.`,
+      problemStatement: `Existing alternatives in ${item.category.name} are fragmented, high-cost, and fail to satisfy emerging market expectations.`,
+      solutionAdvantage: item.description,
+      marketOpportunity: `Targeting global addressable demand across ${item.category.name} with validated early-adopter engagement.`,
+      milestones: [
+        { phase: 'Phase 1: Proof of Concept', status: 'Completed', detail: 'Functional architecture and initial user feedback recorded.' },
+        { phase: 'Phase 2: Intellectual Property & Field Testing', status: 'Active', detail: 'Provisional patent strategy and pilot batch fabrication.' },
+        { phase: 'Phase 3: Commercial Scale & Licensing', status: 'Next Step', detail: 'Seeking strategic corporate partners, distribution, and seed capital.' }
+      ],
+      suggestedTranche: item.funding ? 'Seeking $50,000 – $250,000 Pre-Seed / Seed Tranche' : 'Open to Strategic B2B Partnerships & Licensing'
+    };
+
+    res.json({ deck });
+  } catch (err) {
+    console.error('Error generating pitch deck:', err);
+    res.status(500).json({ error: 'Failed to generate investor summary' });
+  }
+});

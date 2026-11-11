@@ -179,3 +179,44 @@ dashboardRouter.get('/saved', requireAuth, async (req, res) => {
     res.status(500).json({ error: 'Failed to retrieve saved opportunities' });
   }
 });
+
+
+// GET /api/dashboard/proposals - Incoming offers/proposals for creator
+dashboardRouter.get('/proposals', requireAuth, async (req, res) => {
+  try {
+    const proposals = await prisma.collaborationRequest.findMany({
+      where: { recipientId: req.user.id },
+      include: {
+        requester: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            profile: { select: { avatar: true, headline: true, location: true } }
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    res.json({
+      proposals: proposals.map(p => ({
+        id: p.id,
+        status: p.status,
+        message: p.message,
+        createdAt: p.createdAt,
+        sender: {
+          id: p.requester.id,
+          name: p.requester.name,
+          email: p.requester.email,
+          headline: p.requester.profile?.headline || 'Innovator',
+          location: p.requester.profile?.location || 'Remote',
+          avatar: p.requester.profile?.avatar || null
+        }
+      }))
+    });
+  } catch (err) {
+    console.error('Error fetching proposals:', err);
+    res.status(500).json({ error: 'Failed to retrieve collaboration proposals' });
+  }
+});

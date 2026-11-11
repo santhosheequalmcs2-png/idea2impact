@@ -18,6 +18,7 @@ import { innovationsRouter } from './routes/innovations.routes.js';
 import { categoriesRouter } from './routes/categories.routes.js';
 import { dashboardRouter } from './routes/dashboard.routes.js';
 import { uploadRouter } from './routes/upload.routes.js';
+import { talentsRouter } from './routes/talents.routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -102,6 +103,7 @@ app.use('/api/innovations', innovationsRouter);
 app.use('/api/categories', categoriesRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/upload', uploadRouter);
+app.use('/api/talents', talentsRouter);
 
 // AI Studio chat endpoint (preserves existing AI assistant feature)
 app.post('/api/ai/chat', async (req, res) => {
