@@ -3,7 +3,7 @@ services:
     name: idea2impact-api
     runtime: node
     rootDir: .
-    buildCommand: npm install && npx prisma generate --schema server/prisma/schema.prisma
+    buildCommand: npm install && npx prisma generate --schema server/prisma/schema.prisma && node server/prisma/db-setup.js
     startCommand: npm run start -w server
     envVars:
       - key: NODE_ENV
@@ -14,3 +14,5 @@ services:
         sync: false
       - key: CLIENT_URL
         sync: false
+      - key: PORT
+        value: 10000

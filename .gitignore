@@ -6,3 +6,6 @@ client/dist
 server/uploads
 coverage
 .DS_Store
+
+server/src/generated/
+client/.env

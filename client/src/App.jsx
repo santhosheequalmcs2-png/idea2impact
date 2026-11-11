@@ -1,14 +1,1774 @@
-import React,{useEffect,useMemo,useState}from'react';import{Routes,Route,Link,useNavigate,useLocation}from'react-router-dom';import{ArrowRight,ArrowUpRight,Sparkles,Lightbulb,Boxes,Code2,Smartphone,Gamepad2,Package,Palette,Globe2,Menu,X,Search,Plus,Heart,SlidersHorizontal,MessageCircle,Compass,Users,ChartNoAxesCombined,ShieldCheck,Zap,Sun,Moon,Send,Check,Layers,Building2,BriefcaseBusiness,LockKeyhole,TrendingUp,ChevronRight,LogOut,Bell,Filter}from'lucide-react';import Orb from'./components/Orb';import{api,demoAI}from'./services/api';
-const categories=[['Ideas',Lightbulb,'Concepts ready for their next chapter','124'],['Inventions',Zap,'New solutions to real problems','86'],['Physical Products',Package,'Objects made to make life better','213'],['Websites',Globe2,'Digital experiences and platforms','98'],['Mobile Apps',Smartphone,'Apps built around people','156'],['Games',Gamepad2,'Playful worlds and mechanics','74'],['Software',Code2,'Tools that move work forward','132'],['Creative Designs',Palette,'Visual thinking made tangible','191']];
-const seed=[{id:1,title:'AquaSense — Smart Water Monitor',category:'Inventions',desc:'A low-cost sensor concept that helps households spot leaks and understand daily water use.',price:120,tag:'Hardware',author:'Maya Chen',color:'mint',icon:'◉',visibility:'Public'},{id:2,title:'LocalLoop Community Marketplace',category:'Mobile Apps',desc:'A neighbourhood-first app connecting independent makers with nearby customers.',price:0,tag:'Social impact',author:'Studio North',color:'purple',icon:'⌘',visibility:'Public'},{id:3,title:'FormFlow — No-code Form Builder',category:'Software',desc:'A lightweight workflow tool that turns complex intake forms into simple conversations.',price:49,tag:'SaaS',author:'Alex Rivera',color:'blue',icon:'▤',visibility:'Public'},{id:4,title:'ModuNest Furniture System',category:'Physical Products',desc:'Flat-pack modular furniture designed for compact, flexible living spaces.',price:280,tag:'Product design',author:'K. Patel',color:'orange',icon:'▧',visibility:'Public'}];
-function App(){const[dark,setDark]=useState(true),[user,setUser]=useState(()=>JSON.parse(localStorage.getItem('i2i_user')||'null')),[saved,setSaved]=useState([]),[items,setItems]=useState(()=>JSON.parse(localStorage.getItem('i2i_items')||'null')||seed),[menu,setMenu]=useState(false);useEffect(()=>{document.documentElement.dataset.theme=dark?'dark':'light'},[dark]);useEffect(()=>localStorage.setItem('i2i_items',JSON.stringify(items)),[items]);const auth=(u)=>{setUser(u);localStorage.setItem('i2i_user',JSON.stringify(u))};const logout=()=>{setUser(null);localStorage.removeItem('i2i_user')};return <><header className="nav"><Link to="/" className="brand"><span className="brand-mark"><Sparkles size={18}/></span><span>IDEA<span className="brand-blue">2</span>IMPACT</span></Link><nav className={menu?'nav-links open':'nav-links'}><Link to="/marketplace" onClick={()=>setMenu(false)}>Explore</Link><a href="/#how" onClick={()=>setMenu(false)}>How it works</a><Link to="/ai-studio" onClick={()=>setMenu(false)}>AI Studio</Link><Link to="/pricing" onClick={()=>setMenu(false)}>Pricing</Link></nav><div className="nav-actions"><button className="icon-btn" aria-label="Toggle theme" onClick={()=>setDark(!dark)}>{dark?<Sun size={17}/>:<Moon size={17}/>}</button>{user?<><Link className="nav-user" to="/dashboard">{user.name?.slice(0,1)||'U'}</Link><button className="btn btn-ghost small logout" onClick={logout}><LogOut size={15}/> Log out</button></>:<><Link className="login-link" to="/login">Log in</Link><Link className="btn btn-primary small" to="/signup">Get started <ArrowUpRight size={15}/></Link></>}<button className="icon-btn mobile-menu" onClick={()=>setMenu(!menu)}>{menu?<X/>:<Menu/>}</button></div></header><Routes><Route path="/" element={<Home items={items}/>}/><Route path="/marketplace" element={<Marketplace items={items} saved={saved} setSaved={setSaved}/>}/><Route path="/innovation/:id" element={<Detail items={items} saved={saved} setSaved={setSaved} user={user}/>}/><Route path="/login" element={<Auth mode="login" onAuth={auth}/>}/><Route path="/signup" element={<Auth mode="signup" onAuth={auth}/>}/><Route path="/dashboard/*" element={<Dashboard user={user} items={items} setItems={setItems} saved={saved}/>}/><Route path="/ai-studio" element={<AIStudio/>}/><Route path="/pricing" element={<Pricing/>}/><Route path="*" element={<Home items={items}/>}/></Routes><Footer/></>}
-function Home({items}){return <main><section className="hero wrap"><div className="hero-copy"><div className="eyebrow"><span className="pulse"/> THE INNOVATION ECOSYSTEM <span className="eyebrow-line"/></div><h1>Every great innovation<br/>starts with <span className="gradient-text">an idea.</span></h1><p className="hero-sub">Showcase your creativity, discover opportunities, connect with experts and transform your ideas into real-world innovations.</p><div className="hero-actions"><Link to="/marketplace" className="btn btn-primary">Explore innovations <ArrowUpRight size={17}/></Link><Link to="/signup" className="btn btn-outline">Start your journey <ArrowRight size={16}/></Link></div><div className="hero-proof"><div className="avatar-stack"><i>MC</i><i>AR</i><i>KP</i><i>+</i></div><span><b>Ideas move further together.</b><small>Built for creators, builders & believers</small></span></div></div><div className="hero-visual"><div className="visual-glow"/><div className="orbit orbit-one"/><div className="orbit orbit-two"/><Orb/><div className="float-card float-top"><span className="float-icon"><Sparkles size={15}/></span><span><b>AI opportunity match</b><small>94% compatibility</small></span><span className="live-dot"/></div><div className="float-card float-bottom"><span className="float-icon cyan"><TrendingUp size={16}/></span><span><b>Idea → Impact</b><small>Your next step starts here</small></span></div><div className="visual-caption">IDEAS <span>↗</span> BUILD <span>↗</span> GROW</div></div></section><div className="trust-strip wrap"><span>ONE SPACE. INFINITE POSSIBILITIES.</span><div><b>01</b> Discover <i/> <b>02</b> Collaborate <i/> <b>03</b> Launch</div></div><section className="section wrap" id="how"><div className="section-head"><div><div className="eyebrow">FROM THOUGHT TO THING</div><h2>Big ideas need a <span className="gradient-text">next step.</span></h2></div><p>One connected journey to turn a spark of creativity into something the world can use.</p></div><div className="steps-grid">{[['01','Showcase','Put your idea, invention or product out into the world.'],['02','Evaluate','Get an AI-assisted view of your concept and its potential.'],['03','Match','Find relevant buyers, companies, investors and talent.'],['04','Connect','Bring the right people together to build what’s next.'],['05','Grow','Explore sales, licensing and collaboration pathways.']].map(([n,t,d])=><article className="step-card" key={n}><span className="step-no">{n}</span><div className="step-arrow"><ArrowUpRight size={17}/></div><h3>{t}</h3><p>{d}</p></article>)}</div></section><section className="section categories-section"><div className="wrap"><div className="section-head"><div><div className="eyebrow">EXPLORE THE POSSIBLE</div><h2>Ideas come in <span className="gradient-text">many forms.</span></h2></div><Link to="/marketplace" className="text-link">Explore marketplace <ArrowUpRight size={16}/></Link></div><div className="category-grid">{categories.map(([name,Icon,desc,count],i)=><Link to={`/marketplace?category=${encodeURIComponent(name)}`} className="category-card" key={name}><div className={`category-icon ci-${i}`}><Icon size={22}/></div><div className="category-count">{count} <ArrowUpRight size={13}/></div><h3>{name}</h3><p>{desc}</p></Link>)}</div></div></section><section className="section wrap"><div className="section-head"><div><div className="eyebrow">FRESH FROM THE COMMUNITY</div><h2>Ideas worth a <span className="gradient-text">closer look.</span></h2></div><Link to="/marketplace" className="text-link">View all innovations <ArrowUpRight size={16}/></Link></div><div className="listing-grid">{items.slice(0,3).map(x=><InnovationCard item={x}/>)}</div></section><section className="section wrap"><div className="ai-banner"><div className="ai-banner-orb"><Sparkles size={42}/></div><div className="ai-banner-copy"><div className="eyebrow">YOUR CREATIVE CO-PILOT</div><h2>Meet the AI that helps<br/>your ideas <span className="gradient-text">move forward.</span></h2><p>Brainstorm, sharpen your pitch, map a build plan and discover people who can help make it happen.</p><Link to="/ai-studio" className="btn btn-primary">Explore AI Studio <ArrowUpRight size={16}/></Link></div><div className="ai-feature-list"><div><Sparkles/><span><b>AI idea assistant</b><small>Think it through, clearly.</small></span></div><div><Users/><span><b>Smart matching</b><small>Find your people.</small></span></div><div><ChartNoAxesCombined/><span><b>Opportunity insights</b><small>Choose a useful next step.</small></span></div></div></div></section><section className="section wrap"><div className="section-head"><div><div className="eyebrow">WHY IDEA2IMPACT</div><h2>More than a marketplace.<br/><span className="gradient-text">A launchpad.</span></h2></div></div><div className="benefit-grid">{[[Layers,'One innovation marketplace','Ideas, products and digital creations in one place.'],[Sparkles,'AI-powered evaluation','Structured feedback to help refine your next move.'],[TrendingUp,'Investor discovery','Make funding conversations easier to start.'],[ShieldCheck,'Protection-minded tools','Visibility controls and safer sharing workflows.'],[Users,'Build with others','Connect with people who bring missing skills.'],[Building2,'Company connections','Put useful innovation in front of relevant teams.']].map(([I,t,d])=><div className="benefit" key={t}><I size={20}/><h3>{t}</h3><p>{d}</p></div>)}</div></section><section className="cta-section"><div className="wrap cta-inner"><div className="eyebrow">THE NEXT CHAPTER IS YOURS</div><h2>Your idea could be the<br/><span className="gradient-text">next big innovation.</span></h2><p>Start with what you have. Find the people and momentum to take it further.</p><Link to="/signup" className="btn btn-primary">Get started today <ArrowUpRight size={17}/></Link><div className="cta-orbit"/></div></section></main>}
-function InnovationCard({item}){return <Link to={`/innovation/${item.id}`} className="innovation-card"><div className={`product-art art-${item.color||'blue'}`}><span className="art-symbol">{item.icon||'✳'}</span><span className="art-tag">{item.tag||item.category}</span><span className="art-spark">✦</span></div><div className="card-content"><div className="card-meta"><span>{item.category}</span><span>{item.price?`$${item.price}`:'Open to connect'}</span></div><h3>{item.title}</h3><p>{item.desc}</p><div className="card-author"><span className="mini-avatar">{item.author?.slice(0,1)||'C'}</span><span>{item.author||'Creator'}</span><span className="card-open">View details <ArrowUpRight size={14}/></span></div></div></Link>}
-function Marketplace({items,saved,setSaved}){const[query,setQuery]=useState(''),[cat,setCat]=useState('All'),[sort,setSort]=useState('Newest');const list=useMemo(()=>items.filter(x=>(cat==='All'||x.category===cat)&&`${x.title} ${x.desc} ${x.category}`.toLowerCase().includes(query.toLowerCase())).sort((a,b)=>sort==='Price: low to high'?a.price-b.price:sort==='Price: high to low'?b.price-a.price:b.id-a.id),[items,cat,query,sort]);return <main className="page wrap"><div className="page-top"><div className="eyebrow">THE INNOVATION MARKETPLACE</div><h1>Discover what’s <span className="gradient-text">next.</span></h1><p>Explore bold ideas, useful inventions and digital creations from independent innovators.</p></div><div className="market-toolbar"><div className="search-box"><Search size={18}/><input placeholder="Search innovations, categories, creators..." value={query} onChange={e=>setQuery(e.target.value)}/></div><div className="select-wrap"><SlidersHorizontal size={16}/><select value={sort} onChange={e=>setSort(e.target.value)}><option>Newest</option><option>Price: low to high</option><option>Price: high to low</option></select></div></div><div className="market-layout"><aside className="filter-panel"><h3><Filter size={16}/> Categories</h3>{['All',...categories.map(x=>x[0])].map(c=><button className={cat===c?'filter-active':''} onClick={()=>setCat(c)} key={c}>{c}<span>{c==='All'?items.length:items.filter(x=>x.category===c).length}</span></button>)}<div className="filter-note"><ShieldCheck size={17}/><p>Creators choose how their work is shared. Private submissions stay out of public discovery.</p></div></aside><div className="market-results"><div className="results-head"><span><b>{list.length}</b> innovations found</span><span>Curated possibilities <Sparkles size={14}/></span></div>{list.length?<div className="listing-grid">{list.map(x=><InnovationCard item={x} key={x.id}/>)}</div>:<div className="empty-state"><Search size={28}/><h3>No matches yet</h3><p>Try another keyword or category.</p><button className="btn btn-outline" onClick={()=>{setQuery('');setCat('All')}}>Clear filters</button></div>}</div></div></main>}
-function Detail({items,saved,setSaved,user}){const{id}=useLocation().pathname.match(/innovation\/(\d+)/)?.groups||{};const item=items.find(x=>String(x.id)===id)||items[0];const[interest,setInterest]=useState(false);return <main className="page wrap detail-page"><Link to="/marketplace" className="back-link">← Back to marketplace</Link><div className="detail-grid"><div><div className={`detail-art product-art art-${item.color||'blue'}`}><span className="art-symbol">{item.icon}</span><span className="art-tag">{item.category}</span></div><div className="detail-description"><div className="eyebrow">THE CONCEPT</div><h2>About this innovation</h2><p>{item.desc}</p><p>This listing is demonstration content for the IDEA2IMPACT hackathon experience. Connect with the creator to discuss scope, collaboration or licensing possibilities.</p><div className="protection-note"><ShieldCheck/><span><b>Share thoughtfully</b><small>Public previews do not establish patent rights or legal protection. Review ownership and confidentiality before sharing sensitive details.</small></span></div></div></div><aside className="detail-aside"><span className="status-pill"><i/> Public listing</span><h1>{item.title}</h1><p className="detail-sub">{item.tag||item.category} · Creator showcase</p><div className="detail-price">{item.price?`$${item.price}`:'Open to connect'}<small>{item.price?'Indicative asking price · negotiation welcome':'Contact creator for details'}</small></div><div className="creator-box"><span className="creator-avatar">{item.author?.slice(0,1)}</span><span><small>CREATED BY</small><b>{item.author}</b></span><span className="verified">✦</span></div><button className="btn btn-primary full" onClick={()=>setInterest(true)}>{interest?'Interest recorded ✓':'Express interest'} <ArrowUpRight size={16}/></button><button className="btn btn-outline full" onClick={()=>setSaved(s=>s.includes(item.id)?s.filter(x=>x!==item.id):[...s,item.id])}><Heart size={16} fill={saved.includes(item.id)?'currentColor':'none'}/>{saved.includes(item.id)?'Saved':'Save innovation'}</button>{interest&&<div className="success-note">Interest saved for this demo. Sign in and use messaging to continue the conversation.</div>}<p className="detail-disclaimer"><LockKeyhole size={14}/> No payment is collected. This starts a contact / negotiation workflow.</p></aside></div></main>}
-function Auth({mode,onAuth}){const nav=useNavigate(),[name,setName]=useState(''),[email,setEmail]=useState(''),[password,setPassword]=useState(''),[role,setRole]=useState('Creator'),[error,setError]=useState('');const submit=async e=>{e.preventDefault();setError('');try{let data;try{data=await api(`/auth/${mode}`,{method:'POST',body:JSON.stringify({name,email,password,role})})}catch{if(password.length<8)throw Error('Use at least 8 characters for your password.');data={user:{name:name||email.split('@')[0],email,roles:[role]}}}onAuth(data.user||{name,email,roles:[role]});nav('/dashboard')}catch(err){setError(err.message)}};return <main className="auth-page"><div className="auth-card"><Link to="/" className="brand"><span className="brand-mark"><Sparkles size={18}/></span>IDEA<span className="brand-blue">2</span>IMPACT</Link><div className="eyebrow">YOUR NEXT CHAPTER STARTS HERE</div><h1>{mode==='login'?'Welcome back.':'Make your idea matter.'}</h1><p>{mode==='login'?'Pick up where your ideas left off.':'Join a community built to move good ideas forward.'}</p><form onSubmit={submit}>{mode==='signup'&&<label>Your name<input required value={name} onChange={e=>setName(e.target.value)} placeholder="How should we call you?"/></label>}<label>Email address<input type="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/></label><label>Password<input type="password" minLength="8" required value={password} onChange={e=>setPassword(e.target.value)} placeholder="At least 8 characters"/></label>{mode==='signup'&&<label>Your primary role<select value={role} onChange={e=>setRole(e.target.value)}>{['Creator','Customer / Buyer','Company','Investor','Builder','Patent Professional'].map(r=><option>{r}</option>)}</select><small className="muted">You can add more roles later. Admin access is granted separately.</small></label>}{error&&<div className="error-note">{error}</div>}<button className="btn btn-primary full" type="submit">{mode==='login'?'Log in':'Create free account'} <ArrowRight size={16}/></button></form><div className="auth-switch">{mode==='login'?<>New to IDEA2IMPACT? <Link to="/signup">Create an account</Link></>:<>Already have an account? <Link to="/login">Log in</Link></>}</div><div className="demo-disclaimer">Demo-ready authentication UI. Connect the API and configure email / OAuth credentials for production identity flows.</div></div></main>}
-function Dashboard({user,items,setItems,saved}){const[tab,setTab]=useState('Overview'),[title,setTitle]=useState(''),[desc,setDesc]=useState(''),[category,setCategory]=useState('Ideas'),[notice,setNotice]=useState('');const role=user?.roles?.[0]||'Creator';const sections=['Overview','My innovations','Upload innovation','AI evaluation','Messages','Collaboration','Saved opportunities','Settings'];const create=()=>{if(!title.trim()||!desc.trim())return;setItems(old=>[{id:Date.now(),title,desc,category,author:user?.name||'You',price:0,tag:'New concept',color:'blue',icon:'✳',visibility:'Public'},...old]);setTitle('');setDesc('');setNotice('Your innovation has been added to the demo marketplace.');setTab('My innovations')};return <main className="dashboard wrap"><aside className="dash-side"><div className="dash-user"><div className="dash-avatar">{user?.name?.slice(0,1)||'U'}</div><span><b>{user?.name||'Your workspace'}</b><small>{role}</small></span></div><div className="dash-label">WORKSPACE</div>{sections.map((s,i)=>{const icons=[Compass,Layers,Plus,Sparkles,MessageCircle,Users,Heart,SlidersHorizontal],I=icons[i];return <button key={s} className={tab===s?'dash-active':''} onClick={()=>{setTab(s);setNotice('')}}><I size={17}/>{s}{s==='Messages'&&<i className="nav-count">2</i>}</button>})}<div className="dash-side-bottom"><ShieldCheck size={17}/><span>Built for ideas<br/>that move forward.</span></div></aside><section className="dash-main"><div className="dash-heading"><div><div className="eyebrow">YOUR WORKSPACE / {role.toUpperCase()}</div><h1>{tab==='Overview'?'Good things start here.':tab}</h1><p>Keep your ideas moving. Your next step is just a click away.</p></div><Link to="/marketplace" className="btn btn-outline small">Explore <ArrowUpRight size={15}/></Link></div>{notice&&<div className="success-note">{notice}</div>}{tab==='Overview'&&<><div className="stat-grid"><div className="stat-card"><span>My innovations</span><b>{items.filter(x=>x.author===(user?.name||'You')).length}</b><small><Layers size={14}/> Your published concepts</small></div><div className="stat-card"><span>Saved opportunities</span><b>{saved.length}</b><small><Heart size={14}/> Ideas you bookmarked</small></div><div className="stat-card"><span>Profile strength</span><b>68%</b><small><TrendingUp size={14}/> Add skills to improve</small></div></div><div className="dash-columns"><div className="dash-panel"><div className="panel-title"><h3>Recent innovations</h3><button onClick={()=>setTab('My innovations')}>View all <ArrowRight size={14}/></button></div>{items.slice(0,4).map(x=><div className="recent-row"><span className={`recent-icon art-${x.color||'blue'}`}>{x.icon}</span><span><b>{x.title}</b><small>{x.category} · {x.author}</small></span><span className="status-pill">Public</span></div>)}</div><div className="dash-panel next-panel"><div className="eyebrow">A GOOD NEXT STEP</div><Sparkles size={24}/><h3>Give your idea a little clarity.</h3><p>Use the AI Studio to sharpen your concept, map a first build and find skills you may need.</p><Link to="/ai-studio" className="btn btn-primary small">Open AI Studio <ArrowUpRight size={14}/></Link></div></div></>}{tab==='Upload innovation'&&<div className="dash-panel form-panel"><h3>Put your idea out there.</h3><p className="muted">Start with a clear description. This demo saves your listing in the browser.</p><label>Innovation title<input value={title} onChange={e=>setTitle(e.target.value)} placeholder="e.g. A smarter way to grow herbs"/></label><label>Category<select value={category} onChange={e=>setCategory(e.target.value)}>{categories.map(c=><option>{c[0]}</option>)}</select></label><label>What does it do?<textarea rows="5" value={desc} onChange={e=>setDesc(e.target.value)} placeholder="Describe the problem, your approach and who it helps..."/></label><label className="checkline"><input type="checkbox" defaultChecked/> I confirm I have the right to share this content publicly.</label><button className="btn btn-primary" onClick={create}>Publish demo listing <ArrowUpRight size={16}/></button></div>}{tab==='My innovations'&&<div className="listing-grid">{items.filter(x=>x.author===(user?.name||'You')).length?items.filter(x=>x.author===(user?.name||'You')).map(x=><InnovationCard item={x}/>):<div className="empty-state"><Lightbulb/><h3>Your next idea belongs here.</h3><p>Publish a concept to start building your innovation portfolio.</p><button className="btn btn-primary" onClick={()=>setTab('Upload innovation')}>Upload innovation <Plus size={15}/></button></div>}</div>}{!['Overview','Upload innovation','My innovations'].includes(tab)&&<div className="dash-panel placeholder-panel"><div className="category-icon"><Sparkles/></div><h2>{tab} is ready for your next move.</h2><p>This workspace area is part of the hackathon demo. Connect the backend services to enable persistent {tab.toLowerCase()} workflows.</p><Link to="/ai-studio" className="btn btn-outline">Try AI Studio <ArrowUpRight size={15}/></Link></div>}</section></main>}
-function AIStudio(){const[prompt,setPrompt]=useState(''),[messages,setMessages]=useState([{role:'assistant',text:'Hey! I’m your IDEA2IMPACT creative co-pilot. Tell me what you’re working on, or pick a prompt below. I can help shape a concept, plan a prototype or think through your audience.\n\nI’m in clearly labelled demo mode until an AI API key is configured.'}]),[busy,setBusy]=useState(false);const send=async(value=prompt)=>{if(!value.trim()||busy)return;setMessages(m=>[...m,{role:'user',text:value}]);setPrompt('');setBusy(true);const res=await demoAI(value);setMessages(m=>[...m,{role:'assistant',text:res.reply,mode:res.mode||'demo'}]);setBusy(false)};return <main className="page wrap ai-page"><div className="page-top"><div className="eyebrow">IDEA2IMPACT INTELLIGENCE</div><h1>Make space for <span className="gradient-text">better ideas.</span></h1><p>A creative co-pilot for brainstorming, planning and finding your next useful step.</p></div><div className="chat-shell"><aside className="chat-aside"><div className="chat-brand"><span className="brand-mark"><Sparkles/></span><b>Idea assistant</b><span className="demo-badge">DEMO MODE</span></div><p>What are we thinking through today?</p>{['Help me improve my idea pitch','Create a simple prototype roadmap','Who could be my first customers?','What skills does my project need?','Explain licensing in simple terms'].map(x=><button onClick={()=>send(x)}>{x}<ArrowUpRight size={14}/></button>)}<div className="chat-safety"><ShieldCheck size={16}/> AI responses are starting points, not legal, patent, investment or market advice.</div></aside><section className="chat-main"><div className="chat-top"><span><i className="live-dot"/> Assistant online</span><span>IDEA2IMPACT / AI STUDIO</span></div><div className="chat-messages">{messages.map((m,i)=><div className={`chat-message ${m.role}`}><div className="chat-avatar">{m.role==='assistant'?<Sparkles size={16}/>: 'Y'}</div><div><div className="message-label">{m.role==='assistant'?'IDEA ASSISTANT':'YOU'} {m.mode&&<span>· {m.mode.toUpperCase()}</span>}</div><p>{m.text}</p></div></div>)}{busy&&<div className="typing">Thinking through it<span> · · ·</span></div>}</div><div className="chat-input"><textarea value={prompt} onChange={e=>setPrompt(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}}} placeholder="Tell me about the idea you're exploring..." rows="2"/><button className="send-btn" onClick={()=>send()} disabled={busy||!prompt.trim()}><Send size={17}/></button></div><div className="chat-foot">Enter to send · Shift + Enter for a new line</div></section></div></main>}
-function Pricing(){const plans=[['FREE','$0','For curious minds',['Browse innovations','Basic profile','Save opportunities','Community access'],'Get started'],['CREATOR PRO','$12','For makers moving forward',['Enhanced creator profile','Advanced listing insights','Featured listing eligibility','More creator tools'],'Coming soon'],['COMPANY','$39','For teams seeking new ideas',['Company profile','Advanced discovery','Collaboration opportunities','Team workspace'],'Coming soon'],['INVESTOR PRO','$29','For opportunity explorers',['Advanced opportunity discovery','Saved opportunities','Enhanced matching','Creator connections'],'Coming soon']];return <main className="page wrap pricing-page"><div className="page-top centered"><div className="eyebrow">SIMPLE PLANS. BIG POSSIBILITIES.</div><h1>Find your way to <span className="gradient-text">what’s next.</span></h1><p>Start free. Grow into the tools that fit your journey.</p><span className="demo-badge">HACKATHON DEMO · NO PAYMENTS</span></div><div className="pricing-grid">{plans.map(([name,price,desc,features,cta],i)=><div className={`price-card ${i===1?'featured-price':''}`}><div className="price-top"><span>{name}</span>{i===1&&<b>POPULAR</b>}</div><h2>{price}<small>{i?' / month':''}</small></h2><p>{desc}</p><div className="price-divider"/>{features.map(f=><div className="price-feature"><Check size={16}/>{f}</div>)}{i===0?<Link to="/signup" className="btn btn-outline full">{cta} <ArrowRight size={15}/></Link>:<button className="btn btn-outline full" disabled>{cta}</button>}</div>)}</div><p className="pricing-note">All paid plans are illustrative and coming soon. No billing or subscriptions are active in this demo.</p></main>}
-function Footer(){return <footer className="footer"><div className="wrap"><div className="footer-main"><div><Link to="/" className="brand"><span className="brand-mark"><Sparkles size={18}/></span>IDEA<span className="brand-blue">2</span>IMPACT</Link><p>A platform where ideas<br/>find their next step.</p></div><div className="footer-links"><div><b>EXPLORE</b><Link to="/marketplace">Marketplace</Link><Link to="/ai-studio">AI Studio</Link><Link to="/pricing">Pricing</Link></div><div><b>PLATFORM</b><a href="#how">How it works</a><Link to="/signup">Join the community</Link><Link to="/dashboard">Dashboard</Link></div><div><b>LEGAL & SUPPORT</b><a href="mailto:hello@idea2impact.example">Contact</a><a href="#privacy">Privacy policy</a><a href="#terms">Terms & conditions</a></div></div></div><div className="footer-bottom"><span>© 2026 IDEA2IMPACT. Built for ideas that move the world.</span><span>DESIGNED FOR THE NEXT BIG THING <span className="gradient-text">✦</span></span></div></div></footer>}
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import { Routes, Route, Link, useNavigate, useLocation, useParams } from 'react-router-dom';
+import {
+  ArrowRight, ArrowUpRight, Sparkles, Lightbulb, Boxes, Code2, Smartphone, Gamepad2,
+  Package, Palette, Globe2, Menu, X, Search, Plus, Heart, SlidersHorizontal,
+  MessageCircle, Compass, Users, ChartNoAxesCombined, ShieldCheck, Zap, Sun, Moon,
+  Send, Check, Layers, Building2, BriefcaseBusiness, LockKeyhole, TrendingUp,
+  ChevronRight, LogOut, Bell, Filter, Edit3, Trash2, UploadCloud, UserCircle,
+  ExternalLink, Image as ImageIcon, MessageSquare
+} from 'lucide-react';
+import Orb from './components/Orb';
+import { api, demoAI, uploadImage, setAuthToken, getAuthToken } from './services/api';
+
+const defaultCategoryMeta = [
+  ['Ideas', Lightbulb, 'Concepts ready for their next chapter', 'ideas'],
+  ['Inventions', Zap, 'New solutions to real problems', 'inventions'],
+  ['Physical Products', Package, 'Objects made to make life better', 'physical-products'],
+  ['Websites', Globe2, 'Digital experiences and platforms', 'websites'],
+  ['Mobile Apps', Smartphone, 'Apps built around people', 'mobile-apps'],
+  ['Games', Gamepad2, 'Playful worlds and mechanics', 'games'],
+  ['Software', Code2, 'Tools that move work forward', 'software'],
+  ['Creative Designs', Palette, 'Visual thinking made tangible', 'creative-designs']
+];
+
+function App() {
+  const [dark, setDark] = useState(true);
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('i2i_user') || 'null');
+    } catch {
+      return null;
+    }
+  });
+  const [items, setItems] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [menu, setMenu] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Sync theme
+  useEffect(() => {
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  }, [dark]);
+
+  // Load user session from backend if token exists
+  useEffect(() => {
+    const token = getAuthToken();
+    if (token) {
+      api('/auth/me')
+        .then(res => {
+          if (res.user) {
+            setUser(res.user);
+            localStorage.setItem('i2i_user', JSON.stringify(res.user));
+          }
+        })
+        .catch(() => {
+          // Token expired or invalid
+          setAuthToken(null);
+          setUser(null);
+          localStorage.removeItem('i2i_user');
+        });
+    }
+  }, []);
+
+  // Fetch innovations and categories from backend Neon PostgreSQL
+  const refreshData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const [invRes, catRes] = await Promise.all([
+        api('/innovations').catch(() => ({ items: [] })),
+        api('/categories').catch(() => ({ categories: [] }))
+      ]);
+
+      if (invRes.items) {
+        setItems(invRes.items);
+      }
+      if (catRes.categories && catRes.categories.length > 0) {
+        setCategories(catRes.categories);
+      }
+    } catch (err) {
+      console.error('Error fetching initial data:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshData();
+  }, [refreshData]);
+
+  const auth = (u, token) => {
+    setUser(u);
+    localStorage.setItem('i2i_user', JSON.stringify(u));
+    if (token) setAuthToken(token);
+    refreshData();
+  };
+
+  const logout = async () => {
+    try {
+      await api('/auth/logout', { method: 'POST' }).catch(() => {});
+    } finally {
+      setUser(null);
+      setAuthToken(null);
+      localStorage.removeItem('i2i_user');
+      refreshData();
+    }
+  };
+
+  return (
+    <>
+      <header className="nav">
+        <Link to="/" className="brand">
+          <span className="brand-mark"><Sparkles size={18} /></span>
+          <span>IDEA<span className="brand-blue">2</span>IMPACT</span>
+        </Link>
+        <nav className={menu ? 'nav-links open' : 'nav-links'}>
+          <Link to="/marketplace" onClick={() => setMenu(false)}>Explore</Link>
+          <a href="/#how" onClick={() => setMenu(false)}>How it works</a>
+          <Link to="/ai-studio" onClick={() => setMenu(false)}>AI Studio</Link>
+          <Link to="/pricing" onClick={() => setMenu(false)}>Pricing</Link>
+        </nav>
+        <div className="nav-actions">
+          <button className="icon-btn" aria-label="Toggle theme" onClick={() => setDark(!dark)}>
+            {dark ? <Sun size={17} /> : <Moon size={17} />}
+          </button>
+          {user ? (
+            <>
+              <Link className="nav-user" to="/dashboard" title="Go to Dashboard">
+                {user.profile?.avatar ? (
+                  <img src={user.profile.avatar} alt={user.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                ) : (
+                  user.name?.slice(0, 1)?.toUpperCase() || 'U'
+                )}
+              </Link>
+              <button className="btn btn-ghost small logout" onClick={logout}>
+                <LogOut size={15} /> Log out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link className="login-link" to="/login">Log in</Link>
+              <Link className="btn btn-primary small" to="/signup">
+                Get started <ArrowUpRight size={15} />
+              </Link>
+            </>
+          )}
+          <button className="icon-btn mobile-menu" onClick={() => setMenu(!menu)}>
+            {menu ? <X /> : <Menu />}
+          </button>
+        </div>
+      </header>
+
+      <Routes>
+        <Route path="/" element={<Home items={items} categories={categories} />} />
+        <Route path="/marketplace" element={<Marketplace items={items} categories={categories} onRefresh={refreshData} user={user} />} />
+        <Route path="/innovation/:id" element={<Detail user={user} onRefresh={refreshData} />} />
+        <Route path="/login" element={<Auth mode="login" onAuth={auth} />} />
+        <Route path="/signup" element={<Auth mode="signup" onAuth={auth} />} />
+        <Route path="/dashboard/*" element={<Dashboard user={user} onRefresh={refreshData} onUpdateUser={setUser} />} />
+        <Route path="/ai-studio" element={<AIStudio />} />
+        <Route path="/pricing" element={<Pricing />} />
+        <Route path="*" element={<Home items={items} categories={categories} />} />
+      </Routes>
+
+      <Footer />
+    </>
+  );
+}
+
+function Home({ items, categories }) {
+  const displayCategories = useMemo(() => {
+    return defaultCategoryMeta.map(([name, Icon, desc, slug]) => {
+      const match = categories.find(c => c.slug === slug || c.name.toLowerCase() === name.toLowerCase());
+      const count = match ? match.count : 0;
+      return [name, Icon, desc, count > 0 ? String(count) : '✦'];
+    });
+  }, [categories]);
+
+  return (
+    <main>
+      <section className="hero wrap">
+        <div className="hero-copy">
+          <div className="eyebrow">
+            <span className="pulse" /> THE INNOVATION ECOSYSTEM <span className="eyebrow-line" />
+          </div>
+          <h1>Every great innovation<br />starts with <span className="gradient-text">an idea.</span></h1>
+          <p className="hero-sub">
+            Showcase your creativity, discover opportunities, connect with experts and transform your ideas into real-world innovations.
+          </p>
+          <div className="hero-actions">
+            <Link to="/marketplace" className="btn btn-primary">
+              Explore innovations <ArrowUpRight size={17} />
+            </Link>
+            <Link to="/signup" className="btn btn-outline">
+              Start your journey <ArrowRight size={16} />
+            </Link>
+          </div>
+          <div className="hero-proof">
+            <div className="avatar-stack">
+              <i>MC</i><i>AR</i><i>KP</i><i>+</i>
+            </div>
+            <span>
+              <b>Ideas move further together.</b>
+              <small>Built for creators, builders & believers</small>
+            </span>
+          </div>
+        </div>
+        <div className="hero-visual">
+          <div className="visual-glow" />
+          <div className="orbit orbit-one" />
+          <div className="orbit orbit-two" />
+          <Orb />
+          <div className="float-card float-top">
+            <span className="float-icon"><Sparkles size={15} /></span>
+            <span><b>AI opportunity match</b><small>94% compatibility</small></span>
+            <span className="live-dot" />
+          </div>
+          <div className="float-card float-bottom">
+            <span className="float-icon cyan"><TrendingUp size={16} /></span>
+            <span><b>Idea → Impact</b><small>Your next step starts here</small></span>
+          </div>
+          <div className="visual-caption">IDEAS <span>↗</span> BUILD <span>↗</span> GROW</div>
+        </div>
+      </section>
+
+      <div className="trust-strip wrap">
+        <span>ONE SPACE. INFINITE POSSIBILITIES.</span>
+        <div><b>01</b> Discover <i /> <b>02</b> Collaborate <i /> <b>03</b> Launch</div>
+      </div>
+
+      <section className="section wrap" id="how">
+        <div className="section-head">
+          <div>
+            <div className="eyebrow">FROM THOUGHT TO THING</div>
+            <h2>Big ideas need a <span className="gradient-text">next step.</span></h2>
+          </div>
+          <p>One connected journey to turn a spark of creativity into something the world can use.</p>
+        </div>
+        <div className="steps-grid">
+          {[
+            ['01', 'Showcase', 'Put your idea, invention or product out into the world.'],
+            ['02', 'Evaluate', 'Get an AI-assisted view of your concept and its potential.'],
+            ['03', 'Match', 'Find relevant buyers, companies, investors and talent.'],
+            ['04', 'Connect', 'Bring the right people together to build what’s next.'],
+            ['05', 'Grow', 'Explore sales, licensing and collaboration pathways.']
+          ].map(([n, t, d]) => (
+            <article className="step-card" key={n}>
+              <span className="step-no">{n}</span>
+              <div className="step-arrow"><ArrowUpRight size={17} /></div>
+              <h3>{t}</h3>
+              <p>{d}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="section categories-section">
+        <div className="wrap">
+          <div className="section-head">
+            <div>
+              <div className="eyebrow">EXPLORE THE POSSIBLE</div>
+              <h2>Ideas come in <span className="gradient-text">many forms.</span></h2>
+            </div>
+            <Link to="/marketplace" className="text-link">Explore marketplace <ArrowUpRight size={16} /></Link>
+          </div>
+          <div className="category-grid">
+            {displayCategories.map(([name, Icon, desc, count], i) => (
+              <Link to={`/marketplace?category=${encodeURIComponent(name)}`} className="category-card" key={name}>
+                <div className={`category-icon ci-${i % 8}`}><Icon size={22} /></div>
+                <div className="category-count">{count} <ArrowUpRight size={13} /></div>
+                <h3>{name}</h3>
+                <p>{desc}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section wrap">
+        <div className="section-head">
+          <div>
+            <div className="eyebrow">FRESH FROM THE COMMUNITY</div>
+            <h2>Ideas worth a <span className="gradient-text">closer look.</span></h2>
+          </div>
+          <Link to="/marketplace" className="text-link">View all innovations <ArrowUpRight size={16} /></Link>
+        </div>
+        <div className="listing-grid">
+          {items.slice(0, 3).map(x => (
+            <InnovationCard item={x} key={x.id} />
+          ))}
+        </div>
+      </section>
+
+      <section className="section wrap">
+        <div className="ai-banner">
+          <div className="ai-banner-orb"><Sparkles size={42} /></div>
+          <div className="ai-banner-copy">
+            <div className="eyebrow">YOUR CREATIVE CO-PILOT</div>
+            <h2>Meet the AI that helps<br />your ideas <span className="gradient-text">move forward.</span></h2>
+            <p>Brainstorm, sharpen your pitch, map a build plan and discover people who can help make it happen.</p>
+            <Link to="/ai-studio" className="btn btn-primary">Explore AI Studio <ArrowUpRight size={16} /></Link>
+          </div>
+          <div className="ai-feature-list">
+            <div><Sparkles /><span><b>AI idea assistant</b><small>Think it through, clearly.</small></span></div>
+            <div><Users /><span><b>Smart matching</b><small>Find your people.</small></span></div>
+            <div><ChartNoAxesCombined /><span><b>Opportunity insights</b><small>Choose a useful next step.</small></span></div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section wrap">
+        <div className="section-head">
+          <div>
+            <div className="eyebrow">WHY IDEA2IMPACT</div>
+            <h2>More than a marketplace.<br /><span className="gradient-text">A launchpad.</span></h2>
+          </div>
+        </div>
+        <div className="benefit-grid">
+          {[
+            [Layers, 'One innovation marketplace', 'Ideas, products and digital creations in one place.'],
+            [Sparkles, 'AI-powered evaluation', 'Structured feedback to help refine your next move.'],
+            [TrendingUp, 'Investor discovery', 'Make funding conversations easier to start.'],
+            [ShieldCheck, 'Protection-minded tools', 'Visibility controls and safer sharing workflows.'],
+            [Users, 'Build with others', 'Connect with people who bring missing skills.'],
+            [Building2, 'Company connections', 'Put useful innovation in front of relevant teams.']
+          ].map(([I, t, d]) => (
+            <div className="benefit" key={t}>
+              <I size={20} />
+              <h3>{t}</h3>
+              <p>{d}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="cta-section">
+        <div className="wrap cta-inner">
+          <div className="eyebrow">THE NEXT CHAPTER IS YOURS</div>
+          <h2>Your idea could be the<br /><span className="gradient-text">next big innovation.</span></h2>
+          <p>Start with what you have. Find the people and momentum to take it further.</p>
+          <Link to="/signup" className="btn btn-primary">Get started today <ArrowUpRight size={17} /></Link>
+          <div className="cta-orbit" />
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function InnovationCard({ item }) {
+  const colorMap = {
+    'Inventions': 'mint',
+    'Mobile Apps': 'purple',
+    'Software': 'blue',
+    'Physical Products': 'orange',
+    'Ideas': 'blue',
+    'Websites': 'mint',
+    'Games': 'purple',
+    'Creative Designs': 'orange'
+  };
+  const color = colorMap[item.category] || 'blue';
+
+  return (
+    <Link to={`/innovation/${item.id}`} className="innovation-card">
+      {item.imageUrl ? (
+        <div className="product-art-img">
+          <img src={item.imageUrl} alt={item.title} loading="lazy" />
+          <span className="art-tag">{item.category}</span>
+        </div>
+      ) : (
+        <div className={`product-art art-${color}`}>
+          <span className="art-symbol">✳</span>
+          <span className="art-tag">{item.category}</span>
+          <span className="art-spark">✦</span>
+        </div>
+      )}
+      <div className="card-content">
+        <div className="card-meta">
+          <span>{item.category}</span>
+          <span>{item.price > 0 ? `$${item.price}` : 'Open to connect'}</span>
+        </div>
+        <h3>{item.title}</h3>
+        <p>{item.desc || item.description}</p>
+        <div className="card-author">
+          <span className="mini-avatar">
+            {item.creator?.profile?.avatar ? (
+              <img src={item.creator.profile.avatar} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+            ) : (
+              item.author?.slice(0, 1)?.toUpperCase() || 'C'
+            )}
+          </span>
+          <span>{item.author || 'Creator'}</span>
+          <span className="card-open">View details <ArrowUpRight size={14} /></span>
+        </div>
+        <div className="card-stats">
+          <span className={`card-stat-item ${item.isLiked ? 'active' : ''}`}>
+            <Heart size={13} fill={item.isLiked ? 'currentColor' : 'none'} />
+            {item.likeCount || 0}
+          </span>
+          <span className="card-stat-item">
+            <MessageCircle size={13} />
+            {item.commentCount || 0}
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function Marketplace({ items, categories, onRefresh, user }) {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const initialCategory = searchParams.get('category') || 'All';
+
+  const [query, setQuery] = useState('');
+  const [cat, setCat] = useState(initialCategory);
+  const [sort, setSort] = useState('Newest');
+
+  useEffect(() => {
+    const paramCat = searchParams.get('category');
+    if (paramCat) setCat(paramCat);
+  }, [location.search]);
+
+  const list = useMemo(() => {
+    return items
+      .filter(x => {
+        const matchesCat = cat === 'All' || x.category === cat || x.categorySlug === cat.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        const searchTarget = `${x.title} ${x.desc || x.description} ${x.category} ${x.author || ''}`.toLowerCase();
+        const matchesQuery = !query.trim() || searchTarget.includes(query.toLowerCase());
+        return matchesCat && matchesQuery;
+      })
+      .sort((a, b) => {
+        if (sort === 'Price: low to high') return (a.price || 0) - (b.price || 0);
+        if (sort === 'Price: high to low') return (b.price || 0) - (a.price || 0);
+        if (sort === 'Most Popular') return (b.likeCount || 0) - (a.likeCount || 0);
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+      });
+  }, [items, cat, query, sort]);
+
+  const categoryList = useMemo(() => {
+    return [
+      { name: 'All', count: items.length },
+      ...defaultCategoryMeta.map(([name]) => ({
+        name,
+        count: items.filter(x => x.category === name).length
+      }))
+    ];
+  }, [items]);
+
+  return (
+    <main className="page wrap">
+      <div className="page-top">
+        <div className="eyebrow">THE INNOVATION MARKETPLACE</div>
+        <h1>Discover what’s <span className="gradient-text">next.</span></h1>
+        <p>Explore bold ideas, useful inventions and digital creations from independent innovators.</p>
+      </div>
+
+      <div className="market-toolbar">
+        <div className="search-box">
+          <Search size={18} />
+          <input
+            placeholder="Search innovations, categories, creators..."
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+          />
+        </div>
+        <div className="select-wrap">
+          <SlidersHorizontal size={16} />
+          <select value={sort} onChange={e => setSort(e.target.value)}>
+            <option>Newest</option>
+            <option>Most Popular</option>
+            <option>Price: low to high</option>
+            <option>Price: high to low</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="market-layout">
+        <aside className="filter-panel">
+          <h3><Filter size={16} /> Categories</h3>
+          {categoryList.map(c => (
+            <button
+              className={cat === c.name ? 'filter-active' : ''}
+              onClick={() => setCat(c.name)}
+              key={c.name}
+            >
+              {c.name}
+              <span>{c.count}</span>
+            </button>
+          ))}
+          <div className="filter-note">
+            <ShieldCheck size={17} />
+            <p>Creators choose how their work is shared. Private submissions stay out of public discovery.</p>
+          </div>
+        </aside>
+
+        <div className="market-results">
+          <div className="results-head">
+            <span><b>{list.length}</b> innovations found</span>
+            <span>Curated possibilities <Sparkles size={14} /></span>
+          </div>
+
+          {list.length ? (
+            <div className="listing-grid">
+              {list.map(x => (
+                <InnovationCard item={x} key={x.id} />
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state">
+              <Search size={28} />
+              <h3>No matches yet</h3>
+              <p>Try another keyword or category.</p>
+              <button className="btn btn-outline" onClick={() => { setQuery(''); setCat('All'); }}>
+                Clear filters
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function Detail({ user, onRefresh }) {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [item, setItem] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [interest, setInterest] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [isSaved, setIsSaved] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [commentText, setCommentText] = useState('');
+  const [postingComment, setPostingComment] = useState(false);
+
+  const fetchDetail = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const res = await api(`/innovations/${id}`);
+      if (res.item) {
+        setItem(res.item);
+        setIsLiked(res.item.isLiked);
+        setLikeCount(res.item.likeCount || 0);
+        setIsSaved(res.item.isSaved);
+        setComments(res.item.comments || []);
+      }
+    } catch (err) {
+      console.error('Error fetching detail:', err);
+      setError(err.message || 'Innovation not found');
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (id) fetchDetail();
+  }, [id, fetchDetail]);
+
+  const toggleLike = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    try {
+      const res = await api(`/innovations/${id}/like`, { method: 'POST' });
+      setIsLiked(res.liked);
+      setLikeCount(res.likeCount);
+      onRefresh();
+    } catch (err) {
+      alert(err.message || 'Failed to update like');
+    }
+  };
+
+  const toggleSave = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    try {
+      const res = await api(`/innovations/${id}/save`, { method: 'POST' });
+      setIsSaved(res.saved);
+      onRefresh();
+    } catch (err) {
+      alert(err.message || 'Failed to update bookmark');
+    }
+  };
+
+  const submitComment = async (e) => {
+    e.preventDefault();
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    if (!commentText.trim() || postingComment) return;
+
+    try {
+      setPostingComment(true);
+      const res = await api(`/innovations/${id}/comments`, {
+        method: 'POST',
+        body: JSON.stringify({ body: commentText.trim() })
+      });
+      if (res.comment) {
+        setComments(prev => [...prev, res.comment]);
+        setCommentText('');
+        onRefresh();
+      }
+    } catch (err) {
+      alert(err.message || 'Failed to post comment');
+    } finally {
+      setPostingComment(false);
+    }
+  };
+
+  const deleteComment = async (commentId) => {
+    if (!confirm('Are you sure you want to delete this comment?')) return;
+    try {
+      await api(`/innovations/${id}/comments/${commentId}`, { method: 'DELETE' });
+      setComments(prev => prev.filter(c => c.id !== commentId));
+      onRefresh();
+    } catch (err) {
+      alert(err.message || 'Failed to delete comment');
+    }
+  };
+
+  if (loading) {
+    return (
+      <main className="page wrap detail-page">
+        <div style={{ textAlign: 'center', padding: '80px 0' }}>
+          <Sparkles className="pulse" size={32} />
+          <p style={{ marginTop: '16px' }}>Loading innovation details...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (error || !item) {
+    return (
+      <main className="page wrap detail-page">
+        <Link to="/marketplace" className="back-link">← Back to marketplace</Link>
+        <div className="empty-state" style={{ marginTop: '40px' }}>
+          <Search size={32} />
+          <h2>Innovation Not Found</h2>
+          <p>{error || 'The innovation you requested does not exist or is private.'}</p>
+          <Link to="/marketplace" className="btn btn-primary">Browse Marketplace</Link>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="page wrap detail-page">
+      <Link to="/marketplace" className="back-link">← Back to marketplace</Link>
+
+      <div className="detail-grid">
+        <div>
+          {item.imageUrl ? (
+            <div className="detail-art-img">
+              <img src={item.imageUrl} alt={item.title} />
+              <span className="art-tag">{item.category}</span>
+            </div>
+          ) : (
+            <div className={`detail-art product-art art-blue`}>
+              <span className="art-symbol">✳</span>
+              <span className="art-tag">{item.category}</span>
+            </div>
+          )}
+
+          <div className="detail-description">
+            <div className="eyebrow">THE CONCEPT</div>
+            <h2>About this innovation</h2>
+            <p>{item.desc || item.description}</p>
+            <p>
+              This listing is hosted on the IDEA2IMPACT production marketplace. Connect with the creator to discuss scope, collaboration, licensing, or investment possibilities.
+            </p>
+
+            <div className="protection-note">
+              <ShieldCheck />
+              <span>
+                <b>Share thoughtfully</b>
+                <small>
+                  Public previews do not establish patent rights or legal protection. Review ownership and confidentiality before sharing proprietary details.
+                </small>
+              </span>
+            </div>
+
+            {/* Comments Section */}
+            <div className="comments-section">
+              <div className="comments-head">
+                <h3>
+                  <MessageSquare size={18} /> Discussion & Feedback
+                  <span className="comments-count-badge">{comments.length}</span>
+                </h3>
+              </div>
+
+              {user ? (
+                <form className="comment-form" onSubmit={submitComment}>
+                  <textarea
+                    rows={3}
+                    placeholder="Share feedback, ask a question, or suggest collaboration..."
+                    value={commentText}
+                    onChange={e => setCommentText(e.target.value)}
+                  />
+                  <div className="comment-form-actions">
+                    <button
+                      type="submit"
+                      className="btn btn-primary small"
+                      disabled={postingComment || !commentText.trim()}
+                    >
+                      {postingComment ? 'Posting...' : 'Post comment'} <Send size={14} />
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="comment-form" style={{ textAlign: 'center', padding: '20px' }}>
+                  <p style={{ margin: '0 0 10px' }}>Sign in to join the conversation and leave feedback for the creator.</p>
+                  <Link to="/login" className="btn btn-outline small" style={{ display: 'inline-flex' }}>
+                    Log in to comment
+                  </Link>
+                </div>
+              )}
+
+              <div className="comment-list">
+                {comments.length > 0 ? (
+                  comments.map(c => (
+                    <div className="comment-card" key={c.id}>
+                      <div className="comment-card-top">
+                        <div className="comment-author-info">
+                          <div className="comment-avatar">
+                            {c.author?.avatar ? (
+                              <img src={c.author.avatar} alt={c.author.name} />
+                            ) : (
+                              c.author?.name?.slice(0, 1)?.toUpperCase() || 'U'
+                            )}
+                          </div>
+                          <div>
+                            <div className="comment-author-name">{c.author?.name || 'Community Member'}</div>
+                            <span className="comment-date">
+                              {new Date(c.createdAt).toLocaleDateString(undefined, {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric'
+                              })}
+                            </span>
+                          </div>
+                        </div>
+                        {(user?.id === c.author?.id || user?.id === item.creator?.id) && (
+                          <button
+                            className="btn-delete-comment"
+                            title="Delete comment"
+                            onClick={() => deleteComment(c.id)}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
+                      <p className="comment-body">{c.body}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p style={{ color: 'var(--muted)', textAlign: 'center', padding: '20px 0' }}>
+                    No comments yet. Be the first to share your thoughts!
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside className="detail-aside">
+          <span className="status-pill"><i /> Public listing</span>
+          <h1>{item.title}</h1>
+          <p className="detail-sub">{item.category} · Creator showcase</p>
+
+          <div className="detail-price">
+            {item.price > 0 ? `$${item.price}` : 'Open to connect'}
+            <small>
+              {item.price > 0 ? 'Indicative asking price · negotiation welcome' : 'Contact creator for details'}
+            </small>
+          </div>
+
+          <div className="creator-box">
+            <span className="creator-avatar">
+              {item.creator?.profile?.avatar ? (
+                <img src={item.creator.profile.avatar} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+              ) : (
+                item.author?.slice(0, 1)?.toUpperCase() || 'C'
+              )}
+            </span>
+            <span>
+              <small>CREATED BY</small>
+              <b>{item.author || 'Creator'}</b>
+              {item.creator?.profile?.headline && (
+                <small style={{ color: 'var(--muted)', display: 'block' }}>{item.creator.profile.headline}</small>
+              )}
+            </span>
+            <span className="verified">✦</span>
+          </div>
+
+          <div className="detail-actions-bar">
+            <button
+              className={`btn-like ${isLiked ? 'liked' : ''}`}
+              onClick={toggleLike}
+              title={isLiked ? 'Unlike' : 'Like'}
+            >
+              <Heart size={16} fill={isLiked ? 'currentColor' : 'none'} />
+              {likeCount} {likeCount === 1 ? 'Like' : 'Likes'}
+            </button>
+            <button
+              className={`btn-like ${isSaved ? 'liked' : ''}`}
+              onClick={toggleSave}
+              title={isSaved ? 'Remove bookmark' : 'Bookmark'}
+            >
+              <Heart size={16} fill={isSaved ? 'currentColor' : 'none'} />
+              {isSaved ? 'Saved' : 'Save'}
+            </button>
+          </div>
+
+          <button className="btn btn-primary full" onClick={() => setInterest(true)}>
+            {interest ? 'Interest recorded ✓' : 'Express interest'} <ArrowUpRight size={16} />
+          </button>
+
+          {interest && (
+            <div className="success-note">
+              Interest recorded! The creator has been notified. You can also leave a comment below to start a conversation.
+            </div>
+          )}
+
+          <p className="detail-disclaimer">
+            <LockKeyhole size={14} /> No upfront payment collected. Expressing interest initiates direct contact and negotiation workflows.
+          </p>
+        </aside>
+      </div>
+    </main>
+  );
+}
+
+function Auth({ mode, onAuth }) {
+  const nav = useNavigate();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('Creator');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const endpoint = mode === 'login' ? '/auth/login' : '/auth/register';
+      const body = mode === 'login'
+        ? { email, password }
+        : { name, email, password, role };
+
+      const data = await api(endpoint, {
+        method: 'POST',
+        body: JSON.stringify(body)
+      });
+
+      if (data.user) {
+        onAuth(data.user, data.token);
+        nav('/dashboard');
+      } else {
+        throw new Error('Authentication response invalid');
+      }
+    } catch (err) {
+      setError(err.message || 'An error occurred during authentication');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <main className="auth-page">
+      <div className="auth-card">
+        <Link to="/" className="brand">
+          <span className="brand-mark"><Sparkles size={18} /></span>
+          IDEA<span className="brand-blue">2</span>IMPACT
+        </Link>
+        <div className="eyebrow">YOUR NEXT CHAPTER STARTS HERE</div>
+        <h1>{mode === 'login' ? 'Welcome back.' : 'Make your idea matter.'}</h1>
+        <p>{mode === 'login' ? 'Pick up where your ideas left off.' : 'Join a community built to move good ideas forward.'}</p>
+
+        <form onSubmit={submit}>
+          {mode === 'signup' && (
+            <label>
+              Your full name
+              <input
+                required
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="e.g. Maya Chen"
+              />
+            </label>
+          )}
+
+          <label>
+            Email address
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="you@example.com"
+            />
+          </label>
+
+          <label>
+            Password
+            <input
+              type="password"
+              minLength="8"
+              required
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="At least 8 characters"
+            />
+          </label>
+
+          {mode === 'signup' && (
+            <label>
+              Your primary role
+              <select value={role} onChange={e => setRole(e.target.value)}>
+                {['Creator', 'Customer / Buyer', 'Company', 'Investor', 'Builder', 'Patent Professional'].map(r => (
+                  <option key={r}>{r}</option>
+                ))}
+              </select>
+              <small className="muted">You can customize your role and skills anytime in your profile.</small>
+            </label>
+          )}
+
+          {error && <div className="error-note">{error}</div>}
+
+          <button className="btn btn-primary full" type="submit" disabled={loading}>
+            {loading ? 'Please wait...' : (mode === 'login' ? 'Log in' : 'Create free account')}{' '}
+            <ArrowRight size={16} />
+          </button>
+        </form>
+
+        <div className="auth-switch">
+          {mode === 'login' ? (
+            <>New to IDEA2IMPACT? <Link to="/signup">Create an account</Link></>
+          ) : (
+            <>Already have an account? <Link to="/login">Log in</Link></>
+          )}
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function Dashboard({ user, onRefresh, onUpdateUser }) {
+  const navigate = useNavigate();
+  const [tab, setTab] = useState('Overview');
+  const [stats, setStats] = useState({
+    myInnovationsCount: 0,
+    savedCount: 0,
+    totalLikesReceived: 0,
+    totalCommentsReceived: 0,
+    profileStrength: 85
+  });
+  const [myInnovations, setMyInnovations] = useState([]);
+  const [savedInnovations, setSavedInnovations] = useState([]);
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [notice, setNotice] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  // New Idea Form State
+  const [title, setTitle] = useState('');
+  const [desc, setDesc] = useState('');
+  const [category, setCategory] = useState('Ideas');
+  const [price, setPrice] = useState(0);
+  const [imageUrl, setImageUrl] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  // Edit Idea Modal State
+  const [editingItem, setEditingItem] = useState(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDesc, setEditDesc] = useState('');
+  const [editCategory, setEditCategory] = useState('Ideas');
+  const [editPrice, setEditPrice] = useState(0);
+  const [editImageUrl, setEditImageUrl] = useState('');
+
+  // Profile Edit State
+  const [headline, setHeadline] = useState(user?.profile?.headline || '');
+  const [bio, setBio] = useState(user?.profile?.bio || '');
+  const [skillsStr, setSkillsStr] = useState(user?.profile?.skills?.join(', ') || '');
+  const [location, setLocation] = useState(user?.profile?.location || '');
+  const [profileSaving, setProfileSaving] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
+
+  const loadDashboardData = useCallback(async () => {
+    if (!user) return;
+    try {
+      const [statsRes, myRes, savedRes] = await Promise.all([
+        api('/dashboard/stats').catch(() => ({ stats: {}, recentActivity: [] })),
+        api('/dashboard/my-innovations').catch(() => ({ items: [] })),
+        api('/dashboard/saved').catch(() => ({ items: [] }))
+      ]);
+
+      if (statsRes.stats) setStats(statsRes.stats);
+      if (statsRes.recentActivity) setRecentActivity(statsRes.recentActivity);
+      if (myRes.items) setMyInnovations(myRes.items);
+      if (savedRes.items) setSavedInnovations(savedRes.items);
+    } catch (err) {
+      console.error('Error loading dashboard data:', err);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
+
+  const handleImageFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+
+    // Upload to server
+    try {
+      setUploadingImage(true);
+      const url = await uploadImage(file);
+      setImageUrl(url);
+    } catch (err) {
+      alert(`Image upload error: ${err.message}`);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const createInnovation = async () => {
+    if (!title.trim() || !desc.trim() || submitting) return;
+
+    try {
+      setSubmitting(true);
+      await api('/innovations', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: title.trim(),
+          description: desc.trim(),
+          category,
+          price: Number(price) || 0,
+          imageUrl: imageUrl || null,
+          ownershipConfirmed: true,
+          visibility: 'PUBLIC'
+        })
+      });
+
+      setTitle('');
+      setDesc('');
+      setImageUrl('');
+      setImageFile(null);
+      setImagePreview('');
+      setNotice('Your innovation was successfully published to the online marketplace!');
+      setTab('My innovations');
+      loadDashboardData();
+      onRefresh();
+    } catch (err) {
+      alert(err.message || 'Failed to publish innovation');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const startEdit = (item) => {
+    setEditingItem(item);
+    setEditTitle(item.title);
+    setEditDesc(item.desc || item.description);
+    setEditCategory(item.category);
+    setEditPrice(item.price || 0);
+    setEditImageUrl(item.imageUrl || '');
+  };
+
+  const saveEdit = async () => {
+    if (!editingItem || !editTitle.trim() || !editDesc.trim()) return;
+
+    try {
+      await api(`/innovations/${editingItem.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          title: editTitle.trim(),
+          description: editDesc.trim(),
+          category: editCategory,
+          price: Number(editPrice) || 0,
+          imageUrl: editImageUrl || null
+        })
+      });
+
+      setEditingItem(null);
+      setNotice('Innovation updated successfully!');
+      loadDashboardData();
+      onRefresh();
+    } catch (err) {
+      alert(err.message || 'Failed to update innovation');
+    }
+  };
+
+  const deleteInnovation = async (id) => {
+    if (!confirm('Are you sure you want to permanently delete this innovation?')) return;
+
+    try {
+      await api(`/innovations/${id}`, { method: 'DELETE' });
+      setNotice('Innovation deleted permanently.');
+      loadDashboardData();
+      onRefresh();
+    } catch (err) {
+      alert(err.message || 'Failed to delete innovation');
+    }
+  };
+
+  const saveProfile = async (e) => {
+    e.preventDefault();
+    try {
+      setProfileSaving(true);
+      const skills = skillsStr.split(',').map(s => s.trim()).filter(Boolean);
+      const res = await api('/auth/profile', {
+        method: 'PUT',
+        body: JSON.stringify({
+          headline: headline.trim(),
+          bio: bio.trim(),
+          skills,
+          location: location.trim()
+        })
+      });
+
+      if (res.user) {
+        onUpdateUser(res.user);
+        localStorage.setItem('i2i_user', JSON.stringify(res.user));
+        setNotice('Profile updated successfully!');
+      }
+    } catch (err) {
+      alert(err.message || 'Failed to update profile');
+    } finally {
+      setProfileSaving(false);
+    }
+  };
+
+  const role = user?.roles?.[0] || 'Creator';
+  const sections = ['Overview', 'My innovations', 'Upload innovation', 'Saved opportunities', 'Profile / Settings'];
+
+  return (
+    <main className="dashboard wrap">
+      <aside className="dash-side">
+        <div className="dash-user">
+          <div className="dash-avatar">
+            {user?.profile?.avatar ? (
+              <img src={user.profile.avatar} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+            ) : (
+              user?.name?.slice(0, 1)?.toUpperCase() || 'U'
+            )}
+          </div>
+          <span>
+            <b>{user?.name || 'Your workspace'}</b>
+            <small>{role}</small>
+          </span>
+        </div>
+
+        <div className="dash-label">WORKSPACE</div>
+        {sections.map((s, i) => {
+          const icons = [Compass, Layers, Plus, Heart, SlidersHorizontal];
+          const I = icons[i] || Compass;
+          return (
+            <button
+              key={s}
+              className={tab === s ? 'dash-active' : ''}
+              onClick={() => { setTab(s); setNotice(''); }}
+            >
+              <I size={17} />
+              {s}
+              {s === 'My innovations' && myInnovations.length > 0 && (
+                <i className="nav-count">{myInnovations.length}</i>
+              )}
+            </button>
+          );
+        })}
+
+        <div className="dash-side-bottom">
+          <ShieldCheck size={17} />
+          <span>Built for ideas<br />that move forward.</span>
+        </div>
+      </aside>
+
+      <section className="dash-main">
+        <div className="dash-heading">
+          <div>
+            <div className="eyebrow">YOUR WORKSPACE / {role.toUpperCase()}</div>
+            <h1>{tab === 'Overview' ? 'Good things start here.' : tab}</h1>
+            <p>Keep your ideas moving. Your next step is just a click away.</p>
+          </div>
+          <Link to="/marketplace" className="btn btn-outline small">
+            Explore Marketplace <ArrowUpRight size={15} />
+          </Link>
+        </div>
+
+        {notice && <div className="success-note">{notice}</div>}
+
+        {/* Overview Tab */}
+        {tab === 'Overview' && (
+          <>
+            <div className="stat-grid">
+              <div className="stat-card">
+                <span>My innovations</span>
+                <b>{stats.myInnovationsCount || myInnovations.length}</b>
+                <small><Layers size={14} /> Published on marketplace</small>
+              </div>
+              <div className="stat-card">
+                <span>Total likes received</span>
+                <b>{stats.totalLikesReceived || 0}</b>
+                <small><Heart size={14} /> Community appreciation</small>
+              </div>
+              <div className="stat-card">
+                <span>Comments & Feedback</span>
+                <b>{stats.totalCommentsReceived || 0}</b>
+                <small><MessageCircle size={14} /> Creator discussions</small>
+              </div>
+              <div className="stat-card">
+                <span>Saved opportunities</span>
+                <b>{stats.savedCount || savedInnovations.length}</b>
+                <small><Heart size={14} /> Bookmarked concepts</small>
+              </div>
+            </div>
+
+            <div className="dash-columns">
+              <div className="dash-panel">
+                <div className="panel-title">
+                  <h3>Recent innovations</h3>
+                  <button onClick={() => setTab('My innovations')}>View all <ArrowRight size={14} /></button>
+                </div>
+                {myInnovations.slice(0, 4).map(x => (
+                  <div className="recent-row" key={x.id}>
+                    <span className="recent-icon art-blue">✳</span>
+                    <span>
+                      <b>{x.title}</b>
+                      <small>{x.category} · {x.likeCount || 0} likes · {x.commentCount || 0} comments</small>
+                    </span>
+                    <span className="status-pill">Public</span>
+                  </div>
+                ))}
+                {myInnovations.length === 0 && (
+                  <p style={{ color: 'var(--muted)', padding: '20px 0' }}>
+                    You have not published any innovations yet. Click "Upload innovation" to get started!
+                  </p>
+                )}
+              </div>
+
+              <div className="dash-panel next-panel">
+                <div className="panel-title">
+                  <h3>Recent Activity</h3>
+                </div>
+                <div className="activity-feed">
+                  {recentActivity.length > 0 ? (
+                    recentActivity.map(act => (
+                      <div className="activity-row" key={act.id}>
+                        <div className={`activity-icon-badge ${act.type}`}>
+                          {act.type === 'comment' ? <MessageCircle size={14} /> : <Heart size={14} />}
+                        </div>
+                        <div>
+                          <div className="activity-text">{act.message}</div>
+                          <span className="activity-date">
+                            {new Date(act.createdAt).toLocaleDateString(undefined, {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p style={{ color: 'var(--muted)', fontSize: '12px' }}>
+                      No recent likes or comments yet. As the community interacts with your ideas, activity will appear here.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* My Innovations Tab */}
+        {tab === 'My innovations' && (
+          <div className="listing-grid">
+            {myInnovations.length > 0 ? (
+              myInnovations.map(x => (
+                <div className="dash-item-card" key={x.id} style={{ background: 'var(--panel)', border: '1px solid var(--line)', borderRadius: '12px', padding: '16px' }}>
+                  {x.imageUrl && (
+                    <div style={{ height: '140px', borderRadius: '8px', overflow: 'hidden', marginBottom: '12px' }}>
+                      <img src={x.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  )}
+                  <div className="card-meta">
+                    <span>{x.category}</span>
+                    <span>{x.price > 0 ? `$${x.price}` : 'Free'}</span>
+                  </div>
+                  <h3 style={{ margin: '8px 0', fontSize: '16px' }}>{x.title}</h3>
+                  <p style={{ fontSize: '12px', color: 'var(--muted)', lineHeight: '1.6' }}>
+                    {x.desc?.slice(0, 120)}{x.desc?.length > 120 ? '...' : ''}
+                  </p>
+                  <div className="card-stats">
+                    <span className="card-stat-item"><Heart size={13} /> {x.likeCount || 0}</span>
+                    <span className="card-stat-item"><MessageCircle size={13} /> {x.commentCount || 0}</span>
+                    <span className="status-pill" style={{ marginLeft: 'auto' }}>Published</span>
+                  </div>
+                  <div className="dash-card-actions">
+                    <button className="btn btn-outline small" onClick={() => startEdit(x)}>
+                      <Edit3 size={13} /> Edit
+                    </button>
+                    <button className="btn btn-danger small" onClick={() => deleteInnovation(x.id)}>
+                      <Trash2 size={13} /> Delete
+                    </button>
+                    <Link to={`/innovation/${x.id}`} className="btn btn-ghost small" style={{ flex: 'none' }}>
+                      <ExternalLink size={14} />
+                    </Link>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="empty-state" style={{ gridColumn: '1 / -1' }}>
+                <Lightbulb size={32} />
+                <h3>Your next idea belongs here.</h3>
+                <p>Publish a concept to start building your innovation portfolio permanently in the database.</p>
+                <button className="btn btn-primary" onClick={() => setTab('Upload innovation')}>
+                  Upload innovation <Plus size={15} />
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Upload Innovation Tab */}
+        {tab === 'Upload innovation' && (
+          <div className="dash-panel form-panel">
+            <h3>Publish an innovation to the marketplace.</h3>
+            <p className="muted">
+              Your concept will be saved permanently in the Neon PostgreSQL database and discoverable by buyers, builders, and investors.
+            </p>
+
+            <label>
+              Innovation Title
+              <input
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                placeholder="e.g. EcoCharge — Kinetic Portable Charger"
+                required
+              />
+            </label>
+
+            <label>
+              Category
+              <select value={category} onChange={e => setCategory(e.target.value)}>
+                {defaultCategoryMeta.map(c => (
+                  <option key={c[0]}>{c[0]}</option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              Estimated Price / Valuation ($)
+              <input
+                type="number"
+                min="0"
+                value={price}
+                onChange={e => setPrice(Number(e.target.value))}
+                placeholder="0 for open to connect / free"
+              />
+            </label>
+
+            <label>
+              What does it do?
+              <textarea
+                rows={5}
+                value={desc}
+                onChange={e => setDesc(e.target.value)}
+                placeholder="Describe the problem you are solving, your approach, technical specifications, and who it helps..."
+                required
+              />
+            </label>
+
+            <div className="file-upload-container">
+              <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--muted)' }}>
+                Upload Project Image (JPEG, PNG, WebP)
+              </span>
+              <label className="file-upload-input-wrap">
+                <UploadCloud size={24} style={{ color: 'var(--cyan)', margin: '0 auto 8px' }} />
+                <div style={{ fontSize: '13px', fontWeight: '600' }}>
+                  {uploadingImage ? 'Uploading image...' : 'Click to select an image from your computer'}
+                </div>
+                <small className="muted">Up to 5MB file size</small>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageFileChange}
+                  style={{ display: 'none' }}
+                />
+              </label>
+
+              <span style={{ fontSize: '11px', color: 'var(--muted)', textAlign: 'center' }}>or provide an Image URL</span>
+              <input
+                value={imageUrl}
+                onChange={e => { setImageUrl(e.target.value); setImagePreview(e.target.value); }}
+                placeholder="https://images.unsplash.com/..."
+              />
+
+              {imagePreview && (
+                <div className="file-preview-wrap">
+                  <img src={imagePreview} alt="Preview" />
+                  <button
+                    type="button"
+                    className="btn-remove-img"
+                    onClick={() => { setImageUrl(''); setImageFile(null); setImagePreview(''); }}
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <label className="checkline">
+              <input type="checkbox" defaultChecked />
+              I confirm I have the right to share this innovation publicly.
+            </label>
+
+            <button
+              className="btn btn-primary"
+              onClick={createInnovation}
+              disabled={submitting || !title.trim() || !desc.trim()}
+            >
+              {submitting ? 'Publishing...' : 'Publish innovation'} <ArrowUpRight size={16} />
+            </button>
+          </div>
+        )}
+
+        {/* Saved Opportunities Tab */}
+        {tab === 'Saved opportunities' && (
+          <div className="listing-grid">
+            {savedInnovations.length > 0 ? (
+              savedInnovations.map(x => (
+                <InnovationCard item={x} key={x.id} />
+              ))
+            ) : (
+              <div className="empty-state" style={{ gridColumn: '1 / -1' }}>
+                <Heart size={32} />
+                <h3>No bookmarked ideas yet</h3>
+                <p>Browse the marketplace and click the heart icon to save innovations you are interested in.</p>
+                <Link to="/marketplace" className="btn btn-primary">Browse Marketplace</Link>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Profile / Settings Tab */}
+        {tab === 'Profile / Settings' && (
+          <div className="dash-panel form-panel">
+            <h3>Your Innovator Profile</h3>
+            <p className="muted">Customize how your public identity appears on innovations and comments.</p>
+
+            <form className="settings-form" onSubmit={saveProfile}>
+              <label>
+                Professional Headline
+                <input
+                  value={headline}
+                  onChange={e => setHeadline(e.target.value)}
+                  placeholder="e.g. CleanTech Founder & Hardware Architect"
+                />
+              </label>
+
+              <label>
+                Short Bio
+                <textarea
+                  rows={4}
+                  value={bio}
+                  onChange={e => setBio(e.target.value)}
+                  placeholder="Tell other builders, investors and buyers about your journey and experience..."
+                />
+              </label>
+
+              <label>
+                Skills (comma-separated)
+                <input
+                  value={skillsStr}
+                  onChange={e => setSkillsStr(e.target.value)}
+                  placeholder="IoT, Product Design, Rapid Prototyping, React, Machine Learning"
+                />
+              </label>
+
+              <label>
+                Location
+                <input
+                  value={location}
+                  onChange={e => setLocation(e.target.value)}
+                  placeholder="e.g. San Francisco, CA or Remote"
+                />
+              </label>
+
+              <button type="submit" className="btn btn-primary" disabled={profileSaving}>
+                {profileSaving ? 'Saving profile...' : 'Save Profile Changes'}
+              </button>
+            </form>
+          </div>
+        )}
+      </section>
+
+      {/* Edit Innovation Modal */}
+      {editingItem && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2>Edit Innovation</h2>
+              <button className="modal-close-btn" onClick={() => setEditingItem(null)}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <label>
+              Title
+              <input
+                value={editTitle}
+                onChange={e => setEditTitle(e.target.value)}
+                required
+              />
+            </label>
+
+            <label>
+              Category
+              <select value={editCategory} onChange={e => setEditCategory(e.target.value)}>
+                {defaultCategoryMeta.map(c => (
+                  <option key={c[0]}>{c[0]}</option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              Price ($)
+              <input
+                type="number"
+                min="0"
+                value={editPrice}
+                onChange={e => setEditPrice(Number(e.target.value))}
+              />
+            </label>
+
+            <label>
+              Description
+              <textarea
+                rows={5}
+                value={editDesc}
+                onChange={e => setEditDesc(e.target.value)}
+                required
+              />
+            </label>
+
+            <label>
+              Image URL
+              <input
+                value={editImageUrl}
+                onChange={e => setEditImageUrl(e.target.value)}
+                placeholder="https://..."
+              />
+            </label>
+
+            <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+              <button className="btn btn-primary" style={{ flex: 1 }} onClick={saveEdit}>
+                Save Changes
+              </button>
+              <button className="btn btn-outline" onClick={() => setEditingItem(null)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </main>
+  );
+}
+
+function AIStudio() {
+  const [prompt, setPrompt] = useState('');
+  const [messages, setMessages] = useState([
+    {
+      role: 'assistant',
+      text: 'Hey! I’m your IDEA2IMPACT creative co-pilot. Tell me what you’re working on, or pick a prompt below. I can help shape a concept, plan a prototype or think through your audience.\n\nI’m in clearly labelled demo mode until an AI API key is configured.'
+    }
+  ]);
+  const [busy, setBusy] = useState(false);
+
+  const send = async (value = prompt) => {
+    if (!value.trim() || busy) return;
+    setMessages(m => [...m, { role: 'user', text: value }]);
+    setPrompt('');
+    setBusy(true);
+    const res = await demoAI(value);
+    setMessages(m => [...m, { role: 'assistant', text: res.reply, mode: res.mode || 'demo' }]);
+    setBusy(false);
+  };
+
+  return (
+    <main className="page wrap ai-page">
+      <div className="page-top">
+        <div className="eyebrow">IDEA2IMPACT INTELLIGENCE</div>
+        <h1>Make space for <span className="gradient-text">better ideas.</span></h1>
+        <p>A creative co-pilot for brainstorming, planning and finding your next useful step.</p>
+      </div>
+
+      <div className="chat-shell">
+        <aside className="chat-aside">
+          <div className="chat-brand">
+            <span className="brand-mark"><Sparkles /></span>
+            <b>Idea assistant</b>
+            <span className="demo-badge">DEMO MODE</span>
+          </div>
+          <p>What are we thinking through today?</p>
+          {[
+            'Help me improve my idea pitch',
+            'Create a simple prototype roadmap',
+            'Who could be my first customers?',
+            'What skills does my project need?',
+            'Explain licensing in simple terms'
+          ].map(x => (
+            <button key={x} onClick={() => send(x)}>
+              {x} <ArrowUpRight size={14} />
+            </button>
+          ))}
+          <div className="chat-safety">
+            <ShieldCheck size={16} /> AI responses are starting points, not legal, patent, investment or market advice.
+          </div>
+        </aside>
+
+        <section className="chat-main">
+          <div className="chat-top">
+            <span><i className="live-dot" /> Assistant online</span>
+            <span>IDEA2IMPACT / AI STUDIO</span>
+          </div>
+          <div className="chat-messages">
+            {messages.map((m, i) => (
+              <div className={`chat-message ${m.role}`} key={i}>
+                <div className="chat-avatar">
+                  {m.role === 'assistant' ? <Sparkles size={16} /> : 'Y'}
+                </div>
+                <div>
+                  <div className="message-label">
+                    {m.role === 'assistant' ? 'IDEA ASSISTANT' : 'YOU'} {m.mode && <span>· {m.mode.toUpperCase()}</span>}
+                  </div>
+                  <p>{m.text}</p>
+                </div>
+              </div>
+            ))}
+            {busy && <div className="typing">Thinking through it<span> · · ·</span></div>}
+          </div>
+          <div className="chat-input">
+            <textarea
+              value={prompt}
+              onChange={e => setPrompt(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  send();
+                }
+              }}
+              placeholder="Tell me about the idea you're exploring..."
+              rows={2}
+            />
+            <button className="send-btn" onClick={() => send()} disabled={busy || !prompt.trim()}>
+              <Send size={17} />
+            </button>
+          </div>
+          <div className="chat-foot">Enter to send · Shift + Enter for a new line</div>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function Pricing() {
+  const plans = [
+    ['FREE', '$0', 'For curious minds', ['Browse innovations', 'Basic profile', 'Save opportunities', 'Community access'], 'Get started'],
+    ['CREATOR PRO', '$12', 'For makers moving forward', ['Enhanced creator profile', 'Advanced listing insights', 'Featured listing eligibility', 'More creator tools'], 'Coming soon'],
+    ['COMPANY', '$39', 'For teams seeking new ideas', ['Company profile', 'Advanced discovery', 'Collaboration opportunities', 'Team workspace'], 'Coming soon'],
+    ['INVESTOR PRO', '$29', 'For opportunity explorers', ['Advanced opportunity discovery', 'Saved opportunities', 'Enhanced matching', 'Creator connections'], 'Coming soon']
+  ];
+
+  return (
+    <main className="page wrap pricing-page">
+      <div className="page-top centered">
+        <div className="eyebrow">SIMPLE PLANS. BIG POSSIBILITIES.</div>
+        <h1>Find your way to <span className="gradient-text">what’s next.</span></h1>
+        <p>Start free. Grow into the tools that fit your journey.</p>
+        <span className="demo-badge">HACKATHON DEMO · NO PAYMENTS</span>
+      </div>
+      <div className="pricing-grid">
+        {plans.map(([name, price, desc, features, cta], i) => (
+          <div className={`price-card ${i === 1 ? 'featured-price' : ''}`} key={name}>
+            <div className="price-top">
+              <span>{name}</span>
+              {i === 1 && <b>POPULAR</b>}
+            </div>
+            <h2>{price}<small>{i ? ' / month' : ''}</small></h2>
+            <p>{desc}</p>
+            <div className="price-divider" />
+            {features.map(f => (
+              <div className="price-feature" key={f}>
+                <Check size={16} />{f}
+              </div>
+            ))}
+            {i === 0 ? (
+              <Link to="/signup" className="btn btn-outline full">{cta} <ArrowRight size={15} /></Link>
+            ) : (
+              <button className="btn btn-outline full" disabled>{cta}</button>
+            )}
+          </div>
+        ))}
+      </div>
+      <p className="pricing-note">All paid plans are illustrative and coming soon. No billing or subscriptions are active in this demo.</p>
+    </main>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="footer">
+      <div className="wrap">
+        <div className="footer-main">
+          <div>
+            <Link to="/" className="brand">
+              <span className="brand-mark"><Sparkles size={18} /></span>
+              IDEA<span className="brand-blue">2</span>IMPACT
+            </Link>
+            <p>A platform where ideas<br />find their next step.</p>
+          </div>
+          <div className="footer-links">
+            <div>
+              <b>EXPLORE</b>
+              <Link to="/marketplace">Marketplace</Link>
+              <Link to="/ai-studio">AI Studio</Link>
+              <Link to="/pricing">Pricing</Link>
+            </div>
+            <div>
+              <b>PLATFORM</b>
+              <a href="/#how">How it works</a>
+              <Link to="/signup">Join the community</Link>
+              <Link to="/dashboard">Dashboard</Link>
+            </div>
+            <div>
+              <b>LEGAL & SUPPORT</b>
+              <a href="mailto:hello@idea2impact.example">Contact</a>
+              <a href="#privacy">Privacy policy</a>
+              <a href="#terms">Terms & conditions</a>
+            </div>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <span>© 2026 IDEA2IMPACT. Built for ideas that move the world.</span>
+          <span>DESIGNED FOR THE NEXT BIG THING <span className="gradient-text">✦</span></span>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
 export default App;
