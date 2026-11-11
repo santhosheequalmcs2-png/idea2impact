@@ -21,8 +21,12 @@ export async function setupDatabase() {
     await prisma.$connect();
     console.log('Connected to database successfully.');
 
-    // 0. Ensure Comment.postId is nullable so comments can be on innovations
-    await prisma.$executeRawUnsafe('ALTER TABLE "Comment" ALTER COLUMN "postId" DROP NOT NULL;');
+    // 0. Ensure Comment.postId is nullable if table already existed from legacy schema
+    try {
+      await prisma.$executeRawUnsafe('ALTER TABLE "Comment" ALTER COLUMN "postId" DROP NOT NULL;');
+    } catch {
+      // Safe to ignore if table does not exist yet or column is already nullable
+    }
 
     // 1. Seed Categories
     const categoriesData = [
