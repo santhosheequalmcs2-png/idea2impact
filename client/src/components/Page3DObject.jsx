@@ -136,76 +136,198 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
     }
 
     // =========================================================================
-    // 2. TALENTS: 3D Interconnected Human Collaboration Network
+    // 2. TALENTS & PARTNERS: 3D Collaborative Builder Triad & Team Nexus
+    // Distinct from Home Orb: Features 3 stylized co-founder/builder figures
+    // (Founder, Engineer, Investor) arranged in a collaborative circle around
+    // a glowing synergy gem, floating podium, and glowing partnership conduits.
     // =========================================================================
     else if (type === 'talents') {
-      const netGroup = new THREE.Group();
+      const teamGroup = new THREE.Group();
 
-      const centerGeo = new THREE.IcosahedronGeometry(0.55, 2);
-      const centerMat = new THREE.MeshStandardMaterial({
-        color: colors.primary,
-        emissive: colors.primary,
-        emissiveIntensity: 0.8,
-        metalness: 0.5,
-        roughness: 0.2
+      // Elevated floating partnership dais / stage
+      const daisGeo = new THREE.CylinderGeometry(1.35, 1.45, 0.12, 32);
+      const daisMat = new THREE.MeshStandardMaterial({
+        color: colors.metal,
+        metalness: 0.8,
+        roughness: 0.3
       });
-      const centerMesh = new THREE.Mesh(centerGeo, centerMat);
-      netGroup.add(centerMesh);
+      const dais = new THREE.Mesh(daisGeo, daisMat);
+      dais.position.y = -0.7;
+      teamGroup.add(dais);
 
-      const wireGeo = new THREE.IcosahedronGeometry(1.6, 1);
-      const wireMat = new THREE.MeshBasicMaterial({
+      // Glowing perimeter ring around platform
+      const daisRingGeo = new THREE.TorusGeometry(1.42, 0.03, 8, 48);
+      const daisRingMat = new THREE.MeshBasicMaterial({
         color: colors.secondary,
-        wireframe: true,
         transparent: true,
-        opacity: isDark ? 0.35 : 0.45
+        opacity: 0.7
       });
-      const wireMesh = new THREE.Mesh(wireGeo, wireMat);
-      netGroup.add(wireMesh);
+      const daisRing = new THREE.Mesh(daisRingGeo, daisRingMat);
+      daisRing.rotation.x = Math.PI * 0.5;
+      daisRing.position.y = -0.64;
+      teamGroup.add(daisRing);
 
-      const nodesData = [
-        { pos: new THREE.Vector3(1.2, 0.7, 0.5), col: colors.primary },
-        { pos: new THREE.Vector3(-1.1, 0.8, -0.6), col: colors.secondary },
-        { pos: new THREE.Vector3(0.5, -1.2, 0.7), col: colors.accent },
-        { pos: new THREE.Vector3(-0.8, -0.9, -0.8), col: colors.secondary }
+      // 3 Stylized Builder Figures (120 deg apart)
+      // Member 0: The Creator / Innovator (Primary color)
+      // Member 1: The Elite Engineer / Builder (Secondary color)
+      // Member 2: The Investor / Growth Partner (Accent color)
+      const roles = [
+        { angle: 0, color: colors.primary, title: 'Creator' },
+        { angle: (Math.PI * 2) / 3, color: colors.secondary, title: 'Engineer' },
+        { angle: (Math.PI * 4) / 3, color: colors.accent, title: 'Partner' }
       ];
 
-      const satellites = [];
-      nodesData.forEach(({ pos, col }) => {
-        const satGeo = new THREE.SphereGeometry(0.24, 16, 16);
-        const satMat = new THREE.MeshStandardMaterial({
-          color: col,
-          emissive: col,
-          emissiveIntensity: 0.9,
-          metalness: 0.6
-        });
-        const sat = new THREE.Mesh(satGeo, satMat);
-        sat.position.copy(pos);
-        netGroup.add(sat);
-        satellites.push({ mesh: sat, basePos: pos.clone() });
+      const radius = 0.85;
+      const avatarMeshes = [];
+      const figureChestPositions = [];
 
-        const linePoints = [new THREE.Vector3(0, 0, 0), pos];
-        const lineGeo = new THREE.BufferGeometry().setFromPoints(linePoints);
-        const lineMat = new THREE.LineBasicMaterial({
-          color: col,
-          transparent: true,
-          opacity: 0.75
+      roles.forEach(({ angle, color }) => {
+        const figure = new THREE.Group();
+        const fx = Math.cos(angle) * radius;
+        const fz = Math.sin(angle) * radius;
+        figure.position.set(fx, -0.64, fz);
+
+        // Turn figure to face slightly outward toward viewer
+        figure.rotation.y = -angle + Math.PI * 0.5;
+
+        // Torso / Body: sleek tapered capsule/cylinder
+        const torsoGeo = new THREE.CylinderGeometry(0.2, 0.3, 0.55, 16);
+        const torsoMat = new THREE.MeshStandardMaterial({
+          color: color,
+          metalness: 0.5,
+          roughness: 0.25
         });
-        const line = new THREE.Line(lineGeo, lineMat);
-        netGroup.add(line);
+        const torso = new THREE.Mesh(torsoGeo, torsoMat);
+        torso.position.y = 0.32;
+        figure.add(torso);
+
+        // Shoulders / Chest Armor Plate
+        const shoulderGeo = new THREE.BoxGeometry(0.52, 0.12, 0.26);
+        const shoulderMat = new THREE.MeshStandardMaterial({
+          color: colors.metal,
+          metalness: 0.8,
+          roughness: 0.2
+        });
+        const shoulders = new THREE.Mesh(shoulderGeo, shoulderMat);
+        shoulders.position.y = 0.52;
+        figure.add(shoulders);
+
+        // Head: Stylized sphere
+        const headGeo = new THREE.SphereGeometry(0.18, 20, 20);
+        const headMat = new THREE.MeshStandardMaterial({
+          color: color,
+          metalness: 0.4,
+          roughness: 0.3
+        });
+        const head = new THREE.Mesh(headGeo, headMat);
+        head.position.y = 0.74;
+        figure.add(head);
+
+        // Glowing Visor on Head
+        const visorGeo = new THREE.BoxGeometry(0.22, 0.05, 0.14);
+        const visorMat = new THREE.MeshBasicMaterial({
+          color: color
+        });
+        const visor = new THREE.Mesh(visorGeo, visorMat);
+        visor.position.set(0, 0.74, 0.12);
+        figure.add(visor);
+
+        // Role Emblem / Badge on chest
+        const badgeGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.04, 12);
+        badgeGeo.rotateX(Math.PI / 2);
+        const badgeMat = new THREE.MeshStandardMaterial({
+          color: color,
+          emissive: color,
+          emissiveIntensity: 1.2
+        });
+        const badge = new THREE.Mesh(badgeGeo, badgeMat);
+        badge.position.set(0, 0.38, 0.16);
+        figure.add(badge);
+
+        teamGroup.add(figure);
+        avatarMeshes.push(figure);
+
+        // Store chest coordinate for connection lines
+        figureChestPositions.push(new THREE.Vector3(fx, -0.25, fz));
       });
 
-      const ringGeo = new THREE.TorusGeometry(1.7, 0.025, 8, 64);
-      const ringMat = new THREE.MeshBasicMaterial({ color: colors.accent, transparent: true, opacity: 0.6 });
-      const ring = new THREE.Mesh(ringGeo, ringMat);
-      ring.rotation.x = Math.PI * 0.35;
-      netGroup.add(ring);
+      // Floating Collaboration Core / Synergy Gem in center
+      const gemGroup = new THREE.Group();
+      gemGroup.position.set(0, 0.15, 0);
 
-      rootGroup.add(netGroup);
+      const gemGeo = new THREE.OctahedronGeometry(0.36, 0);
+      const gemMat = new THREE.MeshStandardMaterial({
+        color: colors.secondary,
+        emissive: colors.primary,
+        emissiveIntensity: 1.2,
+        roughness: 0.15,
+        metalness: 0.7
+      });
+      const gem = new THREE.Mesh(gemGeo, gemMat);
+      gemGroup.add(gem);
+
+      // Inner pulsating light spark
+      const gemCoreGeo = new THREE.SphereGeometry(0.16, 16, 16);
+      const gemCoreMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+      gemGroup.add(new THREE.Mesh(gemCoreGeo, gemCoreMat));
+
+      // Orbiting Synergy Halo Rings around gem
+      const orbitRing1 = new THREE.Mesh(
+        new THREE.TorusGeometry(0.55, 0.015, 8, 32),
+        new THREE.MeshBasicMaterial({ color: colors.secondary, transparent: true, opacity: 0.8 })
+      );
+      orbitRing1.rotation.x = Math.PI * 0.3;
+      gemGroup.add(orbitRing1);
+
+      const orbitRing2 = new THREE.Mesh(
+        new THREE.TorusGeometry(0.62, 0.015, 8, 32),
+        new THREE.MeshBasicMaterial({ color: colors.accent, transparent: true, opacity: 0.8 })
+      );
+      orbitRing2.rotation.y = Math.PI * 0.4;
+      gemGroup.add(orbitRing2);
+
+      teamGroup.add(gemGroup);
+
+      // Triangle of Partnership: Laser connection lines linking the 3 builders
+      const triadPoints = [
+        figureChestPositions[0],
+        figureChestPositions[1],
+        figureChestPositions[2],
+        figureChestPositions[0]
+      ];
+      const triadGeo = new THREE.BufferGeometry().setFromPoints(triadPoints);
+      const triadMat = new THREE.LineBasicMaterial({
+        color: colors.secondary,
+        transparent: true,
+        opacity: 0.75
+      });
+      const triadLines = new THREE.Line(triadGeo, triadMat);
+      teamGroup.add(triadLines);
+
+      // Radial Beams from each builder to the central synergy gem
+      const centerPos = new THREE.Vector3(0, 0.15, 0);
+      figureChestPositions.forEach((chestPos) => {
+        const beamGeo = new THREE.BufferGeometry().setFromPoints([chestPos, centerPos]);
+        const beamMat = new THREE.LineBasicMaterial({
+          color: colors.primary,
+          transparent: true,
+          opacity: 0.6
+        });
+        teamGroup.add(new THREE.Line(beamGeo, beamMat));
+      });
+
+      rootGroup.add(teamGroup);
 
       animatables.push((time) => {
-        ring.rotation.z = time * 0.5;
-        satellites.forEach(({ mesh, basePos }, i) => {
-          mesh.position.y = basePos.y + Math.sin(time * 2 + i) * 0.08;
+        gemGroup.rotation.y = time * 0.8;
+        gemGroup.rotation.x = Math.sin(time * 0.5) * 0.2;
+        orbitRing1.rotation.z = time * 1.2;
+        orbitRing2.rotation.z = -time * 1.0;
+        gemMat.emissiveIntensity = 1.0 + Math.sin(time * 3) * 0.4;
+
+        // Subtle floating / breathing of each figure
+        avatarMeshes.forEach((mesh, idx) => {
+          mesh.position.y = -0.64 + Math.sin(time * 2 + idx * 2.09) * 0.025;
         });
       });
     }
