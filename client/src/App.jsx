@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { Routes, Route, Link, useNavigate, useLocation, useParams } from 'react-router-dom';
+import { Routes, Route, Link, useNavigate, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import {
   ArrowRight, ArrowUpRight, Sparkles, Lightbulb, Code2, Smartphone, Gamepad2,
   Package, Palette, Globe2, Menu, X, Search, Plus, Heart, SlidersHorizontal,
@@ -140,8 +140,23 @@ function App() {
           <Link to="/ai-studio" onClick={() => setMenu(false)}>AI Studio</Link>
           <Link to="/pricing" onClick={() => setMenu(false)}>Pricing</Link>
           <a href="/#how" onClick={() => setMenu(false)}>How it works</a>
+          <Link
+            to={user ? "/dashboard?tab=upload" : "/login?redirect=/dashboard?tab=upload"}
+            className="mobile-submit-btn"
+            onClick={() => setMenu(false)}
+          >
+            <Plus size={16} /> Submit Idea
+          </Link>
         </nav>
         <div className="nav-actions">
+          <Link
+            to={user ? "/dashboard?tab=upload" : "/login?redirect=/dashboard?tab=upload"}
+            className="btn-submit-idea"
+            title="Submit a new innovation or idea"
+          >
+            <Plus size={15} />
+            <span>Submit Idea</span>
+          </Link>
           <button
             className="theme-toggle"
             aria-label={dark ? "Switch to Light Mode" : "Switch to Dark Mode"}
@@ -1863,7 +1878,9 @@ function Auth({ mode, onAuth }) {
 
       if (data.user) {
         onAuth(data.user, data.token);
-        nav('/dashboard');
+        const search = new URLSearchParams(window.location.search);
+        const redirect = search.get('redirect') || '/dashboard';
+        nav(redirect);
       } else {
         throw new Error('Authentication response invalid');
       }
@@ -1955,7 +1972,26 @@ function Auth({ mode, onAuth }) {
 
 function Dashboard({ user, onRefresh, onUpdateUser }) {
   const navigate = useNavigate();
-  const [tab, setTab] = useState('Overview');
+  const [searchParams] = useSearchParams();
+  const [tab, setTab] = useState(() => {
+    const q = searchParams.get('tab');
+    if (q === 'upload' || q === 'create' || q === 'new') return 'Upload innovation';
+    if (q === 'my') return 'My innovations';
+    if (q === 'proposals') return 'Proposals & Offers';
+    if (q === 'saved') return 'Saved bookmarks';
+    if (q === 'profile') return 'Profile settings';
+    return 'Overview';
+  });
+
+  useEffect(() => {
+    const q = searchParams.get('tab');
+    if (q === 'upload' || q === 'create' || q === 'new') setTab('Upload innovation');
+    else if (q === 'my') setTab('My innovations');
+    else if (q === 'proposals') setTab('Proposals & Offers');
+    else if (q === 'saved') setTab('Saved bookmarks');
+    else if (q === 'profile') setTab('Profile settings');
+  }, [searchParams]);
+
   const [stats, setStats] = useState({
     myInnovationsCount: 0,
     savedCount: 0,

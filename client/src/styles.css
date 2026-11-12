@@ -2792,3 +2792,86 @@ body, .nav, .footer, .innovation-card, .btn, .stat-card, .chat-shell, .filter-pa
   background: #2563FF;
   box-shadow: 0 0 10px #2563FF;
 }
+
+/* =========================================================
+   NAVIGATION ACTION BUTTON: + SUBMIT IDEA
+   ========================================================= */
+.btn-submit-idea {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  letter-spacing: -0.01em;
+}
+
+/* Light Mode: Royal Purple & Electric Blue Theme */
+[data-theme="light"] .btn-submit-idea {
+  background: linear-gradient(135deg, #7041c7 0%, #2563ff 100%);
+  color: #ffffff !important;
+  border: 1px solid transparent;
+  box-shadow: 0 3px 12px rgba(112, 65, 199, 0.28);
+}
+[data-theme="light"] .btn-submit-idea:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(112, 65, 199, 0.42);
+}
+
+/* Dark Mode: Cyan & Deep Neon Theme */
+[data-theme="dark"] .btn-submit-idea,
+:root:not([data-theme="light"]) .btn-submit-idea {
+  background: linear-gradient(135deg, rgba(84, 230, 245, 0.15), rgba(100, 133, 255, 0.18));
+  color: #54e6f5 !important;
+  border: 1px solid rgba(84, 230, 245, 0.45);
+  box-shadow: 0 0 16px rgba(84, 230, 245, 0.14);
+}
+[data-theme="dark"] .btn-submit-idea:hover,
+:root:not([data-theme="light"]) .btn-submit-idea:hover {
+  background: linear-gradient(135deg, rgba(84, 230, 245, 0.28), rgba(100, 133, 255, 0.3));
+  border-color: #54e6f5;
+  box-shadow: 0 0 22px rgba(84, 230, 245, 0.35);
+  transform: translateY(-2px);
+  color: #ffffff !important;
+}
+
+/* Mobile responsive navigation button */
+.mobile-submit-btn {
+  display: none;
+}
+@media (max-width: 650px) {
+  .btn-submit-idea {
+    padding: 6px 11px;
+    font-size: 11px;
+    gap: 4px;
+  }
+  .mobile-submit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border-radius: 9999px;
+    font-weight: 700;
+    font-size: 13px;
+    margin-top: 10px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  [data-theme="light"] .mobile-submit-btn {
+    background: linear-gradient(135deg, #7041c7 0%, #2563ff 100%);
+    color: #ffffff !important;
+  }
+  [data-theme="dark"] .mobile-submit-btn,
+  :root:not([data-theme="light"]) .mobile-submit-btn {
+    background: linear-gradient(135deg, rgba(84, 230, 245, 0.2), rgba(100, 133, 255, 0.2));
+    color: #54e6f5 !important;
+    border: 1px solid rgba(84, 230, 245, 0.45);
+  }
+}
