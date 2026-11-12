@@ -29,7 +29,17 @@ const defaultCategoryMeta = [
 ];
 
 function App() {
-  const [dark, setDark] = useState(true);
+  const [dark, setDark] = useState(() => {
+    try {
+      const saved = localStorage.getItem('i2i_theme');
+      if (saved !== null) {
+        return saved === 'dark';
+      }
+      return false; // Default to Light Mode for first-time visitors
+    } catch {
+      return false;
+    }
+  });
   const [user, setUser] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('i2i_user') || 'null');
@@ -51,7 +61,12 @@ function App() {
 
   // Sync theme
   useEffect(() => {
-    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    const theme = dark ? 'dark' : 'light';
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.setAttribute('data-theme', theme);
+    try {
+      localStorage.setItem('i2i_theme', theme);
+    } catch (e) {}
   }, [dark]);
 
   // Load user session from backend if token exists
@@ -115,7 +130,7 @@ function App() {
 
   return (
     <>
-      <header className={`nav ${isHome ? 'home-nav' : ''}`}>
+      <header className={`nav ${!dark ? 'light-nav' : ''} ${!dark && isHome ? 'home-nav' : ''}`}>
         <Link to="/" className="brand">
           <span className="brand-mark"><Sparkles size={18} /></span>
           <span>IDEA<span className="brand-blue">2</span>IMPACT</span>
@@ -128,8 +143,18 @@ function App() {
           <a href="/#how" onClick={() => setMenu(false)}>How it works</a>
         </nav>
         <div className="nav-actions">
-          <button className="icon-btn" aria-label="Toggle theme" onClick={() => setDark(!dark)}>
-            {dark ? <Sun size={17} /> : <Moon size={17} />}
+          <button
+            className="theme-toggle"
+            aria-label={dark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            title={dark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            onClick={() => setDark(!dark)}
+          >
+            <span className={`theme-toggle-option ${!dark ? 'active' : ''}`} title="Light Mode">
+              <Sun size={15} />
+            </span>
+            <span className={`theme-toggle-option ${dark ? 'active' : ''}`} title="Dark Mode">
+              <Moon size={15} />
+            </span>
           </button>
           {user ? (
             <>
@@ -159,7 +184,7 @@ function App() {
       </header>
 
       <Routes>
-        <Route path="/" element={<Home items={items} categories={categories} />} />
+        <Route path="/" element={<Home items={items} categories={categories} dark={dark} />} />
         <Route path="/marketplace" element={<Marketplace items={items} categories={categories} onRefresh={refreshData} user={user} />} />
         <Route path="/talents" element={<TalentDirectory />} />
         <Route path="/innovation/:id" element={<Detail user={user} onRefresh={refreshData} />} />
@@ -168,56 +193,256 @@ function App() {
         <Route path="/dashboard/*" element={<Dashboard user={user} onRefresh={refreshData} onUpdateUser={setUser} />} />
         <Route path="/ai-studio" element={<AIStudio />} />
         <Route path="/pricing" element={<Pricing />} />
-        <Route path="*" element={<Home items={items} categories={categories} />} />
+        <Route path="*" element={<Home items={items} categories={categories} dark={dark} />} />
       </Routes>
 
-      <Footer isHome={isHome} />
+      <Footer isHome={isHome} dark={dark} />
       <AICopilot activeContext={activeContextItem} />
     </>
   );
 }
 
-function Home({ items, categories }) {
-  const displayCategories = useMemo(() => {
-    return defaultCategoryMeta.map(([name, Icon, desc, slug]) => {
-      const match = categories.find(c => c.slug === slug || c.name.toLowerCase() === name.toLowerCase());
-      const count = match ? match.count : 0;
-      return [name, Icon, desc, count > 0 ? String(count) : '✦'];
-    });
-  }, [categories]);
+function OriginalDarkHome({ items, displayCategories }) {
+  return (
+    <main>
+      <section className="hero wrap">
+        <div className="hero-copy">
+          <div className="eyebrow">
+            <span className="pulse" /> THE INNOVATION ECOSYSTEM <span className="eyebrow-line" />
+          </div>
+          <h1>Every great innovation<br />starts with <span className="gradient-text">an idea.</span></h1>
+          <p className="hero-sub">
+            Showcase your creativity, discover opportunities, connect with experts and transform your ideas into real-world innovations.
+          </p>
+          <div className="hero-actions">
+            <Link to="/marketplace" className="btn btn-primary">
+              Explore innovations <ArrowUpRight size={17} />
+            </Link>
+            <Link to="/talents" className="btn btn-outline">
+              Find Partners & Builders <Users size={16} />
+            </Link>
+          </div>
+          <div className="hero-proof">
+            <div className="avatar-stack">
+              <i>MC</i><i>MV</i><i>DB</i><i>ER</i><i>+</i>
+            </div>
+            <span>
+              <b>Ideas move further together.</b>
+              <small>Built for creators, builders & believers</small>
+            </span>
+          </div>
+        </div>
+        <div className="hero-visual">
+          <div className="visual-glow" />
+          <div className="orbit orbit-one" />
+          <div className="orbit orbit-two" />
+          <Orb />
+          <div className="float-card float-top">
+            <span className="float-icon"><Sparkles size={15} /></span>
+            <span><b>AI opportunity match</b><small>94% compatibility</small></span>
+            <span className="live-dot" />
+          </div>
+          <div className="float-card float-bottom">
+            <span className="float-icon cyan"><TrendingUp size={16} /></span>
+            <span><b>Idea → Impact</b><small>Your next step starts here</small></span>
+          </div>
+          <div className="visual-caption">IDEAS <span>↗</span> BUILD <span>↗</span> GROW</div>
+        </div>
+      </section>
 
-  // Featured workmen for the homepage spotlight banner
-  const featuredWorkmen = [
-    {
-      name: 'Maya Chen',
-      role: 'CleanTech IoT Founder',
-      headline: 'Embedded sensor telemetry & hardware design',
-      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
-      badge: 'Creator'
-    },
-    {
-      name: 'Marcus Vance',
-      role: 'Venture Partner @ Apex Horizons',
-      headline: 'Angel investor in hardware, robotics & climate',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-      badge: 'Investor'
-    },
-    {
-      name: 'Devon Brooks',
-      role: 'Principal Robotics Architect',
-      headline: 'Autonomous drone stacks, ROS2 & bionics',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
-      badge: 'Builder'
-    },
-    {
-      name: 'David S. Miller, Esq.',
-      role: 'Registered Patent Attorney',
-      headline: 'Provisional filings, USPTO & IP licensing',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80',
-      badge: 'Patent Pro'
-    }
-  ];
+      <div className="trust-strip wrap">
+        <span>ONE SPACE. INFINITE POSSIBILITIES.</span>
+        <div><b>01</b> Discover <i /> <b>02</b> Collaborate <i /> <b>03</b> Launch</div>
+      </div>
 
+      <section className="section wrap" id="how">
+        <div className="section-head">
+          <div>
+            <div className="eyebrow">FROM THOUGHT TO THING</div>
+            <h2>Big ideas need a <span className="gradient-text">next step.</span></h2>
+          </div>
+          <p>One connected journey to turn a spark of creativity into something the world can use.</p>
+        </div>
+        <div className="steps-grid">
+          {[
+            ['01', 'Showcase', 'Put your idea, invention or product out into the world.'],
+            ['02', 'Evaluate', 'Get an AI-assisted view of your concept and its potential.'],
+            ['03', 'Match', 'Find relevant buyers, companies, investors and talent.'],
+            ['04', 'Connect', 'Bring the right people together to build what’s next.'],
+            ['05', 'Grow', 'Explore sales, licensing and collaboration pathways.']
+          ].map(([n, t, d]) => (
+            <article className="step-card" key={n}>
+              <span className="step-no">{n}</span>
+              <div className="step-arrow"><ArrowUpRight size={17} /></div>
+              <h3>{t}</h3>
+              <p>{d}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="section categories-section">
+        <div className="wrap">
+          <div className="section-head">
+            <div>
+              <div className="eyebrow">EXPLORE THE POSSIBLE</div>
+              <h2>Ideas come in <span className="gradient-text">many forms.</span></h2>
+            </div>
+            <Link to="/marketplace" className="text-link">Explore marketplace <ArrowUpRight size={16} /></Link>
+          </div>
+          <div className="category-grid">
+            {displayCategories.map(([name, Icon, desc, count], i) => (
+              <Link to={`/marketplace?category=${encodeURIComponent(name)}`} className="category-card" key={name}>
+                <div className={`category-icon ci-${i % 8}`}><Icon size={22} /></div>
+                <div className="category-count">{count} <ArrowUpRight size={13} /></div>
+                <h3>{name}</h3>
+                <p>{desc}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Today's Innovation Leaderboard */}
+      {items.length > 0 && (
+        <section className="section wrap leaderboard-section">
+          <div className="leaderboard-banner">
+            <div className="leaderboard-head">
+              <div>
+                <span className="leaderboard-badge">
+                  <Trophy size={14} /> TODAY'S LEADERBOARD
+                </span>
+                <h2 style={{ margin: '8px 0 4px', fontSize: '28px' }}>
+                  Ranked by Community <span className="gradient-text">Upvotes & Velocity</span>
+                </h2>
+                <p style={{ margin: 0, fontSize: '13px' }}>
+                  The most promising concepts, inventions, and prototypes voted by inventors and investors today.
+                </p>
+              </div>
+              <Link to="/marketplace" className="text-link">
+                View all rankings <ArrowUpRight size={14} />
+              </Link>
+            </div>
+
+            <div className="leaderboard-grid">
+              {items[0] && (
+                <div className="leader-card-champion">
+                  <div className="crown-tag">
+                    <Crown size={13} /> #1 IDEA OF THE DAY
+                  </div>
+                  <div className="card-meta" style={{ marginTop: '10px' }}>
+                    <span className="badge-tag">{items[0].category}</span>
+                    <span>Velocity: +42% today</span>
+                  </div>
+                  <h3 className="leader-title">
+                    <Link to={`/innovation/${items[0].id}`}>{items[0].title}</Link>
+                  </h3>
+                  <p className="leader-desc">{items[0].desc || items[0].description}</p>
+                  <div className="leader-bottom">
+                    <span className="card-author" style={{ border: 0, padding: 0 }}>
+                      <span className="mini-avatar">
+                        {items[0].creator?.profile?.avatar ? (
+                          <img src={items[0].creator.profile.avatar} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                        ) : (
+                          items[0].author?.slice(0, 1)?.toUpperCase() || 'C'
+                        )}
+                      </span>
+                      <span>{items[0].author || 'Creator'}</span>
+                    </span>
+                    <Link to={`/innovation/${items[0].id}`} className="upvote-pill">
+                      <Flame size={14} /> {(items[0].likeCount || 0) + 12} Upvotes
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {items[1] && (
+                <div className="leader-card-runner">
+                  <span className="runner-rank">#2</span>
+                  <div className="card-meta">
+                    <span className="badge-tag">{items[1].category}</span>
+                  </div>
+                  <h3 className="leader-title">
+                    <Link to={`/innovation/${items[1].id}`}>{items[1].title}</Link>
+                  </h3>
+                  <p className="leader-desc">{items[1].desc || items[1].description}</p>
+                  <div className="leader-bottom">
+                    <span style={{ fontSize: '11px', color: 'var(--muted)' }}>By {items[1].author || 'Creator'}</span>
+                    <Link to={`/innovation/${items[1].id}`} className="upvote-pill">
+                      <Flame size={13} /> {(items[1].likeCount || 0) + 7}
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {items[2] && (
+                <div className="leader-card-runner">
+                  <span className="runner-rank">#3</span>
+                  <div className="card-meta">
+                    <span className="badge-tag">{items[2].category}</span>
+                  </div>
+                  <h3 className="leader-title">
+                    <Link to={`/innovation/${items[2].id}`}>{items[2].title}</Link>
+                  </h3>
+                  <p className="leader-desc">{items[2].desc || items[2].description}</p>
+                  <div className="leader-bottom">
+                    <span style={{ fontSize: '11px', color: 'var(--muted)' }}>By {items[2].author || 'Creator'}</span>
+                    <Link to={`/innovation/${items[2].id}`} className="upvote-pill">
+                      <Flame size={13} /> {(items[2].likeCount || 0) + 4}
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className="section wrap">
+        <div className="section-head">
+          <div>
+            <div className="eyebrow">FRESH FROM THE COMMUNITY</div>
+            <h2>Ideas worth a <span className="gradient-text">closer look.</span></h2>
+          </div>
+          <Link to="/marketplace" className="text-link">View all innovations <ArrowUpRight size={16} /></Link>
+        </div>
+        <div className="listing-grid">
+          {items.slice(0, 3).map(x => (
+            <InnovationCard item={x} key={x.id} />
+          ))}
+        </div>
+      </section>
+
+      <section className="section wrap">
+        <div className="ai-banner">
+          <div className="ai-banner-orb"><Sparkles size={42} /></div>
+          <div className="ai-banner-copy">
+            <div className="eyebrow">AI-POWERED EXPLORATION</div>
+            <h2>Supercharge your concept with built-in intelligence.</h2>
+            <p>From evaluating patentability and finding buyers to calculating TAM and building pitch decks — let AI accelerate your roadmap.</p>
+            <div style={{ marginTop: '20px' }}>
+              <Link to="/ai-studio" className="btn btn-primary">
+                Launch AI Studio <Sparkles size={16} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="cta-section">
+        <div className="wrap cta-inner">
+          <div className="eyebrow">THE NEXT CHAPTER IS YOURS</div>
+          <h2>Your idea could be the<br /><span className="gradient-text">next big innovation.</span></h2>
+          <p>Start with what you have. Find the people and momentum to take it further.</p>
+          <Link to="/signup" className="btn btn-primary">Get started today <ArrowUpRight size={17} /></Link>
+          <div className="cta-orbit" />
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function LightHome({ items, displayCategories, featuredWorkmen }) {
   return (
     <div className="home-brand-theme">
       {/* 1. Hero Section */}
@@ -640,6 +865,60 @@ function Home({ items, categories }) {
         </div>
       </section>
     </div>
+  );
+}
+
+function Home({ items, categories, dark }) {
+  const displayCategories = useMemo(() => {
+    return defaultCategoryMeta.map(([name, Icon, desc, slug]) => {
+      const match = categories.find(c => c.slug === slug || c.name.toLowerCase() === name.toLowerCase());
+      const count = match ? match.count : 0;
+      return [name, Icon, desc, count > 0 ? String(count) : '✦'];
+    });
+  }, [categories]);
+
+  // Featured workmen for the homepage spotlight banner
+  const featuredWorkmen = [
+    {
+      name: 'Maya Chen',
+      role: 'CleanTech IoT Founder',
+      headline: 'Embedded sensor telemetry & hardware design',
+      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
+      badge: 'Creator'
+    },
+    {
+      name: 'Marcus Vance',
+      role: 'Venture Partner @ Apex Horizons',
+      headline: 'Angel investor in hardware, robotics & climate',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+      badge: 'Investor'
+    },
+    {
+      name: 'Devon Brooks',
+      role: 'Principal Robotics Architect',
+      headline: 'Autonomous drone stacks, ROS2 & bionics',
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
+      badge: 'Builder'
+    },
+    {
+      name: 'David S. Miller, Esq.',
+      role: 'Registered Patent Attorney',
+      headline: 'Provisional filings, USPTO & IP licensing',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80',
+      badge: 'Patent Pro'
+    }
+  ];
+
+  if (dark) {
+    return <OriginalDarkHome items={items} displayCategories={displayCategories} />;
+  }
+
+  return (
+    <LightHome
+      items={items}
+      displayCategories={displayCategories}
+      featuredWorkmen={featuredWorkmen}
+    />
   );
 }
 
@@ -2457,9 +2736,9 @@ function Pricing() {
   );
 }
 
-function Footer({ isHome }) {
+function Footer({ isHome, dark }) {
   return (
-    <footer className={`footer ${isHome ? 'home-footer' : ''}`}>
+    <footer className={`footer ${!dark ? 'home-footer' : ''}`}>
       <div className="wrap">
         <div className="footer-main">
           <div>
