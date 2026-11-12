@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "build": "vite build && node --input-type=module -e \"import fs from 'fs'; if(fs.existsSync('dist')){fs.cpSync('dist','public',{recursive:true})}\",
+    "build": "vite build",
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
