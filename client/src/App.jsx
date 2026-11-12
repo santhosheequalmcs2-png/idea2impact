@@ -7,7 +7,7 @@ import {
   Send, Check, Layers, Building2, BriefcaseBusiness, LockKeyhole, TrendingUp,
   ChevronRight, LogOut, Bell, Filter, Edit3, Trash2, UploadCloud, UserCircle,
   ExternalLink, Image as ImageIcon, MessageSquare, DollarSign, FileText, CheckCircle2,
-  MapPin, Award, Handshake, Trophy, Flame, Coffee, Crown, Shield, Lock, Eye, Download, Printer
+  MapPin, Award, Handshake, Trophy, Flame, Coffee, Crown, Shield, Lock, Eye, Download, Printer, BarChart3
 } from 'lucide-react';
 import Orb from './components/Orb';
 import AICopilot from './components/AICopilot';
@@ -42,6 +42,7 @@ function App() {
   const [menu, setMenu] = useState(false);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
+  const isHome = location.pathname === '/' || location.pathname === '';
 
   const activeInnovationId = location.pathname.startsWith('/innovation/') ? location.pathname.split('/innovation/')[1] : null;
   const activeContextItem = useMemo(() => {
@@ -114,7 +115,7 @@ function App() {
 
   return (
     <>
-      <header className="nav">
+      <header className={`nav ${isHome ? 'home-nav' : ''}`}>
         <Link to="/" className="brand">
           <span className="brand-mark"><Sparkles size={18} /></span>
           <span>IDEA<span className="brand-blue">2</span>IMPACT</span>
@@ -170,7 +171,7 @@ function App() {
         <Route path="*" element={<Home items={items} categories={categories} />} />
       </Routes>
 
-      <Footer />
+      <Footer isHome={isHome} />
       <AICopilot activeContext={activeContextItem} />
     </>
   );
@@ -185,191 +186,312 @@ function Home({ items, categories }) {
     });
   }, [categories]);
 
+  // Featured workmen for the homepage spotlight banner
+  const featuredWorkmen = [
+    {
+      name: 'Maya Chen',
+      role: 'CleanTech IoT Founder',
+      headline: 'Embedded sensor telemetry & hardware design',
+      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
+      badge: 'Creator'
+    },
+    {
+      name: 'Marcus Vance',
+      role: 'Venture Partner @ Apex Horizons',
+      headline: 'Angel investor in hardware, robotics & climate',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+      badge: 'Investor'
+    },
+    {
+      name: 'Devon Brooks',
+      role: 'Principal Robotics Architect',
+      headline: 'Autonomous drone stacks, ROS2 & bionics',
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
+      badge: 'Builder'
+    },
+    {
+      name: 'David S. Miller, Esq.',
+      role: 'Registered Patent Attorney',
+      headline: 'Provisional filings, USPTO & IP licensing',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80',
+      badge: 'Patent Pro'
+    }
+  ];
+
   return (
-    <main>
-      <section className="hero wrap">
-        <div className="hero-copy">
-          <div className="eyebrow">
-            <span className="pulse" /> THE INNOVATION ECOSYSTEM <span className="eyebrow-line" />
+    <div className="home-brand-theme">
+      {/* 1. Hero Section */}
+      <section className="home-hero wrap">
+        <div className="home-hero-copy">
+          <div className="home-eyebrow">
+            <span className="home-pulse-dot" />
+            <span>GLOBAL INNOVATION EXCHANGE</span>
+            <span className="home-eyebrow-line" />
           </div>
-          <h1>Every great innovation<br />starts with <span className="gradient-text">an idea.</span></h1>
-          <p className="hero-sub">
-            Showcase your creativity, discover opportunities, connect with experts and transform your ideas into real-world innovations.
+
+          <h1 className="home-hero-title">
+            Where breakthrough ideas meet{' '}
+            <span className="home-gradient-text">global capital & elite builders.</span>
+          </h1>
+
+          <p className="home-hero-sub">
+            The international innovation marketplace connecting visionary creators, robotics architects, and angel funds. Turn raw concepts into protected, funded, high-impact reality.
           </p>
-          <div className="hero-actions">
-            <Link to="/marketplace" className="btn btn-primary">
-              Explore innovations <ArrowUpRight size={17} />
+
+          <div className="home-hero-actions">
+            <Link to="/marketplace" className="home-btn home-btn-primary">
+              Explore Innovations <ArrowUpRight size={17} />
             </Link>
-            <Link to="/talents" className="btn btn-outline">
-              Find Partners & Builders <Users size={16} />
+            <Link to="/talents" className="home-btn home-btn-secondary">
+              Meet Elite Builders <Users size={16} />
             </Link>
           </div>
-          <div className="hero-proof">
-            <div className="avatar-stack">
-              <i>MC</i><i>MV</i><i>DB</i><i>ER</i><i>+</i>
+
+          <div className="home-hero-proof">
+            <div className="home-avatar-stack">
+              {featuredWorkmen.map((w, idx) => (
+                <img key={idx} src={w.avatar} alt={w.name} className="home-proof-avatar" />
+              ))}
+              <span className="home-proof-badge">+2.4k</span>
             </div>
-            <span>
-              <b>Ideas move further together.</b>
-              <small>Built for creators, builders & believers</small>
-            </span>
+            <div className="home-proof-text">
+              <b>Backed by 2,400+ innovators across 18 countries</b>
+              <small>From provisional patent filings to $4.2M in seed tranche flow</small>
+            </div>
           </div>
         </div>
-        <div className="hero-visual">
-          <div className="visual-glow" />
-          <div className="orbit orbit-one" />
-          <div className="orbit orbit-two" />
+
+        <div className="home-hero-visual">
+          <div className="home-visual-glow" />
+          <div className="home-orbit home-orbit-one" />
+          <div className="home-orbit home-orbit-two" />
           <Orb />
-          <div className="float-card float-top">
-            <span className="float-icon"><Sparkles size={15} /></span>
-            <span><b>AI opportunity match</b><small>94% compatibility</small></span>
-            <span className="live-dot" />
+
+          {/* Floating Glassmorphic Cards */}
+          <div className="home-float-card home-float-top">
+            <span className="home-float-icon purple">
+              <Sparkles size={16} />
+            </span>
+            <div className="home-float-info">
+              <b>AI Opportunity & IP Match</b>
+              <small>98% Compatibility · CleanTech</small>
+            </div>
+            <span className="home-live-pulse" />
           </div>
-          <div className="float-card float-bottom">
-            <span className="float-icon cyan"><TrendingUp size={16} /></span>
-            <span><b>Idea → Impact</b><small>Your next step starts here</small></span>
+
+          <div className="home-float-card home-float-bottom">
+            <span className="home-float-icon blue">
+              <TrendingUp size={16} />
+            </span>
+            <div className="home-float-info">
+              <b>Provisional Patent Secured</b>
+              <small>USPTO Priority Date Locked</small>
+            </div>
+            <span className="home-verified-check">✓</span>
           </div>
-          <div className="visual-caption">IDEAS <span>↗</span> BUILD <span>↗</span> GROW</div>
+
+          <div className="home-float-card home-float-right">
+            <span className="home-float-icon purple">
+              <ShieldCheck size={16} />
+            </span>
+            <div className="home-float-info">
+              <b>Mutual NDA Protected</b>
+              <small>Zero-knowledge encrypted deal rooms</small>
+            </div>
+          </div>
+
+          <div className="home-visual-caption">
+            <span>INVENT</span> ✦ <span>PROTECT</span> ✦ <span>FUND</span> ✦ <span>SCALE</span>
+          </div>
         </div>
       </section>
 
-      <div className="trust-strip wrap">
-        <span>ONE SPACE. INFINITE POSSIBILITIES.</span>
-        <div><b>01</b> Discover <i /> <b>02</b> Collaborate <i /> <b>03</b> Launch</div>
-      </div>
-
-      <section className="section wrap" id="how">
-        <div className="section-head">
-          <div>
-            <div className="eyebrow">FROM THOUGHT TO THING</div>
-            <h2>Big ideas need a <span className="gradient-text">next step.</span></h2>
+      {/* 2. Ecosystem Stats Strip */}
+      <section className="wrap">
+        <div className="home-stats-strip">
+          <div className="home-stat-tile">
+            <div className="home-stat-num">32+</div>
+            <div className="home-stat-label">Verified Inventions & Tech</div>
           </div>
-          <p>One connected journey to turn a spark of creativity into something the world can use.</p>
+          <div className="home-stat-divider" />
+          <div className="home-stat-tile">
+            <div className="home-stat-num blue">$4.2M</div>
+            <div className="home-stat-label">Private Seed Flow Deployed</div>
+          </div>
+          <div className="home-stat-divider" />
+          <div className="home-stat-tile">
+            <div className="home-stat-num">10</div>
+            <div className="home-stat-label">Specialist Builders & Legal Pros</div>
+          </div>
+          <div className="home-stat-divider" />
+          <div className="home-stat-tile">
+            <div className="home-stat-num blue">100%</div>
+            <div className="home-stat-label">Cryptographic Timestamp Proof</div>
+          </div>
         </div>
-        <div className="steps-grid">
+      </section>
+
+      {/* 3. The 5-Step Pipeline (How it works) */}
+      <section className="home-section wrap" id="how">
+        <div className="home-section-head">
+          <div>
+            <div className="home-eyebrow">
+              <span className="home-pulse-dot" />
+              <span>FROM THOUGHT TO THING</span>
+            </div>
+            <h2 className="home-section-title">
+              A frictionless journey from <span className="home-gradient-text">concept to global scale.</span>
+            </h2>
+          </div>
+          <p className="home-section-desc">
+            One unified innovation runway: register intellectual property, test market viability with AI, and partner with qualified builders and investors.
+          </p>
+        </div>
+
+        <div className="home-steps-grid">
           {[
-            ['01', 'Showcase', 'Put your idea, invention or product out into the world.'],
-            ['02', 'Evaluate', 'Get an AI-assisted view of your concept and its potential.'],
-            ['03', 'Match', 'Find relevant buyers, companies, investors and talent.'],
-            ['04', 'Connect', 'Bring the right people together to build what’s next.'],
-            ['05', 'Grow', 'Explore sales, licensing and collaboration pathways.']
+            ['01', 'Showcase & Timestamp', 'Register your invention or concept with cryptographic SHA-256 date-stamped verification.'],
+            ['02', 'AI Copilot Diagnostic', 'Evaluate patentability, forecast TAM market sizing, and generate investor pitch decks in seconds.'],
+            ['03', 'Confidential Deal Rooms', 'Share proprietary CAD blueprints and financial cap tables securely under 1-click digital NDAs.'],
+            ['04', 'Match with Builders', 'Partner with robotics engineers, industrial designers, and registered patent attorneys.'],
+            ['05', 'Fund & Scale', 'Negotiate formal equity investment, milestone-based micro-grants, or enterprise licensing deals.']
           ].map(([n, t, d]) => (
-            <article className="step-card" key={n}>
-              <span className="step-no">{n}</span>
-              <div className="step-arrow"><ArrowUpRight size={17} /></div>
-              <h3>{t}</h3>
-              <p>{d}</p>
+            <article className="home-step-card" key={n}>
+              <div className="home-step-top">
+                <span className="home-step-no">{n}</span>
+                <span className="home-step-arrow"><ArrowUpRight size={16} /></span>
+              </div>
+              <h3 className="home-step-title">{t}</h3>
+              <p className="home-step-text">{d}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="section categories-section">
+      {/* 4. Innovation Sectors (Categories) */}
+      <section className="home-section home-categories-band">
         <div className="wrap">
-          <div className="section-head">
+          <div className="home-section-head">
             <div>
-              <div className="eyebrow">EXPLORE THE POSSIBLE</div>
-              <h2>Ideas come in <span className="gradient-text">many forms.</span></h2>
+              <div className="home-eyebrow">
+                <span className="home-pulse-dot" />
+                <span>EXPLORE THE POSSIBLE</span>
+              </div>
+              <h2 className="home-section-title">
+                Breakthroughs across <span className="home-gradient-text">eight dynamic sectors.</span>
+              </h2>
             </div>
-            <Link to="/marketplace" className="text-link">Explore marketplace <ArrowUpRight size={16} /></Link>
+            <Link to="/marketplace" className="home-text-link">
+              Explore All Sectors <ArrowUpRight size={16} />
+            </Link>
           </div>
-          <div className="category-grid">
+
+          <div className="home-category-grid">
             {displayCategories.map(([name, Icon, desc, count], i) => (
-              <Link to={`/marketplace?category=${encodeURIComponent(name)}`} className="category-card" key={name}>
-                <div className={`category-icon ci-${i % 8}`}><Icon size={22} /></div>
-                <div className="category-count">{count} <ArrowUpRight size={13} /></div>
-                <h3>{name}</h3>
-                <p>{desc}</p>
+              <Link to={`/marketplace?category=${encodeURIComponent(name)}`} className="home-category-card" key={name}>
+                <div className={`home-category-icon hci-${i % 8}`}>
+                  <Icon size={22} />
+                </div>
+                <div className="home-category-count">
+                  <span>{count} ideas</span>
+                  <ArrowUpRight size={13} />
+                </div>
+                <h3 className="home-cat-title">{name}</h3>
+                <p className="home-cat-desc">{desc}</p>
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Today's Innovation Leaderboard */}
+      {/* 5. Today's Innovation Leaderboard */}
       {items.length > 0 && (
-        <section className="section wrap leaderboard-section">
-          <div className="leaderboard-banner">
-            <div className="leaderboard-head">
+        <section className="home-section wrap">
+          <div className="home-leaderboard-banner">
+            <div className="home-leaderboard-head">
               <div>
-                <span className="leaderboard-badge">
+                <span className="home-leaderboard-tag">
                   <Trophy size={14} /> TODAY'S LEADERBOARD
                 </span>
-                <h2 style={{ margin: '8px 0 4px', fontSize: '28px' }}>
-                  Ranked by Community <span className="gradient-text">Upvotes & Velocity</span>
+                <h2 className="home-leaderboard-title">
+                  Ranked by Community <span className="home-gradient-text">Upvotes & Velocity</span>
                 </h2>
-                <p style={{ margin: 0, fontSize: '13px' }}>
-                  The most promising concepts, inventions, and prototypes voted by inventors and investors today.
+                <p className="home-leaderboard-sub">
+                  The most promising concepts, inventions, and prototypes voted by creators, builders, and investors today.
                 </p>
               </div>
-              <Link to="/marketplace" className="text-link">
-                View all rankings <ArrowUpRight size={14} />
+              <Link to="/marketplace" className="home-text-link">
+                View All Leaderboards <ArrowUpRight size={14} />
               </Link>
             </div>
 
-            <div className="leaderboard-grid">
+            <div className="home-leaderboard-grid">
+              {/* #1 Champion */}
               {items[0] && (
-                <div className="leader-card-champion">
-                  <div className="crown-tag">
+                <div className="home-leader-card home-champion-card">
+                  <div className="home-crown-tag">
                     <Crown size={13} /> #1 IDEA OF THE DAY
                   </div>
-                  <div className="card-meta" style={{ marginTop: '10px' }}>
-                    <span className="badge-tag">{items[0].category}</span>
-                    <span>Velocity: +42% today</span>
+                  <div className="home-card-meta">
+                    <span className="home-badge-tag">{items[0].category}</span>
+                    <span className="home-velocity-text">Velocity: +42% today</span>
                   </div>
-                  <h3 className="leader-title">
+                  <h3 className="home-leader-item-title">
                     <Link to={`/innovation/${items[0].id}`}>{items[0].title}</Link>
                   </h3>
-                  <p className="leader-desc">{items[0].desc || items[0].description}</p>
-                  <div className="leader-bottom">
-                    <span className="card-author" style={{ border: 0, padding: 0 }}>
-                      <span className="mini-avatar">
+                  <p className="home-leader-item-desc">{items[0].desc || items[0].description}</p>
+                  <div className="home-leader-item-footer">
+                    <span className="home-card-author">
+                      <span className="home-mini-avatar">
                         {items[0].creator?.profile?.avatar ? (
-                          <img src={items[0].creator.profile.avatar} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                          <img src={items[0].creator.profile.avatar} alt="" />
                         ) : (
                           items[0].author?.slice(0, 1)?.toUpperCase() || 'C'
                         )}
                       </span>
                       <span>{items[0].author || 'Creator'}</span>
                     </span>
-                    <Link to={`/innovation/${items[0].id}`} className="upvote-pill">
+                    <Link to={`/innovation/${items[0].id}`} className="home-upvote-pill">
                       <Flame size={14} /> {(items[0].likeCount || 0) + 12} Upvotes
                     </Link>
                   </div>
                 </div>
               )}
 
+              {/* #2 Runner-up */}
               {items[1] && (
-                <div className="leader-card-runner">
-                  <span className="runner-rank">#2</span>
-                  <div className="card-meta">
-                    <span className="badge-tag">{items[1].category}</span>
+                <div className="home-leader-card home-runner-card">
+                  <span className="home-runner-rank">#2</span>
+                  <div className="home-card-meta">
+                    <span className="home-badge-tag">{items[1].category}</span>
                   </div>
-                  <h3 className="leader-title">
+                  <h3 className="home-leader-item-title">
                     <Link to={`/innovation/${items[1].id}`}>{items[1].title}</Link>
                   </h3>
-                  <p className="leader-desc">{items[1].desc || items[1].description}</p>
-                  <div className="leader-bottom">
-                    <span style={{ fontSize: '11px', color: 'var(--muted)' }}>By {items[1].author || 'Creator'}</span>
-                    <Link to={`/innovation/${items[1].id}`} className="upvote-pill">
+                  <p className="home-leader-item-desc">{items[1].desc || items[1].description}</p>
+                  <div className="home-leader-item-footer">
+                    <span className="home-card-sub-author">By {items[1].author || 'Creator'}</span>
+                    <Link to={`/innovation/${items[1].id}`} className="home-upvote-pill secondary">
                       <Flame size={13} /> {(items[1].likeCount || 0) + 7}
                     </Link>
                   </div>
                 </div>
               )}
 
+              {/* #3 Runner-up */}
               {items[2] && (
-                <div className="leader-card-runner">
-                  <span className="runner-rank">#3</span>
-                  <div className="card-meta">
-                    <span className="badge-tag">{items[2].category}</span>
+                <div className="home-leader-card home-runner-card">
+                  <span className="home-runner-rank">#3</span>
+                  <div className="home-card-meta">
+                    <span className="home-badge-tag">{items[2].category}</span>
                   </div>
-                  <h3 className="leader-title">
+                  <h3 className="home-leader-item-title">
                     <Link to={`/innovation/${items[2].id}`}>{items[2].title}</Link>
                   </h3>
-                  <p className="leader-desc">{items[2].desc || items[2].description}</p>
-                  <div className="leader-bottom">
-                    <span style={{ fontSize: '11px', color: 'var(--muted)' }}>By {items[2].author || 'Creator'}</span>
-                    <Link to={`/innovation/${items[2].id}`} className="upvote-pill">
+                  <p className="home-leader-item-desc">{items[2].desc || items[2].description}</p>
+                  <div className="home-leader-item-footer">
+                    <span className="home-card-sub-author">By {items[2].author || 'Creator'}</span>
+                    <Link to={`/innovation/${items[2].id}`} className="home-upvote-pill secondary">
                       <Flame size={13} /> {(items[2].likeCount || 0) + 4}
                     </Link>
                   </div>
@@ -380,48 +502,144 @@ function Home({ items, categories }) {
         </section>
       )}
 
-      <section className="section wrap">
-        <div className="section-head">
+      {/* 6. Fresh Community Innovations */}
+      <section className="home-section wrap">
+        <div className="home-section-head">
           <div>
-            <div className="eyebrow">FRESH FROM THE COMMUNITY</div>
-            <h2>Ideas worth a <span className="gradient-text">closer look.</span></h2>
+            <div className="home-eyebrow">
+              <span className="home-pulse-dot" />
+              <span>FRESH FROM THE PIPELINE</span>
+            </div>
+            <h2 className="home-section-title">
+              Inventions worth a <span className="home-gradient-text">closer look.</span>
+            </h2>
           </div>
-          <Link to="/marketplace" className="text-link">View all innovations <ArrowUpRight size={16} /></Link>
+          <Link to="/marketplace" className="home-text-link">
+            View All Innovations <ArrowUpRight size={16} />
+          </Link>
         </div>
-        <div className="listing-grid">
-          {items.slice(0, 3).map(x => (
+
+        <div className="home-listing-grid">
+          {items.slice(0, 3).map((x) => (
             <InnovationCard item={x} key={x.id} />
           ))}
         </div>
       </section>
 
-      <section className="section wrap">
-        <div className="ai-banner">
-          <div className="ai-banner-orb"><Sparkles size={42} /></div>
-          <div className="ai-banner-copy">
-            <div className="eyebrow">YOUR CREATIVE CO-PILOT</div>
-            <h2>Meet the AI that helps<br />your ideas <span className="gradient-text">move forward.</span></h2>
-            <p>Brainstorm, sharpen your pitch, map a build plan and discover people who can help make it happen.</p>
-            <Link to="/ai-studio" className="btn btn-primary">Explore AI Studio <ArrowUpRight size={16} /></Link>
+      {/* 7. Elite Builders & Patent Specialists Spotlight */}
+      <section className="home-section wrap">
+        <div className="home-talent-spotlight-card">
+          <div className="home-talent-spotlight-head">
+            <div>
+              <div className="home-eyebrow">
+                <span className="home-pulse-dot" />
+                <span>ELITE TALENT NETWORK</span>
+              </div>
+              <h2 className="home-section-title">
+                Work with specialists who <span className="home-gradient-text">turn blueprints into reality.</span>
+              </h2>
+            </div>
+            <Link to="/talents" className="home-btn home-btn-secondary">
+              Browse All Specialists <Users size={16} />
+            </Link>
           </div>
-          <div className="ai-feature-list">
-            <div><Sparkles /><span><b>AI idea assistant</b><small>Think it through, clearly.</small></span></div>
-            <div><Users /><span><b>Smart matching</b><small>Find your people.</small></span></div>
-            <div><ChartNoAxesCombined /><span><b>Opportunity insights</b><small>Choose a useful next step.</small></span></div>
+
+          <div className="home-talent-grid">
+            {featuredWorkmen.map((t, idx) => (
+              <div className="home-workman-card" key={idx}>
+                <div className="home-workman-header">
+                  <div className="home-workman-avatar">
+                    <img src={t.avatar} alt={t.name} />
+                  </div>
+                  <div>
+                    <span className="home-workman-badge">{t.badge}</span>
+                    <h4 className="home-workman-name">{t.name}</h4>
+                    <span className="home-workman-role">{t.role}</span>
+                  </div>
+                </div>
+                <p className="home-workman-bio">{t.headline}</p>
+                <div className="home-workman-footer">
+                  <Link to="/talents" className="home-connect-link">
+                    Connect & Collaborate <ArrowUpRight size={13} />
+                  </Link>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="cta-section">
-        <div className="wrap cta-inner">
-          <div className="eyebrow">THE NEXT CHAPTER IS YOURS</div>
-          <h2>Your idea could be the<br /><span className="gradient-text">next big innovation.</span></h2>
-          <p>Start with what you have. Find the people and momentum to take it further.</p>
-          <Link to="/signup" className="btn btn-primary">Get started today <ArrowUpRight size={17} /></Link>
-          <div className="cta-orbit" />
+      {/* 8. AI Creative Co-Pilot Banner (Dark Deep Purple section) */}
+      <section className="home-section wrap">
+        <div className="home-ai-banner">
+          <div className="home-ai-banner-left">
+            <div className="home-eyebrow white">
+              <Sparkles size={14} />
+              <span>AUTONOMOUS INNOVATION INTELLIGENCE</span>
+            </div>
+            <h2 className="home-ai-title">
+              Meet the AI Copilot that <span className="home-gradient-text-light">accelerates every stage.</span>
+            </h2>
+            <p className="home-ai-sub">
+              Instantaneous patentability novelty scans, total addressable market (TAM) sizing, and 5-slide executive pitch deck generation — built directly into your workflow.
+            </p>
+            <div className="home-ai-actions">
+              <Link to="/ai-studio" className="home-btn home-btn-ai">
+                Launch AI Studio <Sparkles size={16} />
+              </Link>
+            </div>
+          </div>
+
+          <div className="home-ai-banner-features">
+            <div className="home-ai-feat-card">
+              <div className="home-ai-feat-icon blue"><ShieldCheck size={20} /></div>
+              <div>
+                <b>AI Patent & Prior-Art Radar</b>
+                <small>Checks novelty score & potential claims in 30 seconds.</small>
+              </div>
+            </div>
+            <div className="home-ai-feat-card">
+              <div className="home-ai-feat-icon purple"><BarChart3 size={20} /></div>
+              <div>
+                <b>TAM & Market Sizing Engine</b>
+                <small>Calculates TAM, SAM, SOM & 5-year CAGR growth rate.</small>
+              </div>
+            </div>
+            <div className="home-ai-feat-card">
+              <div className="home-ai-feat-icon blue"><FileText size={20} /></div>
+              <div>
+                <b>1-Minute Executive Pitch Deck</b>
+                <small>Generates investor-ready 5-slide summary ready to export.</small>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
-    </main>
+
+      {/* 9. Final Call to Action (Dark Deep Purple section) */}
+      <section className="home-cta-section">
+        <div className="wrap home-cta-inner">
+          <div className="home-eyebrow white centered">
+            <Sparkles size={13} />
+            <span>THE NEXT CHAPTER IS YOURS</span>
+          </div>
+          <h2 className="home-cta-title">
+            Ready to turn your spark into <span className="home-gradient-text-light">real-world impact?</span>
+          </h2>
+          <p className="home-cta-sub">
+            Join visionary inventors, deep-tech architects, and angel funds on the world's most modern innovation runway.
+          </p>
+          <div className="home-cta-actions">
+            <Link to="/signup" className="home-btn home-btn-primary large">
+              Get Started Free <ArrowUpRight size={17} />
+            </Link>
+            <Link to="/marketplace" className="home-btn home-btn-outline-white large">
+              Explore Innovations <Search size={16} />
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
 
@@ -2239,9 +2457,9 @@ function Pricing() {
   );
 }
 
-function Footer() {
+function Footer({ isHome }) {
   return (
-    <footer className="footer">
+    <footer className={`footer ${isHome ? 'home-footer' : ''}`}>
       <div className="wrap">
         <div className="footer-main">
           <div>
