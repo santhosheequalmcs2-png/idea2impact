@@ -333,72 +333,231 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
     }
 
     // =========================================================================
-    // 3. AI STUDIO: 3D Cybernetic Neural Brain with Active Synapse Pulse
+    // 3. AI STUDIO: 3D Quantum Neural Core & AI Processor Matrix
+    // High-tech quantum processor: multifaceted crystal singularity, 8 neural
+    // constellation nodes, triple-axis gyroscopic quantum rings, corner optical
+    // laser emitters, and silicon microchip substrate base.
     // =========================================================================
     else if (type === 'ai-studio') {
-      const brainGroup = new THREE.Group();
+      const aiGroup = new THREE.Group();
 
-      [-0.45, 0.45].forEach((offset) => {
-        const hemiGeo = new THREE.IcosahedronGeometry(0.85, 2);
-        hemiGeo.scale(0.72, 1.1, 0.88);
-        const hemiMat = new THREE.MeshStandardMaterial({
-          color: colors.primary,
-          wireframe: true,
-          transparent: true,
-          opacity: isDark ? 0.7 : 0.85
-        });
-        const hemi = new THREE.Mesh(hemiGeo, hemiMat);
-        hemi.position.x = offset;
-        brainGroup.add(hemi);
+      // 1. Silicon Microchip Substrate Base
+      const chipBaseGeo = new THREE.CylinderGeometry(1.3, 1.4, 0.12, 8);
+      const chipBaseMat = new THREE.MeshStandardMaterial({
+        color: colors.metal,
+        metalness: 0.85,
+        roughness: 0.25
+      });
+      const chipBase = new THREE.Mesh(chipBaseGeo, chipBaseMat);
+      chipBase.position.y = -0.75;
+      aiGroup.add(chipBase);
 
-        const coreGeo = new THREE.SphereGeometry(0.45, 16, 16);
-        const coreMat = new THREE.MeshStandardMaterial({
-          color: colors.secondary,
-          emissive: colors.primary,
-          emissiveIntensity: 1.1,
+      // Central Polished Die (Integrated Heat Spreader)
+      const dieGeo = new THREE.BoxGeometry(0.85, 0.08, 0.85);
+      const dieMat = new THREE.MeshStandardMaterial({
+        color: isDark ? 0x1a2638 : 0xd8e2f0,
+        metalness: 0.95,
+        roughness: 0.15
+      });
+      const dieMesh = new THREE.Mesh(dieGeo, dieMat);
+      dieMesh.position.y = -0.68;
+      aiGroup.add(dieMesh);
+
+      // Gold Perimeter Contact Pins (16 pins around the die)
+      const pinMat = new THREE.MeshStandardMaterial({
+        color: colors.accent,
+        metalness: 0.9,
+        roughness: 0.2,
+        emissive: colors.accent,
+        emissiveIntensity: 0.4
+      });
+      for (let i = 0; i < 16; i++) {
+        const pinAngle = (i / 16) * Math.PI * 2;
+        const px = Math.cos(pinAngle) * 0.58;
+        const pz = Math.sin(pinAngle) * 0.58;
+        const pinGeo = new THREE.BoxGeometry(0.05, 0.04, 0.05);
+        const pin = new THREE.Mesh(pinGeo, pinMat);
+        pin.position.set(px, -0.68, pz);
+        aiGroup.add(pin);
+      }
+
+      // 2. 4 Corner Quantum Optical Laser Pylons
+      const pylonPositions = [
+        [-0.8, -0.8],
+        [0.8, -0.8],
+        [0.8, 0.8],
+        [-0.8, 0.8]
+      ];
+      const laserBeams = [];
+
+      pylonPositions.forEach(([x, z]) => {
+        const pylonGeo = new THREE.CylinderGeometry(0.06, 0.09, 0.35, 12);
+        const pylonMat = new THREE.MeshStandardMaterial({
+          color: colors.metal,
+          metalness: 0.8,
           roughness: 0.3
         });
-        const core = new THREE.Mesh(coreGeo, coreMat);
-        core.position.x = offset;
-        brainGroup.add(core);
+        const pylon = new THREE.Mesh(pylonGeo, pylonMat);
+        pylon.position.set(x, -0.58, z);
+        aiGroup.add(pylon);
+
+        // Laser emitter lens tip
+        const lensGeo = new THREE.SphereGeometry(0.05, 12, 12);
+        const lensMat = new THREE.MeshBasicMaterial({ color: colors.secondary });
+        const lens = new THREE.Mesh(lensGeo, lensMat);
+        lens.position.set(x, -0.38, z);
+        aiGroup.add(lens);
+
+        // Focused holographic laser beam targeting the core
+        const beamPoints = [
+          new THREE.Vector3(x, -0.38, z),
+          new THREE.Vector3(0, 0.05, 0)
+        ];
+        const beamGeo = new THREE.BufferGeometry().setFromPoints(beamPoints);
+        const beamMat = new THREE.LineBasicMaterial({
+          color: colors.secondary,
+          transparent: true,
+          opacity: 0.75
+        });
+        const beam = new THREE.Line(beamGeo, beamMat);
+        aiGroup.add(beam);
+        laserBeams.push(beamMat);
       });
 
-      const synapseCount = 36;
-      const posArray = new Float32Array(synapseCount * 3);
-      for (let i = 0; i < synapseCount; i++) {
-        const theta = Math.random() * Math.PI * 2;
-        const phi = Math.acos(Math.random() * 2 - 1);
-        const r = 0.95 + Math.random() * 0.25;
-        posArray[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-        posArray[i * 3 + 1] = r * Math.cos(phi) * 1.15;
-        posArray[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
-      }
-      const synapseGeo = new THREE.BufferGeometry();
-      synapseGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-      const synapseMat = new THREE.PointsMaterial({
-        color: colors.accent,
-        size: 0.08,
+      // 3. Central Quantum Core Assembly (Floating at y = 0.05)
+      const coreGroup = new THREE.Group();
+      coreGroup.position.y = 0.05;
+
+      // Faceted Crystalline Singularity
+      const crystalGeo = new THREE.DodecahedronGeometry(0.55, 0);
+      const crystalMat = new THREE.MeshStandardMaterial({
+        color: colors.primary,
+        metalness: 0.75,
+        roughness: 0.2,
+        emissive: colors.secondary,
+        emissiveIntensity: 0.85,
+        flatShading: true
+      });
+      const crystal = new THREE.Mesh(crystalGeo, crystalMat);
+      coreGroup.add(crystal);
+
+      // Glowing Pure Singularity Center
+      const singGeo = new THREE.SphereGeometry(0.2, 20, 20);
+      const singMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+      const singularity = new THREE.Mesh(singGeo, singMat);
+      coreGroup.add(singularity);
+
+      // 4. 8 Radiating Neural Synapse Nodes (Constellation Graph)
+      const neuralNodes = [];
+      const nodeDirections = [
+        new THREE.Vector3(0.65, 0.45, 0.35),
+        new THREE.Vector3(-0.65, 0.45, -0.35),
+        new THREE.Vector3(0.55, -0.35, 0.55),
+        new THREE.Vector3(-0.55, -0.35, -0.55),
+        new THREE.Vector3(-0.45, 0.55, 0.55),
+        new THREE.Vector3(0.45, 0.55, -0.55),
+        new THREE.Vector3(0.7, -0.2, -0.4),
+        new THREE.Vector3(-0.7, 0.2, 0.4)
+      ];
+
+      nodeDirections.forEach((dir) => {
+        const nodeGeo = new THREE.SphereGeometry(0.08, 12, 12);
+        const nodeMat = new THREE.MeshStandardMaterial({
+          color: colors.accent,
+          emissive: colors.accent,
+          emissiveIntensity: 1.2
+        });
+        const node = new THREE.Mesh(nodeGeo, nodeMat);
+        node.position.copy(dir);
+        coreGroup.add(node);
+        neuralNodes.push({ mesh: node, basePos: dir.clone() });
+
+        // Line connecting node to crystal center
+        const lineGeo = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(0, 0, 0),
+          dir
+        ]);
+        const lineMat = new THREE.LineBasicMaterial({
+          color: colors.accent,
+          transparent: true,
+          opacity: 0.6
+        });
+        coreGroup.add(new THREE.Line(lineGeo, lineMat));
+      });
+
+      aiGroup.add(coreGroup);
+
+      // 5. Triple-Axis Gyroscopic Quantum Rings
+      // Ring 1 (Inner X-tilt)
+      const gyro1Geo = new THREE.TorusGeometry(0.95, 0.022, 12, 64);
+      const gyro1Mat = new THREE.MeshStandardMaterial({
+        color: colors.secondary,
+        metalness: 0.9,
+        roughness: 0.2,
+        emissive: colors.secondary,
+        emissiveIntensity: 0.5
+      });
+      const gyro1 = new THREE.Mesh(gyro1Geo, gyro1Mat);
+      gyro1.position.y = 0.05;
+      gyro1.rotation.x = Math.PI * 0.35;
+      aiGroup.add(gyro1);
+
+      // Ring 2 (Middle Y-tilt)
+      const gyro2Geo = new THREE.TorusGeometry(1.15, 0.02, 12, 64);
+      const gyro2Mat = new THREE.MeshBasicMaterial({
+        color: colors.primary,
         transparent: true,
-        opacity: 0.95
+        opacity: 0.8
       });
-      const synapsePoints = new THREE.Points(synapseGeo, synapseMat);
-      brainGroup.add(synapsePoints);
+      const gyro2 = new THREE.Mesh(gyro2Geo, gyro2Mat);
+      gyro2.position.y = 0.05;
+      gyro2.rotation.y = Math.PI * 0.4;
+      aiGroup.add(gyro2);
 
-      const scanRingGeo = new THREE.TorusGeometry(1.25, 0.025, 8, 48);
-      const scanRingMat = new THREE.MeshBasicMaterial({
+      // Ring 3 (Outer Equatorial Scan Ring)
+      const gyro3Geo = new THREE.TorusGeometry(1.35, 0.018, 12, 64);
+      const gyro3Mat = new THREE.MeshBasicMaterial({
         color: colors.accent,
         transparent: true,
-        opacity: 0.85
+        opacity: 0.7
       });
-      const scanRing = new THREE.Mesh(scanRingGeo, scanRingMat);
-      scanRing.rotation.x = Math.PI * 0.5;
-      brainGroup.add(scanRing);
+      const gyro3 = new THREE.Mesh(gyro3Geo, gyro3Mat);
+      gyro3.position.y = 0.05;
+      gyro3.rotation.z = Math.PI * 0.25;
+      aiGroup.add(gyro3);
 
-      rootGroup.add(brainGroup);
+      rootGroup.add(aiGroup);
 
+      // Dynamic Idle Animations
       animatables.push((time) => {
-        scanRing.position.y = Math.sin(time * 2.2) * 0.9;
-        synapseMat.size = 0.07 + Math.sin(time * 4) * 0.025;
+        // Core rotation
+        crystal.rotation.x = time * 0.5;
+        crystal.rotation.y = time * 0.7;
+
+        // Counter-rotating quantum gyroscopes
+        gyro1.rotation.z = time * 1.1;
+        gyro2.rotation.x = -time * 0.9;
+        gyro3.rotation.y = time * 0.75;
+
+        // Pulsating crystal emissive glow
+        const pulse = 0.85 + Math.sin(time * 3.5) * 0.45;
+        crystalMat.emissiveIntensity = pulse;
+
+        // Laser beam opacity fluctuation (data transmission flicker)
+        const beamAlpha = 0.6 + Math.sin(time * 6) * 0.25;
+        laserBeams.forEach((bm) => {
+          bm.opacity = beamAlpha;
+        });
+
+        // Neural nodes subtle breathing oscillation
+        neuralNodes.forEach(({ mesh, basePos }, idx) => {
+          const breath = 1.0 + Math.sin(time * 2.5 + idx) * 0.08;
+          mesh.position.set(
+            basePos.x * breath,
+            basePos.y * breath,
+            basePos.z * breath
+          );
+        });
       });
     }
 
