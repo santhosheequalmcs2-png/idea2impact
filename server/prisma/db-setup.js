@@ -312,7 +312,7 @@ export async function setupDatabase() {
         ownershipConfirmed: true,
         status: 'PUBLISHED',
         visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=800&q=80'
+        imageUrl: 'https://images.unsplash.com/photo-1589254065878-42c9da997008?auto=format&fit=crop&w=800&q=80'
       },
       {
         title: 'Klarity AI — Real-time Contract & IP Risk Scanner',

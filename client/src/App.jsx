@@ -922,7 +922,25 @@ function Home({ items, categories, dark }) {
   );
 }
 
-function InnovationCard({ item }) {
+function InnovationImage({ src, alt, category, isDetail = false }) {
+  const [imgError, setImgError] = useState(false);
+
+  // High-reliability verified fallback images for each category
+  const fallbackMap = {
+    'Physical Products': 'https://images.unsplash.com/photo-1589254065878-42c9da997008?auto=format&fit=crop&w=800&q=80',
+    'Robotics': 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80',
+    'Inventions': 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
+    'CleanTech': 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=800&q=80',
+    'Software': 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
+    'Energy': 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=800&q=80',
+    'MedTech': 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80',
+    'AgriTech': 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=800&q=80',
+    'Games': 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=800&q=80',
+    'Creative Designs': 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80',
+    'Mobile Apps': 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80',
+    'Spatial Computing': 'https://images.unsplash.com/photo-1593508512255-86ab42a8e620?auto=format&fit=crop&w=800&q=80'
+  };
+
   const colorMap = {
     'Inventions': 'mint',
     'Mobile Apps': 'purple',
@@ -933,22 +951,50 @@ function InnovationCard({ item }) {
     'Games': 'purple',
     'Creative Designs': 'orange'
   };
-  const color = colorMap[item.category] || 'blue';
+  const color = colorMap[category] || 'blue';
+  const resolvedCategoryFallback = fallbackMap[category] || fallbackMap['Inventions'];
+
+  // Intercept known broken Unsplash IDs and fall back cleanly
+  let imageSource = src;
+  if (!imageSource || imageSource.includes('photo-1581092335397')) {
+    imageSource = resolvedCategoryFallback;
+  }
+
+  const containerClass = isDetail ? "detail-art-img" : "product-art-img";
+
+  if (imgError) {
+    return (
+      <div className={`${isDetail ? 'detail-art' : 'product-art'} art-${color}`}>
+        <span className="art-symbol">✶</span>
+        <span className="art-tag">{category}</span>
+        {!isDetail && <span className="art-spark">✦</span>}
+      </div>
+    );
+  }
 
   return (
+    <div className={containerClass}>
+      <img
+        src={imageSource}
+        alt={alt}
+        loading="lazy"
+        onError={(e) => {
+          if (e.target.src !== resolvedCategoryFallback) {
+            e.target.src = resolvedCategoryFallback;
+          } else {
+            setImgError(true);
+          }
+        }}
+      />
+      <span className="art-tag">{category}</span>
+    </div>
+  );
+}
+
+function InnovationCard({ item }) {
+  return (
     <Link to={`/innovation/${item.id}`} className="innovation-card">
-      {item.imageUrl ? (
-        <div className="product-art-img">
-          <img src={item.imageUrl} alt={item.title} loading="lazy" />
-          <span className="art-tag">{item.category}</span>
-        </div>
-      ) : (
-        <div className={`product-art art-${color}`}>
-          <span className="art-symbol">✳</span>
-          <span className="art-tag">{item.category}</span>
-          <span className="art-spark">✦</span>
-        </div>
-      )}
+      <InnovationImage src={item.imageUrl} alt={item.title} category={item.category} />
       <div className="card-content">
         <div className="card-meta">
           <span>{item.category}</span>
@@ -1397,17 +1443,7 @@ function Detail({ user, onRefresh }) {
 
       <div className="detail-grid">
         <div>
-          {item.imageUrl ? (
-            <div className="detail-art-img">
-              <img src={item.imageUrl} alt={item.title} />
-              <span className="art-tag">{item.category}</span>
-            </div>
-          ) : (
-            <div className={`detail-art product-art art-blue`}>
-              <span className="art-symbol">✳</span>
-              <span className="art-tag">{item.category}</span>
-            </div>
-          )}
+          <InnovationImage src={item.imageUrl} alt={item.title} category={item.category} isDetail={true} />
 
           {/* Development Lifecycle Tracker */}
           <div className="milestone-container">
