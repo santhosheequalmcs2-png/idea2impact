@@ -54,6 +54,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
   const isHome = location.pathname === '/' || location.pathname === '';
+  const isAIStudio = location.pathname === '/ai-studio';
 
   const activeInnovationId = location.pathname.startsWith('/innovation/') ? location.pathname.split('/innovation/')[1] : null;
   const activeContextItem = useMemo(() => {
@@ -213,7 +214,7 @@ function App() {
       </Routes>
 
       <Footer isHome={isHome} dark={dark} />
-      <AICopilot activeContext={activeContextItem} />
+      {!isAIStudio && <AICopilot activeContext={activeContextItem} />}
     </>
   );
 }
@@ -2629,15 +2630,7 @@ Pick a quick prompt from the sidebar or describe your concept below!`,
             </span>
           </div>
 
-          {/* Interactive 3D AI Copilot Robot inside the sidebar */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '14px 0 16px', padding: '12px', background: 'var(--panel)', borderRadius: '10px', border: '1px solid var(--line)' }}>
-            <Page3DObject type="ai-studio" size={150} />
-            <span style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '6px', textAlign: 'center' }}>
-              ✦ Interactive Copilot Robot<br/>(Drag to rotate in 3D)
-            </span>
-          </div>
-
-          <p>What are we thinking through today?</p>
+          <p style={{ marginTop: '16px' }}>What are we thinking through today?</p>
           {[
             ['🛡️ Patentability & Prior-Art Scan', 'Analyze patentability, prior-art risks, and novelty claims for this concept.'],
             ['📊 Market Sizing (TAM/SAM/SOM)', 'Calculate the Total Addressable Market (TAM), SAM, SOM, CAGR and unit economics.'],
