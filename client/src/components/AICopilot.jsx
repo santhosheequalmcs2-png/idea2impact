@@ -51,7 +51,8 @@ Click a quick prompt below or ask me anything!`,
     // Build context string from active page or item
     let contextStr = '';
     if (activeContext) {
-      contextStr = `Title: ${activeContext.title || 'Untitled'}\nCategory: ${activeContext.category?.name || 'General'}\nDescription: ${activeContext.description || ''}`;
+      const catName = typeof activeContext.category === 'object' ? (activeContext.category?.name || 'General') : (activeContext.category || 'General');
+      contextStr = `Title: ${activeContext.title || 'Untitled'}\nCategory: ${catName}\nDescription: ${activeContext.desc || activeContext.description || ''}`;
     }
 
     try {

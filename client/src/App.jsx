@@ -1047,8 +1047,9 @@ function TalentDirectory() {
   const filtered = useMemo(() => {
     return talents.filter(t => {
       const matchRole = roleFilter === 'All' || t.role === roleFilter;
+      const skillsStr = Array.isArray(t.skills) ? t.skills.join(' ') : '';
       const matchSearch = !search.trim() ||
-        `${t.name} ${t.headline} ${t.bio} ${t.skills.join(' ')} ${t.location}`.toLowerCase().includes(search.toLowerCase());
+        `${t.name || ''} ${t.headline || ''} ${t.bio || ''} ${skillsStr} ${t.location || ''}`.toLowerCase().includes(search.toLowerCase());
       return matchRole && matchSearch;
     });
   }, [talents, roleFilter, search]);
