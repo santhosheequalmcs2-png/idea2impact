@@ -6,7 +6,8 @@ import {
   MessageCircle, Compass, Users, ShieldCheck, Zap, Sun, Moon,
   Send, Check, Layers, LockKeyhole, TrendingUp, LogOut, Filter,
   Edit3, Trash2, UploadCloud, ExternalLink, MessageSquare, FileText,
-  MapPin, Award, Handshake, Trophy, Flame, Coffee, Crown, Lock, BarChart3
+  MapPin, Award, Handshake, Trophy, Flame, Coffee, Crown, Lock, BarChart3,
+  Key, RotateCcw, Copy
 } from 'lucide-react';
 import Orb from './components/Orb';
 import Page3DObject from './components/Page3DObject';
@@ -2442,24 +2443,152 @@ function Dashboard({ user, onRefresh, onUpdateUser }) {
   );
 }
 
+function FormattedAIMessage({ content }) {
+  if (!content) return null;
+  const lines = content.split('\n');
+
+  const renderSpans = (text) => {
+    const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+    return parts.map((part, pIdx) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={pIdx} style={{ fontWeight: 600, color: 'var(--text)' }}>{part.slice(2, -2)}</strong>;
+      }
+      if (part.startsWith('`') && part.endsWith('`')) {
+        return <code key={pIdx} style={{ background: 'rgba(128,128,128,0.18)', padding: '1px 5px', borderRadius: '4px', fontSize: '12px', fontFamily: 'monospace' }}>{part.slice(1, -1)}</code>;
+      }
+      return part;
+    });
+  };
+
+  return (
+    <div className="formatted-ai-response" style={{ lineHeight: '1.65', fontSize: '13px' }}>
+      {lines.map((line, lIdx) => {
+        if (line.startsWith('### ')) {
+          return <h3 key={lIdx} style={{ fontSize: '15px', fontWeight: 700, margin: '12px 0 6px', color: 'var(--text)' }}>{line.replace('### ', '')}</h3>;
+        }
+        if (line.startsWith('#### ')) {
+          return <h4 key={lIdx} style={{ fontSize: '13px', fontWeight: 600, margin: '8px 0 4px', color: 'var(--cyan)' }}>{line.replace('#### ', '')}</h4>;
+        }
+        if (line.startsWith('---')) {
+          return <hr key={lIdx} style={{ border: 'none', borderTop: '1px solid var(--line)', margin: '10px 0' }} />;
+        }
+        if (line.startsWith('* ') || line.startsWith('- ')) {
+          return (
+            <div key={lIdx} style={{ display: 'flex', gap: '8px', margin: '4px 0', paddingLeft: '4px' }}>
+              <span style={{ color: 'var(--cyan)', fontWeight: 'bold' }}>•</span>
+              <span>{renderSpans(line.slice(2))}</span>
+            </div>
+          );
+        }
+        const numMatch = line.match(/^(\d+)\.\s+(.*)/);
+        if (numMatch) {
+          return (
+            <div key={lIdx} style={{ display: 'flex', gap: '8px', margin: '4px 0', paddingLeft: '4px' }}>
+              <span style={{ color: 'var(--cyan)', fontWeight: 'bold', minWidth: '18px' }}>{numMatch[1]}.</span>
+              <span>{renderSpans(numMatch[2])}</span>
+            </div>
+          );
+        }
+        if (!line.trim()) {
+          return <div key={lIdx} style={{ height: '6px' }} />;
+        }
+        return <div key={lIdx} style={{ margin: '3px 0' }}>{renderSpans(line)}</div>;
+      })}
+    </div>
+  );
+}
+
 function AIStudio() {
   const [prompt, setPrompt] = useState('');
+  const [geminiApiKey, setGeminiApiKey] = useState(() => {
+    try {
+      return localStorage.getItem('i2i_gemini_key') || '';
+    } catch {
+      return '';
+    }
+  });
+  const [showKeyModal, setShowKeyModal] = useState(false);
+  const [keyInput, setKeyInput] = useState('');
+  const [copiedIndex, setCopiedIndex] = useState(null);
+
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      text: 'Hey! I’m your IDEA2IMPACT creative co-pilot. Tell me what you’re working on, or pick a prompt below. I can help shape a concept, plan a prototype or think through your audience.\n\nI’m in clearly labelled demo mode until an AI API key is configured.'
+      text: `👋 Hey! I’m your **IDEA2IMPACT Innovation Copilot**, powered by Google Gemini 2.0 Flash.
+
+I specialize in **patent novelty scans**, **TAM market sizing**, **investor pitch decks**, and **rapid prototyping blueprints**.
+
+Pick a quick prompt from the sidebar or describe your concept below!`,
+      mode: 'Gemini 2.0 Flash'
     }
   ]);
   const [busy, setBusy] = useState(false);
 
+  const saveApiKey = () => {
+    const trimmed = keyInput.trim();
+    setGeminiApiKey(trimmed);
+    try {
+      if (trimmed) {
+        localStorage.setItem('i2i_gemini_key', trimmed);
+      } else {
+        localStorage.removeItem('i2i_gemini_key');
+      }
+    } catch {}
+    setShowKeyModal(false);
+  };
+
+  const copyMessage = (text, index) => {
+    navigator.clipboard.writeText(text);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
+  const clearChat = () => {
+    setMessages([
+      {
+        role: 'assistant',
+        text: 'Conversation reset. What new idea are we exploring today?',
+        mode: geminiApiKey ? 'Gemini Live' : 'Gemini 2.0 Flash'
+      }
+    ]);
+  };
+
   const send = async (value = prompt) => {
-    if (!value.trim() || busy) return;
-    setMessages(m => [...m, { role: 'user', text: value }]);
+    const text = value.trim();
+    if (!text || busy) return;
+    setMessages(m => [...m, { role: 'user', text }]);
     setPrompt('');
     setBusy(true);
-    const res = await demoAI(value);
-    setMessages(m => [...m, { role: 'assistant', text: res.reply, mode: res.mode || 'demo' }]);
-    setBusy(false);
+
+    try {
+      const res = await api('/ai/chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          prompt: text,
+          apiKey: geminiApiKey || undefined
+        })
+      });
+
+      setMessages(m => [
+        ...m,
+        {
+          role: 'assistant',
+          text: res.reply || 'Analysis completed.',
+          mode: res.engine || (geminiApiKey ? 'Gemini Live' : 'Gemini 2.0 Flash')
+        }
+      ]);
+    } catch (err) {
+      setMessages(m => [
+        ...m,
+        {
+          role: 'assistant',
+          text: `⚠️ Could not reach AI service: ${err.message}. Please verify server connection or enter a Gemini API key.`,
+          mode: 'Offline'
+        }
+      ]);
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -2468,7 +2597,7 @@ function AIStudio() {
         <div className="page-top-copy">
           <div className="eyebrow">IDEA2IMPACT INTELLIGENCE</div>
           <h1>Make space for <span className="gradient-text">better ideas.</span></h1>
-          <p>A creative co-pilot for brainstorming, planning and finding your next useful step.</p>
+          <p>A creative co-pilot for brainstorming, patent drafting, market sizing, and finding your next high-impact step.</p>
         </div>
         <div className="page-3d-visual">
           <div className="page-3d-glow" />
@@ -2480,47 +2609,211 @@ function AIStudio() {
         <aside className="chat-aside">
           <div className="chat-brand">
             <span className="brand-mark"><Sparkles /></span>
-            <b>Idea assistant</b>
-            <span className="demo-badge">DEMO MODE</span>
+            <b>Idea Assistant</b>
+            <span
+              style={{
+                fontSize: '9px',
+                color: '#10b981',
+                background: 'rgba(16, 185, 129, 0.12)',
+                border: '1px solid rgba(16, 185, 129, 0.35)',
+                borderRadius: '20px',
+                padding: '3px 8px',
+                letterSpacing: '.06em',
+                fontWeight: 700,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              ● ✦ {geminiApiKey ? 'GEMINI LIVE' : 'GEMINI 2.0'}
+            </span>
           </div>
+
+          {/* Interactive 3D AI Copilot Robot inside the sidebar */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '14px 0 16px', padding: '12px', background: 'var(--panel)', borderRadius: '10px', border: '1px solid var(--line)' }}>
+            <Page3DObject type="ai-studio" size={150} />
+            <span style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '6px', textAlign: 'center' }}>
+              ✦ Interactive Copilot Robot<br/>(Drag to rotate in 3D)
+            </span>
+          </div>
+
           <p>What are we thinking through today?</p>
           {[
-            'Help me improve my idea pitch',
-            'Create a simple prototype roadmap',
-            'Who could be my first customers?',
-            'What skills does my project need?',
-            'Explain licensing in simple terms'
-          ].map(x => (
-            <button key={x} onClick={() => send(x)}>
-              {x} <ArrowUpRight size={14} />
+            ['🛡️ Patentability & Prior-Art Scan', 'Analyze patentability, prior-art risks, and novelty claims for this concept.'],
+            ['📊 Market Sizing (TAM/SAM/SOM)', 'Calculate the Total Addressable Market (TAM), SAM, SOM, CAGR and unit economics.'],
+            ['📑 1-Min Investor Pitch Deck', 'Generate a 5-slide executive investor pitch deck for this idea.'],
+            ['🛠️ Prototyping & Tech Blueprint', 'What is the recommended hardware/cloud tech stack, BOM, and 8-week build sprint?'],
+            ['⚖️ IP Protection & NDA Strategy', 'Provide an IP protection and NDA execution strategy before public investor pitches.'],
+            ['🤝 Co-Founder & Talent Equity', 'What key co-founder roles are needed for this project, and how should equity be structured?']
+          ].map(([label, promptText]) => (
+            <button key={label} onClick={() => send(promptText)}>
+              <span>{label}</span> <ArrowUpRight size={13} />
             </button>
           ))}
+
+          <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid var(--line)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <button
+              onClick={() => setShowKeyModal(!showKeyModal)}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                padding: '8px',
+                fontSize: '11px',
+                borderRadius: '6px',
+                border: '1px solid var(--line)',
+                background: geminiApiKey ? 'rgba(16, 185, 129, 0.1)' : 'var(--panel)',
+                color: geminiApiKey ? '#10b981' : 'var(--muted)'
+              }}
+            >
+              <Key size={12} /> {geminiApiKey ? 'Custom Gemini Key Active' : 'Configure Gemini API Key'}
+            </button>
+          </div>
+
           <div className="chat-safety">
-            <ShieldCheck size={16} /> AI responses are starting points, not legal, patent, investment or market advice.
+            <ShieldCheck size={16} /> AI responses are starting points, not formal legal, patent, or investment guarantees.
           </div>
         </aside>
 
         <section className="chat-main">
+          {showKeyModal && (
+            <div style={{
+              padding: '12px 18px',
+              background: 'color-mix(in srgb, var(--surface) 95%, transparent)',
+              borderBottom: '1px solid var(--line)',
+              fontSize: '12px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <Key size={13} color="var(--primary)" /> Google Gemini API Key
+                </span>
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: 'var(--cyan)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px', fontSize: '11px' }}
+                >
+                  Get Free Key at Google AI Studio <ExternalLink size={10} />
+                </a>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input
+                  type="password"
+                  placeholder="Paste AI Studio Key (AIzaSy...)"
+                  value={keyInput}
+                  onChange={(e) => setKeyInput(e.target.value)}
+                  style={{
+                    flex: 1,
+                    padding: '7px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid var(--line)',
+                    background: 'var(--panel)',
+                    color: 'var(--text)',
+                    fontSize: '12px'
+                  }}
+                />
+                <button
+                  onClick={saveApiKey}
+                  style={{
+                    padding: '7px 14px',
+                    background: 'linear-gradient(110deg,#72e8ef,#7a9aff)',
+                    color: '#07121c',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontSize: '12px'
+                  }}
+                >
+                  Save Key
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="chat-top">
-            <span><i className="live-dot" /> Assistant online</span>
-            <span>IDEA2IMPACT / AI STUDIO</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <i className="live-dot" /> Assistant Online · <b>Google Gemini 2.0 Flash</b>
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <button
+                onClick={clearChat}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--muted)',
+                  fontSize: '11px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  cursor: 'pointer'
+                }}
+                title="Reset conversation"
+              >
+                <RotateCcw size={12} /> New Chat
+              </button>
+              <span>IDEA2IMPACT / AI STUDIO</span>
+            </div>
           </div>
+
           <div className="chat-messages">
             {messages.map((m, i) => (
               <div className={`chat-message ${m.role}`} key={i}>
                 <div className="chat-avatar">
                   {m.role === 'assistant' ? <Sparkles size={16} /> : 'Y'}
                 </div>
-                <div>
-                  <div className="message-label">
-                    {m.role === 'assistant' ? 'IDEA ASSISTANT' : 'YOU'} {m.mode && <span>· {m.mode.toUpperCase()}</span>}
+                <div style={{ flex: 1 }}>
+                  <div className="message-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>
+                      {m.role === 'assistant' ? 'IDEA ASSISTANT' : 'YOU'} {m.mode && <span>· {m.mode.toUpperCase()}</span>}
+                    </span>
+                    {m.role === 'assistant' && (
+                      <button
+                        onClick={() => copyMessage(m.text, i)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: copiedIndex === i ? '#10b981' : 'var(--muted)',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '3px',
+                          fontSize: '10px'
+                        }}
+                        title="Copy reply"
+                      >
+                        {copiedIndex === i ? (
+                          <>
+                            <Check size={11} color="#10b981" /> Copied
+                          </>
+                        ) : (
+                          <>
+                            <Copy size={11} /> Copy
+                          </>
+                        )}
+                      </button>
+                    )}
                   </div>
-                  <p>{m.text}</p>
+                  {m.role === 'assistant' ? (
+                    <FormattedAIMessage content={m.text} />
+                  ) : (
+                    <p>{m.text}</p>
+                  )}
                 </div>
               </div>
             ))}
-            {busy && <div className="typing">Thinking through it<span> · · ·</span></div>}
+            {busy && (
+              <div className="typing">
+                Synthesizing innovation intelligence via Gemini<span> · · ·</span>
+              </div>
+            )}
           </div>
+
           <div className="chat-input">
             <textarea
               value={prompt}
@@ -2531,7 +2824,7 @@ function AIStudio() {
                   send();
                 }
               }}
-              placeholder="Tell me about the idea you're exploring..."
+              placeholder="Ask about patent novelty, TAM market sizing, 1-min pitch deck, engineering stack..."
               rows={2}
             />
             <button className="send-btn" onClick={() => send()} disabled={busy || !prompt.trim()}>
