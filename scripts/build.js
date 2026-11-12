@@ -1,4 +1,6 @@
 import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
 const hasDatabase = Boolean(process.env.DATABASE_URL);
 
@@ -26,4 +28,23 @@ try {
 } catch (err) {
   console.error('[build.js] Client build failed:', err.message);
   process.exit(1);
+}
+
+// Universal Failsafe: Sync client/dist to root public/ and root dist/ so Vercel finds the output under ANY configuration
+try {
+  const clientDist = path.resolve('client/dist');
+  if (fs.existsSync(clientDist)) {
+    const rootPublic = path.resolve('public');
+    const rootDist = path.resolve('dist');
+
+    if (!fs.existsSync(rootPublic)) fs.mkdirSync(rootPublic, { recursive: true });
+    fs.cpSync(clientDist, rootPublic, { recursive: true });
+
+    if (!fs.existsSync(rootDist)) fs.mkdirSync(rootDist, { recursive: true });
+    fs.cpSync(clientDist, rootDist, { recursive: true });
+
+    console.log('[build.js] Copied build output to root public/ and dist/ for universal Vercel compatibility.');
+  }
+} catch (err) {
+  console.warn('[build.js] Non-fatal notice during output directory sync:', err.message);
 }

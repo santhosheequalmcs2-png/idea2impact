@@ -4,6 +4,10 @@ node_modules
 !.env.example
 !.env.production
 client/dist
+client/public/assets
+client/public/index.html
+/dist
+/public
 server/uploads
 coverage
 .DS_Store
