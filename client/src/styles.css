@@ -3238,3 +3238,117 @@ body, .nav, .footer, .innovation-card, .btn, .stat-card, .chat-shell, .filter-pa
   border-color: rgba(159, 181, 220, 0.12);
 }
 
+/* =====================================================================
+   PURPOSE-BUILT 3D OBJECTS FOR ALL INNER PAGES
+   ===================================================================== */
+.page-top-with-3d {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 38px;
+}
+
+.page-top-with-3d .page-top-copy {
+  flex: 1;
+  max-width: 680px;
+}
+
+.page-3d-visual {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.page-3d-glow {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(45px);
+  opacity: 0.45;
+  z-index: 0;
+}
+
+[data-theme="light"] .page-3d-glow {
+  background: radial-gradient(circle, rgba(112, 65, 199, 0.45) 0%, rgba(37, 99, 255, 0.18) 60%, transparent 100%);
+}
+
+[data-theme="dark"] .page-3d-glow,
+:root:not([data-theme="light"]) .page-3d-glow {
+  background: radial-gradient(circle, rgba(84, 230, 245, 0.35) 0%, rgba(100, 133, 255, 0.15) 60%, transparent 100%);
+}
+
+.page-3d-canvas-wrapper {
+  z-index: 1;
+  cursor: grab;
+  transition: transform 0.2s ease-out;
+}
+
+.page-3d-canvas-wrapper:active {
+  cursor: grabbing;
+}
+
+/* Pricing Page 3D Object */
+.pricing-page-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pricing-3d-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 12px;
+}
+
+/* Auth Page 3D Shield */
+.auth-3d-top {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+/* Dashboard 3D Core */
+.dash-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.dash-3d-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-inline: 15px;
+}
+
+/* Responsive Handling */
+@media (max-width: 820px) {
+  .page-top-with-3d {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  .page-3d-visual {
+    align-self: center;
+    margin-bottom: 10px;
+  }
+  .dash-heading {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .dash-3d-visual {
+    align-self: center;
+    margin: 10px 0;
+  }
+}
+
+

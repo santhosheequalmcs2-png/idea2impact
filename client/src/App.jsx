@@ -9,6 +9,7 @@ import {
   MapPin, Award, Handshake, Trophy, Flame, Coffee, Crown, Lock, BarChart3
 } from 'lucide-react';
 import Orb from './components/Orb';
+import Page3DObject from './components/Page3DObject';
 import AICopilot from './components/AICopilot';
 import Prototype3DViewer from './components/Prototype3DViewer';
 import DigitalNDAModal from './components/DigitalNDAModal';
@@ -828,10 +829,16 @@ function TalentDirectory() {
 
   return (
     <main className="page wrap">
-      <div className="page-top">
-        <div className="eyebrow">CREATOR & BUILDER ECOSYSTEM</div>
-        <h1>Meet the <span className="gradient-text">Makers & Believers.</span></h1>
-        <p>Discover skilled roboticists, patent attorneys, angel investors, and industrial designers ready to collaborate.</p>
+      <div className="page-top page-top-with-3d">
+        <div className="page-top-copy">
+          <div className="eyebrow">CREATOR & BUILDER ECOSYSTEM</div>
+          <h1>Meet the <span className="gradient-text">Makers & Believers.</span></h1>
+          <p>Discover skilled roboticists, patent attorneys, angel investors, and industrial designers ready to collaborate.</p>
+        </div>
+        <div className="page-3d-visual">
+          <div className="page-3d-glow" />
+          <Page3DObject type="talents" size={190} />
+        </div>
       </div>
 
       <div className="market-toolbar">
@@ -945,10 +952,16 @@ function Marketplace({ items, categories, onRefresh, user }) {
 
   return (
     <main className="page wrap">
-      <div className="page-top">
-        <div className="eyebrow">THE INNOVATION MARKETPLACE</div>
-        <h1>Discover what’s <span className="gradient-text">next.</span></h1>
-        <p>Explore bold ideas, useful inventions and digital creations from independent innovators.</p>
+      <div className="page-top page-top-with-3d">
+        <div className="page-top-copy">
+          <div className="eyebrow">THE INNOVATION MARKETPLACE</div>
+          <h1>Discover what’s <span className="gradient-text">next.</span></h1>
+          <p>Explore bold ideas, useful inventions and digital creations from independent innovators.</p>
+        </div>
+        <div className="page-3d-visual">
+          <div className="page-3d-glow" />
+          <Page3DObject type="marketplace" size={190} />
+        </div>
       </div>
 
       <div className="market-toolbar">
@@ -1650,6 +1663,9 @@ function Auth({ mode, onAuth }) {
   return (
     <main className="auth-page">
       <div className="auth-card">
+        <div className="auth-3d-top">
+          <Page3DObject type="auth" size={135} />
+        </div>
         <Link to="/" className="brand">
           <span className="brand-mark"><Sparkles size={18} /></span>
           IDEA<span className="brand-blue">2</span>IMPACT
@@ -1994,6 +2010,9 @@ function Dashboard({ user, onRefresh, onUpdateUser }) {
             <div className="eyebrow">YOUR WORKSPACE / {role.toUpperCase()}</div>
             <h1>{tab === 'Overview' ? 'Good things start here.' : tab}</h1>
             <p>Keep your ideas moving. Your next step is just a click away.</p>
+          </div>
+          <div className="dash-3d-visual">
+            <Page3DObject type="dashboard" size={130} />
           </div>
           <Link to="/marketplace" className="btn btn-outline small">
             Explore Marketplace <ArrowUpRight size={15} />
@@ -2445,10 +2464,16 @@ function AIStudio() {
 
   return (
     <main className="page wrap ai-page">
-      <div className="page-top">
-        <div className="eyebrow">IDEA2IMPACT INTELLIGENCE</div>
-        <h1>Make space for <span className="gradient-text">better ideas.</span></h1>
-        <p>A creative co-pilot for brainstorming, planning and finding your next useful step.</p>
+      <div className="page-top page-top-with-3d">
+        <div className="page-top-copy">
+          <div className="eyebrow">IDEA2IMPACT INTELLIGENCE</div>
+          <h1>Make space for <span className="gradient-text">better ideas.</span></h1>
+          <p>A creative co-pilot for brainstorming, planning and finding your next useful step.</p>
+        </div>
+        <div className="page-3d-visual">
+          <div className="page-3d-glow" />
+          <Page3DObject type="ai-studio" size={190} />
+        </div>
       </div>
 
       <div className="chat-shell">
@@ -2530,7 +2555,11 @@ function Pricing() {
 
   return (
     <main className="page wrap pricing-page">
-      <div className="page-top centered">
+      <div className="page-top centered pricing-page-top">
+        <div className="pricing-3d-visual">
+          <div className="page-3d-glow" />
+          <Page3DObject type="pricing" size={170} />
+        </div>
         <div className="eyebrow">SIMPLE PLANS. BIG POSSIBILITIES.</div>
         <h1>Find your way to <span className="gradient-text">what’s next.</span></h1>
         <p>Start free. Grow into the tools that fit your journey.</p>
