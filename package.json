@@ -2,13 +2,15 @@
   "name": "idea2impact",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "workspaces": [
     "client",
     "server"
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev -w client\" \"npm run dev -w server\"",
-    "build": "npx prisma generate --schema server/prisma/schema.prisma && npx prisma db push --schema server/prisma/schema.prisma --accept-data-loss && node server/prisma/db-setup.js",
+    "build": "node scripts/build.js",
+    "build:db": "npx prisma generate --schema server/prisma/schema.prisma && npx prisma db push --schema server/prisma/schema.prisma --accept-data-loss && node server/prisma/db-setup.js",
     "build:client": "npm run build -w client",
     "start": "npm run start -w server",
     "test": "npm run test -w server"

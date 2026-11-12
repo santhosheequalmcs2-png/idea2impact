@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+const BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://idea2impact-g8fe.onrender.com/api' : 'http://localhost:4000/api');
 
 export function getAuthToken() {
   return localStorage.getItem('i2i_token');

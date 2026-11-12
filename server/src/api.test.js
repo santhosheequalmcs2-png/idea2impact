@@ -11,7 +11,7 @@ test.before(async () => {
     server = http.createServer(app);
     server.listen(0, () => {
       const port = server.address().port;
-      baseUrl = `http://localhost:${port}/api`;
+      baseUrl = `http://127.0.0.1:${port}/api`;
       resolve();
     });
   });
