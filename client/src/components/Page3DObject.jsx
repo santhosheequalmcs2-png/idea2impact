@@ -26,6 +26,7 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
     renderer.setSize(size, size);
     host.appendChild(renderer.domElement);
 
+    // Root Group: Manipulated by drag & inertia
     const rootGroup = new THREE.Group();
     scene.add(rootGroup);
 
@@ -51,7 +52,7 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
     pointLight.position.set(-2, 2, 3);
     scene.add(pointLight);
 
-    // Animatable components storage
+    // Internal model animatables
     const animatables = [];
 
     // =========================================================================
@@ -60,7 +61,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
     if (type === 'marketplace') {
       const bulbGroup = new THREE.Group();
 
-      // Top Glass Sphere
       const glassGeo = new THREE.SphereGeometry(1.0, 32, 24);
       const glassMat = new THREE.MeshPhysicalMaterial({
         color: colors.primary,
@@ -74,13 +74,11 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
       glassMesh.position.y = 0.35;
       bulbGroup.add(glassMesh);
 
-      // Tapered lower body
       const taperGeo = new THREE.CylinderGeometry(1.0, 0.48, 0.75, 24);
       const taperMesh = new THREE.Mesh(taperGeo, glassMat);
       taperMesh.position.y = -0.22;
       bulbGroup.add(taperMesh);
 
-      // Inner Glowing Filament
       const filamentGeo = new THREE.TorusGeometry(0.35, 0.05, 12, 32, Math.PI * 1.6);
       const filamentMat = new THREE.MeshStandardMaterial({
         color: colors.secondary,
@@ -93,7 +91,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
       filament.rotation.z = Math.PI * 0.2;
       bulbGroup.add(filament);
 
-      // Base Screw Threads
       const baseGeo = new THREE.CylinderGeometry(0.44, 0.38, 0.5, 24);
       const baseMat = new THREE.MeshStandardMaterial({
         color: colors.metal,
@@ -104,13 +101,11 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
       baseMesh.position.y = -0.85;
       bulbGroup.add(baseMesh);
 
-      // Base tip
       const tipGeo = new THREE.SphereGeometry(0.24, 16, 12);
       const tipMesh = new THREE.Mesh(tipGeo, baseMat);
       tipMesh.position.y = -1.15;
       bulbGroup.add(tipMesh);
 
-      // Floating Mechanical Gear Ring
       const gearRing = new THREE.Group();
       const ringGeo = new THREE.TorusGeometry(1.65, 0.04, 12, 48);
       const ringMat = new THREE.MeshStandardMaterial({
@@ -121,7 +116,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
       });
       gearRing.add(new THREE.Mesh(ringGeo, ringMat));
 
-      // 6 Gear teeth around ring
       for (let i = 0; i < 6; i++) {
         const toothGeo = new THREE.BoxGeometry(0.12, 0.2, 0.08);
         const tooth = new THREE.Mesh(toothGeo, ringMat);
@@ -136,7 +130,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
       rootGroup.add(bulbGroup);
 
       animatables.push((time) => {
-        bulbGroup.rotation.y = time * 0.45;
         gearRing.rotation.z = -time * 0.6;
         filamentMat.emissiveIntensity = 1.4 + Math.sin(time * 3) * 0.45;
       });
@@ -148,7 +141,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
     else if (type === 'talents') {
       const netGroup = new THREE.Group();
 
-      // Central Hub
       const centerGeo = new THREE.IcosahedronGeometry(0.55, 2);
       const centerMat = new THREE.MeshStandardMaterial({
         color: colors.primary,
@@ -160,7 +152,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
       const centerMesh = new THREE.Mesh(centerGeo, centerMat);
       netGroup.add(centerMesh);
 
-      // Outer Wireframe Globe
       const wireGeo = new THREE.IcosahedronGeometry(1.6, 1);
       const wireMat = new THREE.MeshBasicMaterial({
         color: colors.secondary,
@@ -171,7 +162,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
       const wireMesh = new THREE.Mesh(wireGeo, wireMat);
       netGroup.add(wireMesh);
 
-      // 4 Satellite Talent Nodes (Creator, Builder, Investor, Legal)
       const nodesData = [
         { pos: new THREE.Vector3(1.2, 0.7, 0.5), col: colors.primary },
         { pos: new THREE.Vector3(-1.1, 0.8, -0.6), col: colors.secondary },
@@ -193,7 +183,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
         netGroup.add(sat);
         satellites.push({ mesh: sat, basePos: pos.clone() });
 
-        // Connection Beam to center
         const linePoints = [new THREE.Vector3(0, 0, 0), pos];
         const lineGeo = new THREE.BufferGeometry().setFromPoints(linePoints);
         const lineMat = new THREE.LineBasicMaterial({
@@ -205,7 +194,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
         netGroup.add(line);
       });
 
-      // Orbiting ring
       const ringGeo = new THREE.TorusGeometry(1.7, 0.025, 8, 64);
       const ringMat = new THREE.MeshBasicMaterial({ color: colors.accent, transparent: true, opacity: 0.6 });
       const ring = new THREE.Mesh(ringGeo, ringMat);
@@ -215,8 +203,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
       rootGroup.add(netGroup);
 
       animatables.push((time) => {
-        netGroup.rotation.y = time * 0.35;
-        netGroup.rotation.x = Math.sin(time * 0.5) * 0.15;
         ring.rotation.z = time * 0.5;
         satellites.forEach(({ mesh, basePos }, i) => {
           mesh.position.y = basePos.y + Math.sin(time * 2 + i) * 0.08;
@@ -230,7 +216,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
     else if (type === 'ai-studio') {
       const brainGroup = new THREE.Group();
 
-      // Dual Hemispheres (Left & Right)
       [-0.45, 0.45].forEach((offset) => {
         const hemiGeo = new THREE.IcosahedronGeometry(0.85, 2);
         hemiGeo.scale(0.72, 1.1, 0.88);
@@ -244,7 +229,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
         hemi.position.x = offset;
         brainGroup.add(hemi);
 
-        // Inner glowing core
         const coreGeo = new THREE.SphereGeometry(0.45, 16, 16);
         const coreMat = new THREE.MeshStandardMaterial({
           color: colors.secondary,
@@ -257,7 +241,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
         brainGroup.add(core);
       });
 
-      // Synapse points (constellation)
       const synapseCount = 36;
       const posArray = new Float32Array(synapseCount * 3);
       for (let i = 0; i < synapseCount; i++) {
@@ -279,7 +262,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
       const synapsePoints = new THREE.Points(synapseGeo, synapseMat);
       brainGroup.add(synapsePoints);
 
-      // AI Vertical Scanning Ring
       const scanRingGeo = new THREE.TorusGeometry(1.25, 0.025, 8, 48);
       const scanRingMat = new THREE.MeshBasicMaterial({
         color: colors.accent,
@@ -293,7 +275,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
       rootGroup.add(brainGroup);
 
       animatables.push((time) => {
-        brainGroup.rotation.y = time * 0.4;
         scanRing.position.y = Math.sin(time * 2.2) * 0.9;
         synapseMat.size = 0.07 + Math.sin(time * 4) * 0.025;
       });
@@ -305,7 +286,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
     else if (type === 'pricing') {
       const coinGroup = new THREE.Group();
 
-      // Main Coin Cylinder
       const coinGeo = new THREE.CylinderGeometry(1.25, 1.25, 0.2, 36);
       const coinMat = new THREE.MeshStandardMaterial({
         color: colors.primary,
@@ -318,7 +298,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
       coinMesh.rotation.x = Math.PI * 0.5;
       coinGroup.add(coinMesh);
 
-      // Outer Beveled Rim
       const rimGeo = new THREE.TorusGeometry(1.25, 0.08, 16, 48);
       const rimMat = new THREE.MeshStandardMaterial({
         color: colors.secondary,
@@ -328,7 +307,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
       const rimMesh = new THREE.Mesh(rimGeo, rimMat);
       coinGroup.add(rimMesh);
 
-      // Embossed Center Emblem (Front & Back)
       [-0.12, 0.12].forEach((zPos) => {
         const emblemGeo = new THREE.OctahedronGeometry(0.55, 0);
         emblemGeo.scale(1, 1, 0.3);
@@ -344,7 +322,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
         coinGroup.add(emblem);
       });
 
-      // Floating Outer Value Halo
       const haloGeo = new THREE.TorusGeometry(1.6, 0.02, 8, 48);
       const haloMat = new THREE.MeshBasicMaterial({ color: colors.secondary, transparent: true, opacity: 0.6 });
       const halo = new THREE.Mesh(haloGeo, haloMat);
@@ -354,8 +331,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
       rootGroup.add(coinGroup);
 
       animatables.push((time) => {
-        coinGroup.rotation.y = time * 0.5;
-        coinGroup.rotation.z = Math.sin(time * 0.6) * 0.15;
         halo.rotation.z = -time * 0.4;
       });
     }
@@ -366,7 +341,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
     else if (type === 'auth') {
       const shieldGroup = new THREE.Group();
 
-      // Shield Shape via ExtrudeGeometry
       const shape = new THREE.Shape();
       shape.moveTo(0, 1.25);
       shape.quadraticCurveTo(0.9, 1.2, 1.0, 0.5);
@@ -394,7 +368,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
       const shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
       shieldGroup.add(shieldMesh);
 
-      // Lock Body (Box)
       const lockBodyGeo = new THREE.BoxGeometry(0.55, 0.45, 0.18);
       const lockMat = new THREE.MeshStandardMaterial({
         color: colors.secondary,
@@ -406,7 +379,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
       lockBody.position.set(0, -0.15, 0.18);
       shieldGroup.add(lockBody);
 
-      // Lock Shackle (Curved Torus)
       const shackleGeo = new THREE.TorusGeometry(0.22, 0.06, 12, 24, Math.PI);
       const shackleMat = new THREE.MeshStandardMaterial({
         color: colors.accent,
@@ -417,7 +389,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
       shackle.position.set(0, 0.1, 0.18);
       shieldGroup.add(shackle);
 
-      // Security Orbital Ring
       const orbitGeo = new THREE.TorusGeometry(1.65, 0.025, 8, 48);
       const orbitMat = new THREE.MeshBasicMaterial({ color: colors.secondary, transparent: true, opacity: 0.55 });
       const orbit = new THREE.Mesh(orbitGeo, orbitMat);
@@ -427,8 +398,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
       rootGroup.add(shieldGroup);
 
       animatables.push((time) => {
-        shieldGroup.rotation.y = Math.sin(time * 0.6) * 0.3;
-        shieldGroup.position.y = Math.sin(time * 1.5) * 0.08;
         orbit.rotation.z = time * 0.8;
       });
     }
@@ -439,7 +408,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
     else if (type === 'dashboard') {
       const dashGroup = new THREE.Group();
 
-      // Circular Grid Platform Base
       const baseGeo = new THREE.CylinderGeometry(1.6, 1.6, 0.08, 32);
       const baseMat = new THREE.MeshStandardMaterial({
         color: colors.metal,
@@ -450,7 +418,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
       basePlatform.position.y = -1.0;
       dashGroup.add(basePlatform);
 
-      // 4 Stepped Analytics Pillars
       const heights = [0.65, 1.15, 1.7, 2.35];
       const xPositions = [-0.9, -0.3, 0.3, 0.9];
       const pillarMeshes = [];
@@ -469,7 +436,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
         dashGroup.add(pillar);
         pillarMeshes.push({ mesh: pillar, baseH: h });
 
-        // Cap highlight
         const capGeo = new THREE.BoxGeometry(0.4, 0.05, 0.4);
         const capMat = new THREE.MeshBasicMaterial({ color: colors.accent });
         const cap = new THREE.Mesh(capGeo, capMat);
@@ -477,7 +443,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
         dashGroup.add(cap);
       });
 
-      // Upward Growth Spline Curve
       const curvePoints = [];
       for (let i = 0; i <= 20; i++) {
         const t = i / 20;
@@ -496,7 +461,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
       const tube = new THREE.Mesh(tubeGeo, tubeMat);
       dashGroup.add(tube);
 
-      // Arrowhead at apex
       const arrowGeo = new THREE.ConeGeometry(0.14, 0.3, 16);
       const arrowMat = new THREE.MeshStandardMaterial({
         color: colors.accent,
@@ -511,7 +475,6 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
       rootGroup.add(dashGroup);
 
       animatables.push((time) => {
-        dashGroup.rotation.y = 0.35 + Math.sin(time * 0.4) * 0.25;
         pillarMeshes.forEach(({ mesh, baseH }, idx) => {
           const wave = Math.sin(time * 2 + idx * 0.8) * 0.08;
           mesh.scale.y = 1 + wave;
@@ -520,15 +483,72 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
       });
     }
 
-    // Interactive mouse parallax
-    let mouseX = 0;
-    let mouseY = 0;
-    const handleMouseMove = (e) => {
-      const rect = host.getBoundingClientRect();
-      mouseX = ((e.clientX - rect.left) / rect.width - 0.5) * 0.8;
-      mouseY = ((e.clientY - rect.top) / rect.height - 0.5) * 0.8;
+    // =========================================================================
+    // 7. INTERACTIVE DRAG TO ROTATE (POINTER EVENTS & INERTIAL PHYSICS)
+    // =========================================================================
+    let isDragging = false;
+    let prevPointerX = 0;
+    let prevPointerY = 0;
+    let velocityX = 0;
+    let velocityY = 0;
+    let targetRotationX = 0;
+    let targetRotationY = 0;
+    let currentRotationX = 0;
+    let currentRotationY = 0;
+    let autoSpinSpeed = 0.007;
+
+    const onPointerDown = (e) => {
+      isDragging = true;
+      prevPointerX = e.clientX;
+      prevPointerY = e.clientY;
+      velocityX = 0;
+      velocityY = 0;
+      host.style.cursor = 'grabbing';
+      if (host.setPointerCapture) {
+        try { host.setPointerCapture(e.pointerId); } catch (err) {}
+      }
     };
-    host.addEventListener('mousemove', handleMouseMove);
+
+    const onPointerMove = (e) => {
+      if (!isDragging) return;
+      const deltaX = e.clientX - prevPointerX;
+      const deltaY = e.clientY - prevPointerY;
+
+      velocityX = deltaX * 0.013;
+      velocityY = deltaY * 0.013;
+
+      targetRotationY += velocityX;
+      targetRotationX += velocityY;
+
+      // Soft clamp on vertical pitch so object doesn't turn upside down
+      targetRotationX = Math.max(-Math.PI * 0.45, Math.min(Math.PI * 0.45, targetRotationX));
+
+      prevPointerX = e.clientX;
+      prevPointerY = e.clientY;
+    };
+
+    const onPointerUp = (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+      host.style.cursor = 'grab';
+      if (host.releasePointerCapture) {
+        try { host.releasePointerCapture(e.pointerId); } catch (err) {}
+      }
+    };
+
+    // Double click to smoothly re-center object
+    const onDoubleClick = () => {
+      targetRotationX = 0;
+      targetRotationY = 0;
+      velocityX = 0;
+      velocityY = 0;
+    };
+
+    host.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+    window.addEventListener('pointercancel', onPointerUp);
+    host.addEventListener('dblclick', onDoubleClick);
 
     // Animation Loop
     let frameId;
@@ -548,11 +568,25 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
         dirLight.intensity = isDark ? 2.5 : 3.0;
       }
 
-      // Parallax dampening
-      rootGroup.rotation.x += (mouseY * 0.4 - rootGroup.rotation.x) * 0.05;
-      rootGroup.rotation.y += (mouseX * 0.4 - rootGroup.rotation.y) * 0.05;
+      // Physics & Inertia dampening
+      if (!isDragging) {
+        targetRotationY += velocityX;
+        targetRotationX += velocityY;
+        velocityX *= 0.92;
+        velocityY *= 0.92;
 
-      // Run specific model animations
+        // Idle continuous auto-spin when released
+        targetRotationY += autoSpinSpeed;
+      }
+
+      // Silky smooth lerp interpolation
+      currentRotationX += (targetRotationX - currentRotationX) * 0.12;
+      currentRotationY += (targetRotationY - currentRotationY) * 0.12;
+
+      rootGroup.rotation.x = currentRotationX;
+      rootGroup.rotation.y = currentRotationY;
+
+      // Run internal model animations
       animatables.forEach((fn) => fn(elapsedTime));
 
       renderer.render(scene, camera);
@@ -575,7 +609,11 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
     return () => {
       cancelAnimationFrame(frameId);
       ro.disconnect();
-      host.removeEventListener('mousemove', handleMouseMove);
+      host.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('pointercancel', onPointerUp);
+      host.removeEventListener('dblclick', onDoubleClick);
       renderer.dispose();
       scene.clear();
       if (renderer.domElement && host.contains(renderer.domElement)) {
@@ -594,9 +632,12 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        position: 'relative'
+        position: 'relative',
+        cursor: 'grab',
+        touchAction: 'none'
       }}
-      aria-label={`Interactive 3D model representing ${type}`}
+      title="Click and drag to rotate in 3D (Double-click to reset)"
+      aria-label={`Interactive 3D model representing ${type}. Click and drag to rotate.`}
     />
   );
 }

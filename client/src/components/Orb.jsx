@@ -53,11 +53,90 @@ export default function Orb() {
     light.position.set(3, 3, 4);
     scene.add(light);
 
+    // Interactive Drag to Rotate with Inertia
+    let isDragging = false;
+    let prevPointerX = 0;
+    let prevPointerY = 0;
+    let velocityX = 0;
+    let velocityY = 0;
+    let targetRotationX = 0;
+    let targetRotationY = 0;
+    let currentRotationX = 0;
+    let currentRotationY = 0;
+    const autoSpinSpeedX = 0.001;
+    const autoSpinSpeedY = 0.003;
+
+    const onPointerDown = (e) => {
+      isDragging = true;
+      prevPointerX = e.clientX;
+      prevPointerY = e.clientY;
+      velocityX = 0;
+      velocityY = 0;
+      host.style.cursor = 'grabbing';
+      if (host.setPointerCapture) {
+        try { host.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+    };
+
+    const onPointerMove = (e) => {
+      if (!isDragging) return;
+      const deltaX = e.clientX - prevPointerX;
+      const deltaY = e.clientY - prevPointerY;
+
+      velocityX = deltaX * 0.013;
+      velocityY = deltaY * 0.013;
+
+      targetRotationY += velocityX;
+      targetRotationX += velocityY;
+
+      targetRotationX = Math.max(-Math.PI * 0.45, Math.min(Math.PI * 0.45, targetRotationX));
+
+      prevPointerX = e.clientX;
+      prevPointerY = e.clientY;
+    };
+
+    const onPointerUp = (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+      host.style.cursor = 'grab';
+      if (host.releasePointerCapture) {
+        try { host.releasePointerCapture(e.pointerId); } catch (err) {}
+      }
+    };
+
+    const onDoubleClick = () => {
+      targetRotationX = 0;
+      targetRotationY = 0;
+      velocityX = 0;
+      velocityY = 0;
+    };
+
+    host.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+    window.addEventListener('pointercancel', onPointerUp);
+    host.addEventListener('dblclick', onDoubleClick);
+
     let frame;
     const animate = () => {
       frame = requestAnimationFrame(animate);
-      group.rotation.y += 0.003;
-      group.rotation.x += 0.0015;
+
+      if (!isDragging) {
+        targetRotationY += velocityX;
+        targetRotationX += velocityY;
+        velocityX *= 0.92;
+        velocityY *= 0.92;
+
+        targetRotationY += autoSpinSpeedY;
+        targetRotationX += autoSpinSpeedX;
+      }
+
+      currentRotationX += (targetRotationX - currentRotationX) * 0.12;
+      currentRotationY += (targetRotationY - currentRotationY) * 0.12;
+
+      group.rotation.x = currentRotationX;
+      group.rotation.y = currentRotationY;
+
       renderer.render(scene, camera);
     };
     animate();
@@ -75,6 +154,11 @@ export default function Orb() {
     return () => {
       cancelAnimationFrame(frame);
       ro.disconnect();
+      host.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('pointercancel', onPointerUp);
+      host.removeEventListener('dblclick', onDoubleClick);
       renderer.dispose();
       geo.dispose();
       mat.dispose();
@@ -84,5 +168,13 @@ export default function Orb() {
     };
   }, []);
 
-  return <div className="orb" ref={ref} aria-label="Animated 3D innovation core" />;
+  return (
+    <div
+      className="orb"
+      ref={ref}
+      style={{ cursor: 'grab', touchAction: 'none' }}
+      title="Click and drag to rotate in 3D (Double-click to reset)"
+      aria-label="Animated 3D innovation core. Click and drag to rotate."
+    />
+  );
 }
