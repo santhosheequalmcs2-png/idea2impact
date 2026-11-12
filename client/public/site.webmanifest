@@ -1,0 +1,16 @@
+{
+  "name": "IDEA2IMPACT — Innovation Marketplace",
+  "short_name": "IDEA2IMPACT",
+  "description": "Where breakthrough ideas meet global capital & elite builders.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5F0FF",
+  "theme_color": "#7041C7",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
