@@ -233,12 +233,83 @@ export async function setupDatabase() {
       userMap[t.email] = u;
     }
 
-    // 3. Seed 32 High-Caliber Innovations Across All Fields
+    // 3. Seed 40 High-Caliber Innovations Across All 8 Categories (5 per category)
     const seedItems = [
-      // --- Original Core Innovations ---
+      // ==========================================
+      // CATEGORY 1: IDEAS (5 items)
+      // ==========================================
+      {
+        title: 'AquaMesh — Atmospheric Fog & Humidity Water Harvester',
+        description: 'Passive biomimetic mesh capturing 15L of potable water daily in arid coastal zones with zero electricity. Inspired by the Namib Desert beetle\'s hydrophilic-hydrophobic microstructures.',
+        categoryId: catMap['ideas'],
+        creatorId: userMap['priya.sharma@agritech.example'].id,
+        price: 0,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'DirectAir — Solar Solid-State CO2 Mineralization Matrix',
+        description: 'A modular architectural building-cladding filter that binds ambient carbon dioxide into harmless calcium carbonate minerals using ambient humidity and passive solar thermal convection.',
+        categoryId: catMap['ideas'],
+        creatorId: userMap['creator@idea2impact.example'].id,
+        price: 0,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'DecentralGrid — P2P Renewable Microgrid Exchange Protocol',
+        description: 'Open protocol design allowing residential solar battery owners to trade kilowatt-hours locally with neighbours via ultra-low latency cryptographic state channels.',
+        categoryId: catMap['ideas'],
+        creatorId: userMap['zoe.kalu@defitrust.example'].id,
+        price: 0,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'MycoFeed — Fungal Protein Bioconversion System',
+        description: 'Converts organic agricultural byproduct streams into high-nutrient mycoprotein feedstock using oyster mushroom mycelium strains, cutting animal feed emissions by 80%.',
+        categoryId: catMap['ideas'],
+        creatorId: userMap['dr.thorne@biogenome.example'].id,
+        price: 150,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1546842931-886c185b4c8c?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'OceanPlast — Enzymatic Biodegradation River Trap',
+        description: 'Self-anchored floating river booms utilizing engineered bacterial PETases to depolymerize plastic waste into non-toxic terephthalic acid before reaching open oceans.',
+        categoryId: catMap['ideas'],
+        creatorId: userMap['creator@idea2impact.example'].id,
+        price: 0,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80'
+      },
+
+      // ==========================================
+      // CATEGORY 2: INVENTIONS (5 items)
+      // ==========================================
       {
         title: 'AquaSense — Smart Water Monitor',
-        description: 'A low-cost sensor concept that helps households spot leaks and understand daily water use with high precision. Integrates with mobile notifications and municipal water conservation goals.',
+        description: 'A low-cost sensor concept that helps households spot micro-leaks and understand daily water use with high precision. Integrates with mobile notifications and municipal water conservation goals.',
         categoryId: catMap['inventions'],
         creatorId: userMap['creator@idea2impact.example'].id,
         price: 120,
@@ -248,45 +319,6 @@ export async function setupDatabase() {
         status: 'PUBLISHED',
         visibility: 'PUBLIC',
         imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        title: 'LocalLoop Community Marketplace',
-        description: 'A neighbourhood-first mobile application connecting independent makers with nearby customers for on-demand local pickups and hyper-local delivery.',
-        categoryId: catMap['mobile-apps'],
-        creatorId: userMap['creator@idea2impact.example'].id,
-        price: 0,
-        licensing: false,
-        funding: true,
-        ownershipConfirmed: true,
-        status: 'PUBLISHED',
-        visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        title: 'FormFlow — No-code Form Builder',
-        description: 'A lightweight workflow tool that turns complex intake forms and multi-step applications into simple, friendly conversations.',
-        categoryId: catMap['software'],
-        creatorId: userMap['creator@idea2impact.example'].id,
-        price: 49,
-        licensing: true,
-        funding: false,
-        ownershipConfirmed: true,
-        status: 'PUBLISHED',
-        visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        title: 'ModuNest Furniture System',
-        description: 'Flat-pack modular furniture engineered for compact urban living spaces. Easily disassembled, expanded, and customized without tools.',
-        categoryId: catMap['physical-products'],
-        creatorId: userMap['aiko.tanaka@designcore.example'].id,
-        price: 280,
-        licensing: true,
-        funding: true,
-        ownershipConfirmed: true,
-        status: 'PUBLISHED',
-        visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80'
       },
       {
         title: 'AeroGlide Solar Drone — Multi-Day Aerial Sentinel',
@@ -302,6 +334,62 @@ export async function setupDatabase() {
         imageUrl: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=800&q=80'
       },
       {
+        title: 'ThermaHarvest — Industrial Waste-Heat Thermoelectric Generator',
+        description: 'Solid-state bismuth-telluride thermoelectric generator capturing factory exhaust heat (150-450°C) and converting it to electricity with a 3-year commercial payback period.',
+        categoryId: catMap['inventions'],
+        creatorId: userMap['creator@idea2impact.example'].id,
+        price: 450,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'VoltaTile — Kinetic Footstep Energy Harvesting Pavers',
+        description: 'Piezoelectric-electromagnetic hybrid floor tiles for high-traffic train stations and airports generating up to 7 Joules per footstep to power local emergency lighting and beacons.',
+        categoryId: catMap['inventions'],
+        creatorId: userMap['devon.brooks@buildlab.example'].id,
+        price: 195,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1517646287270-a5a9ca602e5c?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'CanopyEye — Autonomous Tree-Planting Drone Swarm',
+        description: 'Autonomous lidar-guided drone swarm planting pre-germinated seed pods in deforested terrains with 85% germination success, planting up to 40,000 trees per day.',
+        categoryId: catMap['inventions'],
+        creatorId: userMap['elena.rostova@aerosolar.example'].id,
+        price: 890,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=800&q=80'
+      },
+
+      // ==========================================
+      // CATEGORY 3: PHYSICAL PRODUCTS (5 items)
+      // ==========================================
+      {
+        title: 'ModuNest Furniture System',
+        description: 'Flat-pack modular furniture engineered for compact urban living spaces. Easily disassembled, expanded, and customized without tools using precision magnetic snap-joints.',
+        categoryId: catMap['physical-products'],
+        creatorId: userMap['aiko.tanaka@designcore.example'].id,
+        price: 280,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80'
+      },
+      {
         title: 'NeuroGrip Haptic Bionic Hand',
         description: 'Sub-$800 3D-printed multi-articulating bionic prosthesis with embedded neural myoelectric sensors and tactile vibration feedback for amputees.',
         categoryId: catMap['physical-products'],
@@ -315,122 +403,136 @@ export async function setupDatabase() {
         imageUrl: 'https://images.unsplash.com/photo-1589254065878-42c9da997008?auto=format&fit=crop&w=800&q=80'
       },
       {
-        title: 'Klarity AI — Real-time Contract & IP Risk Scanner',
-        description: 'Browser-based privacy-first AI assistant that scans commercial NDAs, licensing agreements, and assignment clauses in 5 seconds to highlight unfavorable terms.',
-        categoryId: catMap['software'],
-        creatorId: userMap['david.miller@millerip.example'].id,
-        price: 99,
-        licensing: true,
-        funding: false,
-        ownershipConfirmed: true,
-        status: 'PUBLISHED',
-        visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80'
-      },
-
-      // --- 25 NEW INNOVATIONS (DIVERSE FIELDS) ---
-      // CleanTech & Energy
-      {
-        title: 'ThermaHarvest — Industrial Waste-Heat Thermoelectric Generator',
-        description: 'Solid-state thermoelectric generator capturing low-grade industrial exhaust heat (150°C-350°C) to deliver 12 kW electrical baseload directly into plant microgrids.',
-        categoryId: catMap['inventions'],
-        creatorId: userMap['creator@idea2impact.example'].id,
-        price: 850,
-        licensing: true,
-        funding: true,
-        ownershipConfirmed: true,
-        status: 'PUBLISHED',
-        visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=800&q=80'
-      },
-      {
         title: 'BioLoom — Algae-Based Carbon Capture Façade Panels',
-        description: 'Living architectural exterior cladding panels populated with micro-algae photobioreactors that sequester 4x more CO2 per m² than mature pine trees while producing natural thermal insulation.',
+        description: 'Architectural double-glazed exterior glass panels circulating chlorella microalgae to absorb indoor building CO2 while providing biophilic shade and biomass insulation.',
         categoryId: catMap['physical-products'],
         creatorId: userMap['aiko.tanaka@designcore.example'].id,
-        price: 420,
+        price: 340,
         licensing: true,
         funding: true,
         ownershipConfirmed: true,
         status: 'PUBLISHED',
         visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        title: 'VoltaTile — Kinetic Footstep Energy Harvesting Pavers',
-        description: 'Durable composite pavers designed for subway hubs and pedestrian plazas that harness human footstep kinetic pressure to power local LED lighting and emergency beacons.',
-        categoryId: catMap['inventions'],
-        creatorId: userMap['creator@idea2impact.example'].id,
-        price: 190,
-        licensing: true,
-        funding: true,
-        ownershipConfirmed: true,
-        status: 'PUBLISHED',
-        visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80'
-      },
-
-      // Robotics, Drones & Marine
-      {
-        title: 'CanopyEye — Autonomous Tree-Planting Drone Swarm',
-        description: 'Autonomous multi-rotor drone system capable of firing 40,000 biodegradable seed pods daily into difficult terrain and wildfire burn scars with GPS tracking.',
-        categoryId: catMap['inventions'],
-        creatorId: userMap['elena.rostova@aerosolar.example'].id,
-        price: 3400,
-        licensing: true,
-        funding: true,
-        ownershipConfirmed: true,
-        status: 'PUBLISHED',
-        visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=800&q=80'
+        imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80'
       },
       {
         title: 'CobotGrip — Soft-Pneumatic Tactile End-Effector',
-        description: 'Silicone elastomer robotic gripper mimicking human fingertip compliance for bruise-free soft fruit packaging, delicate berry harvesting, and glass vial assembly.',
+        description: 'Food-safe silicone soft-robotics gripper with embedded micro-pressure sensors for handling delicate produce and fragile biological samples without bruising.',
         categoryId: catMap['physical-products'],
         creatorId: userMap['devon.brooks@buildlab.example'].id,
-        price: 640,
+        price: 520,
         licensing: true,
         funding: true,
         ownershipConfirmed: true,
         status: 'PUBLISHED',
         visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80'
+        imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80'
       },
       {
-        title: 'DeepSub Autonomous Coral Reef Surveyor',
-        description: 'Submersible micro-AUV equipped with stereo photogrammetry and computer vision to map 3D coral health, temperature gradients, and reef biodiversity at 50m depth.',
-        categoryId: catMap['inventions'],
-        creatorId: userMap['devon.brooks@buildlab.example'].id,
-        price: 2100,
+        title: 'HydroPod — Solar Closed-Loop Desalination Greenhouse',
+        description: 'Compact modular greenhouse utilizing passive solar thermal evaporation to desalinate saline groundwater for organic hydroponic produce in desert communities.',
+        categoryId: catMap['physical-products'],
+        creatorId: userMap['priya.sharma@agritech.example'].id,
+        price: 1100,
         licensing: true,
         funding: true,
         ownershipConfirmed: true,
         status: 'PUBLISHED',
         visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80'
+        imageUrl: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=800&q=80'
       },
 
-      // HealthTech & BioTech
+      // ==========================================
+      // CATEGORY 4: WEBSITES (5 items)
+      // ==========================================
       {
-        title: 'NeuroPulse — Transcranial Vagus Nerve Sleep Optimizer',
-        description: 'Ergonomic behind-the-ear headband applying targeted micro-current vagal neuromodulation to enhance slow-wave sleep cycles and accelerate athletic neurological recovery.',
-        categoryId: catMap['physical-products'],
-        creatorId: userMap['creator@idea2impact.example'].id,
-        price: 349,
+        title: 'OpenPatent — Crowdsourced Prior-Art Invalidation Exchange',
+        description: 'Global collaborative web platform incentivizing patent researchers and engineers with bounty pools to unearth prior art against predatory patent trolls.',
+        categoryId: catMap['websites'],
+        creatorId: userMap['david.miller@millerip.example'].id,
+        price: 0,
         licensing: true,
         funding: true,
         ownershipConfirmed: true,
         status: 'PUBLISHED',
         visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80'
+        imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80'
       },
       {
-        title: 'GlucoSpectra — Non-Invasive Optical Blood Glucose Monitor',
-        description: 'Continuous blood glucose monitoring via multi-wavelength Raman spectroscopy without skin lancets or disposable enzyme test strips.',
-        categoryId: catMap['inventions'],
+        title: 'ReClaim — Circular Economy Industrial Surplus Marketplace',
+        description: 'B2B web exchange connecting manufacturing plants with circular upcyclers to divert scrap metals, chemicals, and industrial polymers from landfills.',
+        categoryId: catMap['websites'],
+        creatorId: userMap['creator@idea2impact.example'].id,
+        price: 75,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'SoundForge — Procedural Ambient Audio Synthesizer',
+        description: 'Browser-based WebAudio DSP synthesizer generating infinite dynamic, royalty-free soundscapes tailored for focus workspaces, podcasts, and game designers.',
+        categoryId: catMap['websites'],
+        creatorId: userMap['lucas.moreau@spatialhaptics.example'].id,
+        price: 35,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'VentureTAM — AI Market Size & Competitive Density Modeler',
+        description: 'Interactive web analytics platform empowering hardware and deep-tech founders to compute bottom-up Total Addressable Market (TAM) with verified patent graphs.',
+        categoryId: catMap['websites'],
+        creatorId: userMap['marcus.vance@apexhorizons.example'].id,
+        price: 85,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'SkillLink — Collaborative Scientific Equipment Sharing Portal',
+        description: 'Academic equipment booking network connecting private biomedical startups with idle university electron microscopes, sequencers, and mass spectrometers.',
+        categoryId: catMap['websites'],
         creatorId: userMap['dr.thorne@biogenome.example'].id,
-        price: 480,
+        price: 40,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1507668077129-56e32842fceb?auto=format&fit=crop&w=800&q=80'
+      },
+
+      // ==========================================
+      // CATEGORY 5: MOBILE APPS (5 items)
+      // ==========================================
+      {
+        title: 'LocalLoop Community Marketplace',
+        description: 'A neighbourhood-first mobile application connecting independent makers with nearby customers for on-demand local pickups and hyper-local delivery.',
+        categoryId: catMap['mobile-apps'],
+        creatorId: userMap['creator@idea2impact.example'].id,
+        price: 0,
+        licensing: false,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'VitalPatch — 14-Day Biodegradable Cardiac Telemetry App & Patch',
+        description: 'Ultra-thin chest patch made from biodegradable silk fibroin paired with a mobile telemetry app for continuous ECG, arrhythmia detection, and doctor alerts.',
+        categoryId: catMap['mobile-apps'],
+        creatorId: userMap['dr.thorne@biogenome.example'].id,
+        price: 45,
         licensing: true,
         funding: true,
         ownershipConfirmed: true,
@@ -439,123 +541,54 @@ export async function setupDatabase() {
         imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80'
       },
       {
-        title: 'VitalPatch — 14-Day Biodegradable Cardiac Telemetry Patch',
-        description: 'Water-soluble ECG biosensor patch that records 336 hours of continuous continuous clinical cardiac rhythms and dissolves harmlessly in warm water after use.',
-        categoryId: catMap['physical-products'],
-        creatorId: userMap['dr.thorne@biogenome.example'].id,
-        price: 75,
-        licensing: true,
-        funding: true,
-        ownershipConfirmed: true,
-        status: 'PUBLISHED',
-        visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80'
-      },
-
-      // AgriTech & Food Systems
-      {
-        title: 'TerraSense — Subsurface Soil Nitrate & Moisture Spectrometer',
-        description: 'In-ground solar probe transmitting wireless real-time nitrogen, phosphorus, and moisture profiles to reduce agricultural fertilizer runoff by up to 35%.',
-        categoryId: catMap['inventions'],
-        creatorId: userMap['priya.sharma@agritech.example'].id,
-        price: 290,
-        licensing: true,
-        funding: true,
-        ownershipConfirmed: true,
-        status: 'PUBLISHED',
-        visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        title: 'HydroPod — Solar Closed-Loop Desalination Greenhouse',
-        description: 'Compact vertical hydroponic greenhouse tower utilizing passive multi-stage solar distillation to grow 800 kg of fresh vegetables using brackish groundwater.',
-        categoryId: catMap['physical-products'],
-        creatorId: userMap['priya.sharma@agritech.example'].id,
-        price: 1850,
-        licensing: true,
-        funding: true,
-        ownershipConfirmed: true,
-        status: 'PUBLISHED',
-        visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        title: 'MycoFeed — Fungal Protein Bioconversion System',
-        description: 'Low-energy modular fermenter that transforms agricultural chaff and spent brewer grains into high-protein livestock feed supplements in under 48 hours.',
-        categoryId: catMap['ideas'],
-        creatorId: userMap['priya.sharma@agritech.example'].id,
+        title: 'KindredKit — Hyper-Local Emergency Preparedness Network',
+        description: 'Mesh-networking offline mobile application that organizes neighborhood disaster supplies, CPR responders, and rescue coordination without cellular towers.',
+        categoryId: catMap['mobile-apps'],
+        creatorId: userMap['zoe.kalu@defitrust.example'].id,
         price: 0,
         licensing: false,
         funding: true,
         ownershipConfirmed: true,
         status: 'PUBLISHED',
         visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=800&q=80'
-      },
-
-      // Software & Developer Tools
-      {
-        title: 'CipherVault — Zero-Knowledge Micro-Credential Registry',
-        description: 'Decentralized identity protocol allowing technical universities, coding schools, and trade guilds to issue tamper-proof verifiable proof of engineering competency.',
-        categoryId: catMap['software'],
-        creatorId: userMap['zoe.kalu@defitrust.example'].id,
-        price: 150,
-        licensing: true,
-        funding: false,
-        ownershipConfirmed: true,
-        status: 'PUBLISHED',
-        visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80'
+        imageUrl: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=800&q=80'
       },
       {
-        title: 'LatencyZero — Edge ML Model Quantization Compiler',
-        description: 'Automated developer tool that shrinks PyTorch convolutional neural networks by 85% to run at 60 FPS on $3 ARM Cortex microcontrollers with zero accuracy degradation.',
-        categoryId: catMap['software'],
+        title: 'SkillBridge — Apprentice-to-Master Micro-Mentorship App',
+        description: 'Micro-coaching mobile platform pairing early-career tradespeople and technicians with retired master craftspeople for asynchronous video review and advice.',
+        categoryId: catMap['mobile-apps'],
         creatorId: userMap['devon.brooks@buildlab.example'].id,
-        price: 299,
-        licensing: true,
-        funding: false,
-        ownershipConfirmed: true,
-        status: 'PUBLISHED',
-        visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        title: 'AuditForge — Autonomous Smart Contract Vulnerability Fuzzer',
-        description: 'Automated formal verification engine detecting re-entrancy, price oracle manipulation, and arithmetic overflows in decentralized liquidity contracts before deployment.',
-        categoryId: catMap['software'],
-        creatorId: userMap['zoe.kalu@defitrust.example'].id,
-        price: 450,
-        licensing: true,
-        funding: false,
-        ownershipConfirmed: true,
-        status: 'PUBLISHED',
-        visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80'
-      },
-
-      // Spatial Computing & Haptics
-      {
-        title: 'HapticWave — Ultrasonic Mid-Air Spatial Touch Wearable',
-        description: 'Acoustic phased-array band that projects 40kHz radiation pressure directly onto the user palm, letting VR and spatial users feel solid buttons and textures in mid-air.',
-        categoryId: catMap['physical-products'],
-        creatorId: userMap['lucas.moreau@spatialhaptics.example'].id,
-        price: 520,
+        price: 29,
         licensing: true,
         funding: true,
         ownershipConfirmed: true,
         status: 'PUBLISHED',
         visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1593508512255-86ab42a8e620?auto=format&fit=crop&w=800&q=80'
+        imageUrl: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'PantryZero — Computer Vision Food Expiration & Recipe Planner',
+        description: 'Mobile kitchen assistant that scans grocery receipts and fridge shelves to generate zero-waste chef recipes before ingredients spoil.',
+        categoryId: catMap['mobile-apps'],
+        creatorId: userMap['priya.sharma@agritech.example'].id,
+        price: 19,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80'
       },
 
-      // Games & Interactive Simulation
+      // ==========================================
+      // CATEGORY 6: GAMES (5 items)
+      // ==========================================
       {
         title: 'Chronos: Echoes of Carthage — Historical Tactical RPG',
-        description: 'Turn-based tactical strategy game built in Unreal Engine 5 featuring authentic archaeological Mediterranean topography and physics-based naval ramming mechanics.',
+        description: 'Isometric turn-based tactical strategy game set during the Punic Wars with authentic Hellenistic engineering, siege mechanics, and tactical dilemmas.',
         categoryId: catMap['games'],
-        creatorId: userMap['devon.brooks@buildlab.example'].id,
-        price: 35,
+        creatorId: userMap['lucas.moreau@spatialhaptics.example'].id,
+        price: 39,
         licensing: true,
         funding: true,
         ownershipConfirmed: true,
@@ -565,101 +598,129 @@ export async function setupDatabase() {
       },
       {
         title: 'Aetheria — Cooperative Gravity-Shifting Puzzle Platformer',
-        description: 'Physics-driven cooperative multiplayer game where players manipulate localized gravitational fields to traverse shifting celestial ruins.',
+        description: 'Two-player physics platformer where players manipulate localized gravitational fields and quantum polarity to solve intricate environmental puzzles.',
         categoryId: catMap['games'],
-        creatorId: userMap['aiko.tanaka@designcore.example'].id,
-        price: 20,
-        licensing: true,
-        funding: false,
-        ownershipConfirmed: true,
-        status: 'PUBLISHED',
-        visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=800&q=80'
-      },
-
-      // Mobile Apps
-      {
-        title: 'KindredKit — Hyper-Local Emergency Preparedness Network',
-        description: 'Peer-to-peer Bluetooth mesh app allowing neighbors to share generators, water filtration gear, and first-aid resources when cellular cell towers go dark.',
-        categoryId: catMap['mobile-apps'],
-        creatorId: userMap['creator@idea2impact.example'].id,
-        price: 0,
-        licensing: false,
-        funding: true,
-        ownershipConfirmed: true,
-        status: 'PUBLISHED',
-        visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        title: 'SkillBridge — Apprentice-to-Master Micro-Mentorship App',
-        description: 'On-demand mobile marketplace connecting aspiring electricians, machinists, and fabricators with experienced master craftsmen for paid half-day shadow shifts.',
-        categoryId: catMap['mobile-apps'],
-        creatorId: userMap['marcus.vance@apexhorizons.example'].id,
-        price: 0,
-        licensing: false,
-        funding: true,
-        ownershipConfirmed: true,
-        status: 'PUBLISHED',
-        visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        title: 'PantryZero — Computer Vision Food Expiration & Recipe Planner',
-        description: 'Camera-first fridge inventory assistant that scans expiration dates on dairy and produce to curate delicious zero-waste recipes before food spoils.',
-        categoryId: catMap['mobile-apps'],
-        creatorId: userMap['aiko.tanaka@designcore.example'].id,
-        price: 0,
-        licensing: false,
-        funding: false,
-        ownershipConfirmed: true,
-        status: 'PUBLISHED',
-        visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80'
-      },
-
-      // Websites & Web Platforms
-      {
-        title: 'OpenPatent — Crowdsourced Prior-Art Invalidation Exchange',
-        description: 'Decentralized bounty platform rewarding global research engineers for uncovering prior-art publications to invalidate abusive patent assertion entities.',
-        categoryId: catMap['websites'],
-        creatorId: userMap['david.miller@millerip.example'].id,
-        price: 0,
-        licensing: false,
-        funding: true,
-        ownershipConfirmed: true,
-        status: 'PUBLISHED',
-        visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        title: 'ReClaim — Circular Economy Industrial Surplus Marketplace',
-        description: 'B2B platform redirecting surplus aerospace alloy offcuts, industrial polymers, and electronic overstock from landfill into artisan maker supply chains.',
-        categoryId: catMap['websites'],
-        creatorId: userMap['marcus.vance@apexhorizons.example'].id,
-        price: 0,
-        licensing: false,
-        funding: true,
-        ownershipConfirmed: true,
-        status: 'PUBLISHED',
-        visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=800&q=80'
-      },
-      {
-        title: 'SoundForge — Procedural Ambient Audio Synthesizer',
-        description: 'Browser-based generative WebAudio DSP studio creating infinite procedural atmospheric soundscapes, sci-fi foley, and cinematic sound design.',
-        categoryId: catMap['websites'],
         creatorId: userMap['lucas.moreau@spatialhaptics.example'].id,
-        price: 19,
+        price: 25,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'SubGrid: Cyber Defense Sandbox',
+        description: 'Real-time network security simulation game where players defend simulated smart cities, satellites, and electric power grids against complex cyber-physical attacks.',
+        categoryId: catMap['games'],
+        creatorId: userMap['zoe.kalu@defitrust.example'].id,
+        price: 30,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'BiomeCraft: Terraforming Mars Strategy Simulator',
+        description: 'Hard sci-fi biological planetary simulation balancing atmospheric pressure, extremophile genetics, cyanobacteria cultures, and orbital solar radiation mirrors.',
+        categoryId: catMap['games'],
+        creatorId: userMap['dr.thorne@biogenome.example'].id,
+        price: 34,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'Echoes of the Deep: Sonar Exploration Adventure',
+        description: 'Atmospheric abyss submarine exploration title where navigation, hydrothermal discovery, and survival rely entirely on realistic acoustic raytracing and sound waves.',
+        categoryId: catMap['games'],
+        creatorId: userMap['lucas.moreau@spatialhaptics.example'].id,
+        price: 28,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80'
+      },
+
+      // ==========================================
+      // CATEGORY 7: SOFTWARE (5 items)
+      // ==========================================
+      {
+        title: 'FormFlow — No-code Form Builder',
+        description: 'A lightweight workflow tool that turns complex intake forms and multi-step applications into simple, friendly conversations.',
+        categoryId: catMap['software'],
+        creatorId: userMap['creator@idea2impact.example'].id,
+        price: 49,
         licensing: true,
         funding: false,
         ownershipConfirmed: true,
         status: 'PUBLISHED',
         visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'
+        imageUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'Klarity AI — Real-time Contract & IP Risk Scanner',
+        description: 'Browser-based privacy-first AI assistant that scans commercial NDAs, licensing agreements, and assignment clauses in 5 seconds to highlight unfavorable terms.',
+        categoryId: catMap['software'],
+        creatorId: userMap['david.miller@millerip.example'].id,
+        price: 89,
+        licensing: true,
+        funding: false,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'CipherVault — Zero-Knowledge Micro-Credential Registry',
+        description: 'Cryptographic identity service enabling verified talent and university graduates to prove certifications and clearances without revealing personal identity.',
+        categoryId: catMap['software'],
+        creatorId: userMap['zoe.kalu@defitrust.example'].id,
+        price: 120,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'LatencyZero — Edge ML Model Quantization Compiler',
+        description: 'LLVM-backed compiler optimization suite that shrinks transformer neural networks by 85% for zero-latency inference on low-cost microcontrollers.',
+        categoryId: catMap['software'],
+        creatorId: userMap['devon.brooks@buildlab.example'].id,
+        price: 150,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'AuditForge — Autonomous Smart Contract Vulnerability Fuzzer',
+        description: 'AI-guided symbolic execution engine that tests decentralized smart contracts against reentrancy, flash-loan, and oracle manipulation exploits.',
+        categoryId: catMap['software'],
+        creatorId: userMap['zoe.kalu@defitrust.example'].id,
+        price: 210,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80'
       },
 
-      // Creative Designs
+      // ==========================================
+      // CATEGORY 8: CREATIVE DESIGNS (5 items)
+      // ==========================================
       {
         title: 'LumaFold — Origami Kinematic Solar Lantern',
         description: 'Waterproof recycled PET lantern that folds completely flat for backpack transport and expands into a 360-degree ambient campsite lantern charged via integrated solar film.',
@@ -671,7 +732,59 @@ export async function setupDatabase() {
         ownershipConfirmed: true,
         status: 'PUBLISHED',
         visibility: 'PUBLIC',
-        imageUrl: 'https://images.unsplash.com/photo-1507499739999-097706ad8914?auto=format&fit=crop&w=800&q=80'
+        imageUrl: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'AuraSound — Parametric Acoustic Timber Wall Panels',
+        description: 'Sculptural wooden acoustic tiles engineered with algorithmic sound-diffusing Voronoi patterns for recording studios, home theaters, and open-plan lofts.',
+        categoryId: catMap['creative-designs'],
+        creatorId: userMap['aiko.tanaka@designcore.example'].id,
+        price: 180,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'AeroZero — Ultra-Light Aerogel Winter Jacket',
+        description: 'Minimalist extreme-weather outerwear utilizing encapsulated silica aerogel insulation just 2mm thick to provide -30°C thermal protection at one-third standard winter coat weight.',
+        categoryId: catMap['creative-designs'],
+        creatorId: userMap['aiko.tanaka@designcore.example'].id,
+        price: 320,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'BioMorph — 3D-Knitted Ergonomic Kinetic Chair',
+        description: 'Single-strand recycled ocean polymer knit chair that dynamically conforms to lumbar micro-movements without mechanical adjustment levers.',
+        categoryId: catMap['creative-designs'],
+        creatorId: userMap['aiko.tanaka@designcore.example'].id,
+        price: 490,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        title: 'ChromaDesk — Modular Magnetic Minimalist Workstation',
+        description: 'Solid anodized aerospace aluminum desk with integrated flush magnetic power rails and modular accessory docks for creative digital professionals.',
+        categoryId: catMap['creative-designs'],
+        creatorId: userMap['aiko.tanaka@designcore.example'].id,
+        price: 640,
+        licensing: true,
+        funding: true,
+        ownershipConfirmed: true,
+        status: 'PUBLISHED',
+        visibility: 'PUBLIC',
+        imageUrl: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=800&q=80'
       }
     ];
 
@@ -680,6 +793,19 @@ export async function setupDatabase() {
       if (!existing) {
         existing = await prisma.innovation.create({ data: item });
         console.log(`✓ Created idea: ${item.title}`);
+      } else {
+        existing = await prisma.innovation.update({
+          where: { id: existing.id },
+          data: {
+            categoryId: item.categoryId,
+            imageUrl: item.imageUrl,
+            price: item.price,
+            description: item.description,
+            status: item.status,
+            visibility: item.visibility
+          }
+        });
+        console.log(`↻ Updated idea: ${item.title}`);
       }
 
       // Add realistic discussion comments
@@ -709,12 +835,12 @@ export async function setupDatabase() {
               body: 'Stunning architectural design! Does the algae media require automated nutrient dosing or can it use ambient rainwater filtration?'
             }
           });
-        } else if (item.title.includes('GlucoSpectra')) {
+        } else if (item.title.includes('OpenPatent')) {
           await prisma.comment.create({
             data: {
               innovationId: existing.id,
               authorId: userMap['david.miller@millerip.example'].id,
-              body: 'Make sure your spectroscopy patent claims cover the calibration algorithm as well as the optical sensor array.'
+              body: 'A crowdsourced prior art exchange significantly levels the playing field for independent inventors defending against non-practicing entities.'
             }
           });
         } else if (item.title.includes('LumaFold')) {
@@ -722,7 +848,7 @@ export async function setupDatabase() {
             data: {
               innovationId: existing.id,
               authorId: userMap['marcus.vance@apexhorizons.example'].id,
-              body: 'Gorgeous industrial origami execution. Would sell rapidly on outdoor retail channels and Kickstarter.'
+              body: 'Gorgeous industrial origami execution. Would sell rapidly on outdoor retail channels and crowdfunding platforms.'
             }
           });
         }
@@ -731,6 +857,16 @@ export async function setupDatabase() {
 
     const totalInnovations = await prisma.innovation.count();
     console.log(`✓ Total innovations now in Neon PostgreSQL: ${totalInnovations}`);
+
+    const counts = await prisma.innovation.groupBy({
+      by: ['categoryId'],
+      _count: { id: true }
+    });
+    console.log('--- FINAL CATEGORY DISTRIBUTION ---');
+    for (const c of catList) {
+      const found = counts.find(x => x.categoryId === c.id);
+      console.log(`${c.name} (${c.slug}): ${found ? found._count.id : 0}`);
+    }
 
     console.log('--- Database setup complete! ---');
   } catch (err) {
@@ -746,4 +882,3 @@ setupDatabase().catch((err) => {
   console.error('Fatal database setup error:', err);
   process.exit(1);
 });
-
