@@ -105,15 +105,16 @@ app.use('/api/dashboard', dashboardRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/talents', talentsRouter);
 
-// AI Studio chat endpoint (preserves existing AI assistant feature)
+// AI Studio chat endpoint (preserves existing AI assistant feature with multi-LLM support)
 app.post('/api/ai/chat', async (req, res) => {
   try {
     const v = z.object({
-      prompt: z.string().min(2).max(4000),
-      context: z.string().max(4000).optional()
+      prompt: z.string().min(2).max(8000),
+      context: z.string().max(8000).optional(),
+      apiKey: z.string().max(256).optional()
     }).parse(req.body);
 
-    const result = await askAI(v.prompt, v.context);
+    const result = await askAI(v.prompt, v.context, v.apiKey);
     res.json(result);
   } catch (e) {
     if (e instanceof z.ZodError) {
