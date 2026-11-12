@@ -333,231 +333,185 @@ export default function Page3DObject({ type = 'marketplace', size = 220 }) {
     }
 
     // =========================================================================
-    // 3. AI STUDIO: 3D Quantum Neural Core & AI Processor Matrix
-    // High-tech quantum processor: multifaceted crystal singularity, 8 neural
-    // constellation nodes, triple-axis gyroscopic quantum rings, corner optical
-    // laser emitters, and silicon microchip substrate base.
+    // 3. AI STUDIO: 3D Futuristic AI Copilot Robot & Neural Sparkle
+    // An autonomous AI assistant bot: sleek ceramic helmet, glossy dark visor
+    // with glowing digital AI eyes that blink, magnetic side audio pods,
+    // top antenna, floating 4-pointed AI Sparkle Star (✦), and hover collar.
     // =========================================================================
     else if (type === 'ai-studio') {
-      const aiGroup = new THREE.Group();
+      const robotGroup = new THREE.Group();
 
-      // 1. Silicon Microchip Substrate Base
-      const chipBaseGeo = new THREE.CylinderGeometry(1.3, 1.4, 0.12, 8);
-      const chipBaseMat = new THREE.MeshStandardMaterial({
-        color: colors.metal,
-        metalness: 0.85,
+      // 1. Robotic Head Chassis (Curved aerodynamic helmet)
+      const headGeo = new THREE.SphereGeometry(0.85, 32, 28);
+      headGeo.scale(0.96, 1.04, 0.94);
+      const headMat = new THREE.MeshStandardMaterial({
+        color: isDark ? 0x141b2d : 0xf2f5fc,
+        metalness: 0.6,
         roughness: 0.25
       });
-      const chipBase = new THREE.Mesh(chipBaseGeo, chipBaseMat);
-      chipBase.position.y = -0.75;
-      aiGroup.add(chipBase);
+      const head = new THREE.Mesh(headGeo, headMat);
+      robotGroup.add(head);
 
-      // Central Polished Die (Integrated Heat Spreader)
-      const dieGeo = new THREE.BoxGeometry(0.85, 0.08, 0.85);
-      const dieMat = new THREE.MeshStandardMaterial({
-        color: isDark ? 0x1a2638 : 0xd8e2f0,
+      // Rear/Top Accent Stripe / Helmet Shell
+      const shellGeo = new THREE.SphereGeometry(0.87, 32, 20, 0, Math.PI * 2, 0, Math.PI * 0.45);
+      shellGeo.scale(0.96, 1.04, 0.94);
+      const shellMat = new THREE.MeshStandardMaterial({
+        color: colors.primary,
+        metalness: 0.8,
+        roughness: 0.2
+      });
+      const shell = new THREE.Mesh(shellGeo, shellMat);
+      robotGroup.add(shell);
+
+      // 2. Glossy Dark Front Visor Screen
+      const visorGeo = new THREE.SphereGeometry(0.86, 32, 20, -Math.PI * 0.38, Math.PI * 0.76, Math.PI * 0.32, Math.PI * 0.36);
+      visorGeo.scale(0.96, 1.04, 0.96);
+      const visorMat = new THREE.MeshStandardMaterial({
+        color: 0x070b14,
         metalness: 0.95,
-        roughness: 0.15
+        roughness: 0.1
       });
-      const dieMesh = new THREE.Mesh(dieGeo, dieMat);
-      dieMesh.position.y = -0.68;
-      aiGroup.add(dieMesh);
+      const visor = new THREE.Mesh(visorGeo, visorMat);
+      robotGroup.add(visor);
 
-      // Gold Perimeter Contact Pins (16 pins around the die)
-      const pinMat = new THREE.MeshStandardMaterial({
+      // 3. Glowing Digital AI Eyes (Inside visor)
+      const eyeMat = new THREE.MeshBasicMaterial({ color: colors.secondary });
+      
+      // Left Eye
+      const eyeGeo = new THREE.CapsuleGeometry(0.065, 0.14, 8, 16);
+      const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
+      leftEye.position.set(-0.25, 0.05, 0.78);
+      leftEye.rotation.z = -0.08;
+      robotGroup.add(leftEye);
+
+      // Right Eye
+      const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
+      rightEye.position.set(0.25, 0.05, 0.78);
+      rightEye.rotation.z = 0.08;
+      robotGroup.add(rightEye);
+
+      // 4. Side Magnetic Ear Pods / Audio Thrusters
+      const podMat = new THREE.MeshStandardMaterial({
+        color: colors.metal,
+        metalness: 0.85,
+        roughness: 0.2
+      });
+      const podGlowMat = new THREE.MeshBasicMaterial({ color: colors.secondary });
+
+      [-0.88, 0.88].forEach((xSide) => {
+        const pod = new THREE.Group();
+        pod.position.set(xSide, 0.04, 0);
+
+        const outerCyl = new THREE.CylinderGeometry(0.24, 0.26, 0.14, 24);
+        outerCyl.rotateZ(Math.PI * 0.5);
+        pod.add(new THREE.Mesh(outerCyl, podMat));
+
+        const innerRing = new THREE.TorusGeometry(0.16, 0.02, 8, 24);
+        innerRing.rotateY(Math.PI * 0.5);
+        pod.add(new THREE.Mesh(innerRing, podGlowMat));
+
+        robotGroup.add(pod);
+      });
+
+      // 5. Top Sensor Spire / Antenna
+      const stemGeo = new THREE.CylinderGeometry(0.025, 0.04, 0.28, 12);
+      const stem = new THREE.Mesh(stemGeo, podMat);
+      stem.position.y = 0.98;
+      robotGroup.add(stem);
+
+      const beaconGeo = new THREE.SphereGeometry(0.07, 16, 16);
+      const beaconMat = new THREE.MeshStandardMaterial({
         color: colors.accent,
-        metalness: 0.9,
-        roughness: 0.2,
         emissive: colors.accent,
-        emissiveIntensity: 0.4
+        emissiveIntensity: 1.5
       });
-      for (let i = 0; i < 16; i++) {
-        const pinAngle = (i / 16) * Math.PI * 2;
-        const px = Math.cos(pinAngle) * 0.58;
-        const pz = Math.sin(pinAngle) * 0.58;
-        const pinGeo = new THREE.BoxGeometry(0.05, 0.04, 0.05);
-        const pin = new THREE.Mesh(pinGeo, pinMat);
-        pin.position.set(px, -0.68, pz);
-        aiGroup.add(pin);
-      }
+      const beacon = new THREE.Mesh(beaconGeo, beaconMat);
+      beacon.position.y = 1.14;
+      robotGroup.add(beacon);
 
-      // 2. 4 Corner Quantum Optical Laser Pylons
-      const pylonPositions = [
-        [-0.8, -0.8],
-        [0.8, -0.8],
-        [0.8, 0.8],
-        [-0.8, 0.8]
-      ];
-      const laserBeams = [];
+      // 6. Floating 3D AI Sparkle Star (✦) Above Antenna
+      const starGroup = new THREE.Group();
+      starGroup.position.y = 1.45;
 
-      pylonPositions.forEach(([x, z]) => {
-        const pylonGeo = new THREE.CylinderGeometry(0.06, 0.09, 0.35, 12);
-        const pylonMat = new THREE.MeshStandardMaterial({
-          color: colors.metal,
-          metalness: 0.8,
-          roughness: 0.3
-        });
-        const pylon = new THREE.Mesh(pylonGeo, pylonMat);
-        pylon.position.set(x, -0.58, z);
-        aiGroup.add(pylon);
-
-        // Laser emitter lens tip
-        const lensGeo = new THREE.SphereGeometry(0.05, 12, 12);
-        const lensMat = new THREE.MeshBasicMaterial({ color: colors.secondary });
-        const lens = new THREE.Mesh(lensGeo, lensMat);
-        lens.position.set(x, -0.38, z);
-        aiGroup.add(lens);
-
-        // Focused holographic laser beam targeting the core
-        const beamPoints = [
-          new THREE.Vector3(x, -0.38, z),
-          new THREE.Vector3(0, 0.05, 0)
-        ];
-        const beamGeo = new THREE.BufferGeometry().setFromPoints(beamPoints);
-        const beamMat = new THREE.LineBasicMaterial({
-          color: colors.secondary,
-          transparent: true,
-          opacity: 0.75
-        });
-        const beam = new THREE.Line(beamGeo, beamMat);
-        aiGroup.add(beam);
-        laserBeams.push(beamMat);
-      });
-
-      // 3. Central Quantum Core Assembly (Floating at y = 0.05)
-      const coreGroup = new THREE.Group();
-      coreGroup.position.y = 0.05;
-
-      // Faceted Crystalline Singularity
-      const crystalGeo = new THREE.DodecahedronGeometry(0.55, 0);
-      const crystalMat = new THREE.MeshStandardMaterial({
-        color: colors.primary,
-        metalness: 0.75,
-        roughness: 0.2,
-        emissive: colors.secondary,
-        emissiveIntensity: 0.85,
-        flatShading: true
-      });
-      const crystal = new THREE.Mesh(crystalGeo, crystalMat);
-      coreGroup.add(crystal);
-
-      // Glowing Pure Singularity Center
-      const singGeo = new THREE.SphereGeometry(0.2, 20, 20);
-      const singMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-      const singularity = new THREE.Mesh(singGeo, singMat);
-      coreGroup.add(singularity);
-
-      // 4. 8 Radiating Neural Synapse Nodes (Constellation Graph)
-      const neuralNodes = [];
-      const nodeDirections = [
-        new THREE.Vector3(0.65, 0.45, 0.35),
-        new THREE.Vector3(-0.65, 0.45, -0.35),
-        new THREE.Vector3(0.55, -0.35, 0.55),
-        new THREE.Vector3(-0.55, -0.35, -0.55),
-        new THREE.Vector3(-0.45, 0.55, 0.55),
-        new THREE.Vector3(0.45, 0.55, -0.55),
-        new THREE.Vector3(0.7, -0.2, -0.4),
-        new THREE.Vector3(-0.7, 0.2, 0.4)
-      ];
-
-      nodeDirections.forEach((dir) => {
-        const nodeGeo = new THREE.SphereGeometry(0.08, 12, 12);
-        const nodeMat = new THREE.MeshStandardMaterial({
-          color: colors.accent,
-          emissive: colors.accent,
-          emissiveIntensity: 1.2
-        });
-        const node = new THREE.Mesh(nodeGeo, nodeMat);
-        node.position.copy(dir);
-        coreGroup.add(node);
-        neuralNodes.push({ mesh: node, basePos: dir.clone() });
-
-        // Line connecting node to crystal center
-        const lineGeo = new THREE.BufferGeometry().setFromPoints([
-          new THREE.Vector3(0, 0, 0),
-          dir
-        ]);
-        const lineMat = new THREE.LineBasicMaterial({
-          color: colors.accent,
-          transparent: true,
-          opacity: 0.6
-        });
-        coreGroup.add(new THREE.Line(lineGeo, lineMat));
-      });
-
-      aiGroup.add(coreGroup);
-
-      // 5. Triple-Axis Gyroscopic Quantum Rings
-      // Ring 1 (Inner X-tilt)
-      const gyro1Geo = new THREE.TorusGeometry(0.95, 0.022, 12, 64);
-      const gyro1Mat = new THREE.MeshStandardMaterial({
-        color: colors.secondary,
-        metalness: 0.9,
-        roughness: 0.2,
-        emissive: colors.secondary,
-        emissiveIntensity: 0.5
-      });
-      const gyro1 = new THREE.Mesh(gyro1Geo, gyro1Mat);
-      gyro1.position.y = 0.05;
-      gyro1.rotation.x = Math.PI * 0.35;
-      aiGroup.add(gyro1);
-
-      // Ring 2 (Middle Y-tilt)
-      const gyro2Geo = new THREE.TorusGeometry(1.15, 0.02, 12, 64);
-      const gyro2Mat = new THREE.MeshBasicMaterial({
-        color: colors.primary,
-        transparent: true,
-        opacity: 0.8
-      });
-      const gyro2 = new THREE.Mesh(gyro2Geo, gyro2Mat);
-      gyro2.position.y = 0.05;
-      gyro2.rotation.y = Math.PI * 0.4;
-      aiGroup.add(gyro2);
-
-      // Ring 3 (Outer Equatorial Scan Ring)
-      const gyro3Geo = new THREE.TorusGeometry(1.35, 0.018, 12, 64);
-      const gyro3Mat = new THREE.MeshBasicMaterial({
+      const starMat = new THREE.MeshStandardMaterial({
         color: colors.accent,
-        transparent: true,
-        opacity: 0.7
+        metalness: 0.9,
+        roughness: 0.15,
+        emissive: colors.accent,
+        emissiveIntensity: 0.9
       });
-      const gyro3 = new THREE.Mesh(gyro3Geo, gyro3Mat);
-      gyro3.position.y = 0.05;
-      gyro3.rotation.z = Math.PI * 0.25;
-      aiGroup.add(gyro3);
 
-      rootGroup.add(aiGroup);
+      // Vertical diamond ray
+      const vertRayGeo = new THREE.OctahedronGeometry(0.24, 0);
+      vertRayGeo.scale(0.35, 1.25, 0.35);
+      starGroup.add(new THREE.Mesh(vertRayGeo, starMat));
 
-      // Dynamic Idle Animations
+      // Horizontal diamond ray
+      const horizRayGeo = new THREE.OctahedronGeometry(0.24, 0);
+      horizRayGeo.scale(1.25, 0.35, 0.35);
+      starGroup.add(new THREE.Mesh(horizRayGeo, starMat));
+
+      // Center glowing core
+      const starCore = new THREE.Mesh(
+        new THREE.SphereGeometry(0.08, 12, 12),
+        new THREE.MeshBasicMaterial({ color: 0xffffff })
+      );
+      starGroup.add(starCore);
+
+      robotGroup.add(starGroup);
+
+      // 7. Anti-Gravity Floating Collar / Propulsion Ring
+      const collarGroup = new THREE.Group();
+      collarGroup.position.y = -0.72;
+
+      const collarGeo = new THREE.TorusGeometry(0.68, 0.05, 12, 48);
+      collarGeo.rotateX(Math.PI * 0.5);
+      collarGroup.add(new THREE.Mesh(collarGeo, podMat));
+
+      const collarGlowGeo = new THREE.TorusGeometry(0.64, 0.018, 8, 36);
+      collarGlowGeo.rotateX(Math.PI * 0.5);
+      collarGroup.add(new THREE.Mesh(collarGlowGeo, podGlowMat));
+
+      robotGroup.add(collarGroup);
+
+      // 8. Tilted Orbiting Neural Ring
+      const haloGeo = new THREE.TorusGeometry(1.22, 0.015, 8, 64);
+      const haloMat = new THREE.MeshBasicMaterial({
+        color: colors.secondary,
+        transparent: true,
+        opacity: 0.65
+      });
+      const halo = new THREE.Mesh(haloGeo, haloMat);
+      halo.rotation.x = Math.PI * 0.38;
+      robotGroup.add(halo);
+
+      rootGroup.add(robotGroup);
+
+      // Idle Hover & Pulse Animations
       animatables.push((time) => {
-        // Core rotation
-        crystal.rotation.x = time * 0.5;
-        crystal.rotation.y = time * 0.7;
+        // Floating hover bobbing
+        robotGroup.position.y = Math.sin(time * 2.0) * 0.06;
 
-        // Counter-rotating quantum gyroscopes
-        gyro1.rotation.z = time * 1.1;
-        gyro2.rotation.x = -time * 0.9;
-        gyro3.rotation.y = time * 0.75;
+        // AI Sparkle spinning and bobbing
+        starGroup.rotation.y = time * 1.5;
+        starGroup.rotation.z = Math.sin(time * 2) * 0.15;
+        starGroup.position.y = 1.45 + Math.sin(time * 3) * 0.04;
 
-        // Pulsating crystal emissive glow
-        const pulse = 0.85 + Math.sin(time * 3.5) * 0.45;
-        crystalMat.emissiveIntensity = pulse;
+        // Neural halo continuous orbit
+        halo.rotation.z = time * 0.6;
 
-        // Laser beam opacity fluctuation (data transmission flicker)
-        const beamAlpha = 0.6 + Math.sin(time * 6) * 0.25;
-        laserBeams.forEach((bm) => {
-          bm.opacity = beamAlpha;
-        });
+        // Gentle eye blink / pulse
+        const blinkCycle = time % 4;
+        if (blinkCycle > 3.85) {
+          leftEye.scale.y = 0.1;
+          rightEye.scale.y = 0.1;
+        } else {
+          leftEye.scale.y = 1.0;
+          rightEye.scale.y = 1.0;
+        }
 
-        // Neural nodes subtle breathing oscillation
-        neuralNodes.forEach(({ mesh, basePos }, idx) => {
-          const breath = 1.0 + Math.sin(time * 2.5 + idx) * 0.08;
-          mesh.position.set(
-            basePos.x * breath,
-            basePos.y * breath,
-            basePos.z * breath
-          );
-        });
+        // Pulsating antenna beacon
+        beaconMat.emissiveIntensity = 1.2 + Math.sin(time * 4) * 0.6;
       });
     }
 
