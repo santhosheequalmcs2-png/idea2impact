@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, X, FileText, CheckCircle, Lock, Download, KeyRound, ExternalLink } from 'lucide-react';
+import { ShieldCheck, X, FileText, CheckCircle, Download, KeyRound } from 'lucide-react';
 
 export default function DigitalNDAModal({ innovation, user, onClose, onSigned }) {
   const [signerName, setSignerName] = useState(user?.name || '');

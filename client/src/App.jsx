@@ -1,13 +1,12 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation, useParams } from 'react-router-dom';
 import {
-  ArrowRight, ArrowUpRight, Sparkles, Lightbulb, Boxes, Code2, Smartphone, Gamepad2,
+  ArrowRight, ArrowUpRight, Sparkles, Lightbulb, Code2, Smartphone, Gamepad2,
   Package, Palette, Globe2, Menu, X, Search, Plus, Heart, SlidersHorizontal,
-  MessageCircle, Compass, Users, ChartNoAxesCombined, ShieldCheck, Zap, Sun, Moon,
-  Send, Check, Layers, Building2, BriefcaseBusiness, LockKeyhole, TrendingUp,
-  ChevronRight, LogOut, Bell, Filter, Edit3, Trash2, UploadCloud, UserCircle,
-  ExternalLink, Image as ImageIcon, MessageSquare, DollarSign, FileText, CheckCircle2,
-  MapPin, Award, Handshake, Trophy, Flame, Coffee, Crown, Shield, Lock, Eye, Download, Printer, BarChart3
+  MessageCircle, Compass, Users, ShieldCheck, Zap, Sun, Moon,
+  Send, Check, Layers, LockKeyhole, TrendingUp, LogOut, Filter,
+  Edit3, Trash2, UploadCloud, ExternalLink, MessageSquare, FileText,
+  MapPin, Award, Handshake, Trophy, Flame, Coffee, Crown, Lock, BarChart3
 } from 'lucide-react';
 import Orb from './components/Orb';
 import AICopilot from './components/AICopilot';
@@ -1977,7 +1976,6 @@ function Dashboard({ user, onRefresh, onUpdateUser }) {
   const [category, setCategory] = useState('Ideas');
   const [price, setPrice] = useState(0);
   const [imageUrl, setImageUrl] = useState('');
-  const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
 
@@ -2030,7 +2028,6 @@ function Dashboard({ user, onRefresh, onUpdateUser }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
 
     try {

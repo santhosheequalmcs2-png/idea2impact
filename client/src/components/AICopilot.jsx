@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, X, Send, Bot, User, Copy, Check, Shield, BarChart3, FileText, Wrench, RefreshCw, ChevronDown, Maximize2, Minimize2 } from 'lucide-react';
+import { Sparkles, X, Send, Bot, User, Copy, Check, Maximize2, Minimize2 } from 'lucide-react';
 import { api } from '../services/api';
 
 export default function AICopilot({ activeContext = null }) {

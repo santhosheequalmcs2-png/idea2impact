@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Coffee, X, Check, Heart, Shield, Sparkles, CreditCard } from 'lucide-react';
+import { Coffee, X, Heart, Shield, Sparkles } from 'lucide-react';
 import { api } from '../services/api';
 
 export default function MicroBackingModal({ innovation, user, onClose, onPledged }) {

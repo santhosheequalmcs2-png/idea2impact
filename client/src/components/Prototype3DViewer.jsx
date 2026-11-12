@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { Eye, RotateCw, Layers, Palette, Maximize, ZoomIn, ZoomOut } from 'lucide-react';
+import { Eye, RotateCw, Layers, ZoomIn, ZoomOut } from 'lucide-react';
 
 export default function Prototype3DViewer({ title = 'Prototype', category = 'Inventions' }) {
   const mountRef = useRef(null);

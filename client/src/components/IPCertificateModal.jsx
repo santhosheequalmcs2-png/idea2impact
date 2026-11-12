@@ -1,5 +1,5 @@
 import React from 'react';
-import { Award, X, Printer, Shield, CheckCircle2, QrCode } from 'lucide-react';
+import { Award, X, Printer, QrCode } from 'lucide-react';
 
 export default function IPCertificateModal({ innovation, onClose }) {
   // Generate deterministic SHA-256 style fingerprint from ID and title
