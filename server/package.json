@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node --watch src/server.js",
+    "dev": "node --watch-path=src/app.js --watch-path=src/server.js --watch-path=src/routes --watch-path=src/services --watch-path=src/middleware src/server.js",
     "build": "npx prisma generate --schema prisma/schema.prisma",
     "prestart": "npx prisma generate --schema prisma/schema.prisma",
     "start": "npx prisma generate --schema prisma/schema.prisma && node src/server.js",
