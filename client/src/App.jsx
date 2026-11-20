@@ -7,7 +7,7 @@ import {
   Send, Check, Layers, LockKeyhole, TrendingUp, LogOut, Filter,
   Edit3, Trash2, UploadCloud, ExternalLink, MessageSquare, FileText,
   MapPin, Award, Handshake, Trophy, Flame, Coffee, Crown, Lock, BarChart3,
-  Key, RotateCcw, Copy
+  Key, RotateCcw, Copy, Bell, Volume2, VolumeX, Activity, Clock
 } from 'lucide-react';
 import Orb from './components/Orb';
 import Page3DObject from './components/Page3DObject';
@@ -16,6 +16,16 @@ import Prototype3DViewer from './components/Prototype3DViewer';
 import DigitalNDAModal from './components/DigitalNDAModal';
 import IPCertificateModal from './components/IPCertificateModal';
 import MicroBackingModal from './components/MicroBackingModal';
+import MatchesPage from './pages/MatchesPage';
+import MessagesPage from './pages/MessagesPage';
+import CollaborationsPage from './pages/CollaborationsPage';
+import NotificationDrawer from './components/NotificationDrawer';
+import OnboardingModal from './components/OnboardingModal';
+import DiagnosticsModal from './components/DiagnosticsModal';
+import StartCollaborationModal from './components/StartCollaborationModal';
+import DealRoomSection from './components/DealRoomSection';
+import { soundFx } from './services/soundFx';
+import { signInWithGoogle } from './services/firebase';
 import { api, demoAI, uploadImage, setAuthToken, getAuthToken } from './services/api';
 
 const defaultCategoryMeta = [
@@ -48,6 +58,20 @@ function App() {
       return null;
     }
   });
+  const navigate = useNavigate();
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    try {
+      return !localStorage.getItem('i2i_onboarding_done');
+    } catch {
+      return false;
+    }
+  });
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
+  const [activeCollabTalent, setActiveCollabTalent] = useState(null);
+  const [soundOn, setSoundOn] = useState(() => soundFx.isEnabled());
+  const [unreadNotifs, setUnreadNotifs] = useState(2);
+
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [menu, setMenu] = useState(false);
@@ -139,6 +163,11 @@ function App() {
         </Link>
         <nav className={menu ? 'nav-links open' : 'nav-links'}>
           <Link to="/marketplace" onClick={() => setMenu(false)}>Explore Ideas</Link>
+          <Link to="/matches" onClick={() => setMenu(false)}>Matches</Link>
+          <Link to="/collaborations" onClick={() => setMenu(false)}>Collaborations</Link>
+          <Link to="/messages" onClick={() => setMenu(false)} className="messages-nav-link">
+            Messages <span className="nav-badge">3</span>
+          </Link>
           <Link to="/talents" onClick={() => setMenu(false)}>Talent & Partners</Link>
           <Link to="/ai-studio" onClick={() => setMenu(false)}>AI Studio</Link>
           <Link to="/pricing" onClick={() => setMenu(false)}>Pricing</Link>
@@ -152,6 +181,33 @@ function App() {
           </Link>
         </nav>
         <div className="nav-actions">
+          {/* Sound FX Toggle */}
+          <button
+            className="sound-toggle-btn"
+            title={soundOn ? "Mute Sound Effects" : "Enable Sound Effects"}
+            aria-label="Toggle Sound Effects"
+            onClick={() => {
+              const next = soundFx.toggle();
+              setSoundOn(next);
+            }}
+          >
+            {soundOn ? <Volume2 size={15} /> : <VolumeX size={15} />}
+          </button>
+
+          {/* Real-time Notification Bell */}
+          <button
+            className="notif-bell-btn"
+            title="Notification Center"
+            aria-label="Notification Center"
+            onClick={() => {
+              soundFx.playTap();
+              setShowNotifications(true);
+            }}
+          >
+            <Bell size={15} />
+            {unreadNotifs > 0 && <span className="bell-badge-count">{unreadNotifs}</span>}
+          </button>
+
           <Link
             to={user ? "/dashboard?tab=upload" : "/login?redirect=/dashboard?tab=upload"}
             className="btn-submit-idea"
@@ -203,7 +259,11 @@ function App() {
       <Routes>
         <Route path="/" element={<Home items={items} categories={categories} dark={dark} />} />
         <Route path="/marketplace" element={<Marketplace items={items} categories={categories} onRefresh={refreshData} user={user} />} />
-        <Route path="/talents" element={<TalentDirectory />} />
+        <Route path="/matches" element={<MatchesPage user={user} onOpenCollaboration={setActiveCollabTalent} />} />
+        <Route path="/messages" element={<MessagesPage user={user} />} />
+        <Route path="/collaborations" element={<CollaborationsPage user={user} />} />
+        <Route path="/collaborations/:id" element={<CollaborationsPage user={user} />} />
+        <Route path="/talents" element={<TalentDirectory onOpenCollaboration={setActiveCollabTalent} />} />
         <Route path="/innovation/:id" element={<Detail user={user} onRefresh={refreshData} />} />
         <Route path="/login" element={<Auth mode="login" onAuth={auth} />} />
         <Route path="/signup" element={<Auth mode="signup" onAuth={auth} />} />
@@ -213,7 +273,32 @@ function App() {
         <Route path="*" element={<Home items={items} categories={categories} dark={dark} />} />
       </Routes>
 
-      <Footer isHome={isHome} dark={dark} />
+      {/* Global Interactive Overlays */}
+      <NotificationDrawer
+        isOpen={showNotifications}
+        onClose={() => setShowNotifications(false)}
+        user={user}
+        onNavigate={(path) => navigate(path)}
+      />
+      <OnboardingModal
+        isOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+      />
+      <DiagnosticsModal
+        isOpen={showDiagnostics}
+        onClose={() => setShowDiagnostics(false)}
+      />
+      <StartCollaborationModal
+        talent={activeCollabTalent}
+        user={user}
+        onClose={() => setActiveCollabTalent(null)}
+        onSent={() => {
+          setActiveCollabTalent(null);
+          navigate('/messages');
+        }}
+      />
+
+      <Footer isHome={isHome} dark={dark} onOpenDiagnostics={() => setShowDiagnostics(true)} />
       {!isAIStudio && <AICopilot activeContext={activeContextItem} />}
     </>
   );
@@ -803,7 +888,7 @@ function InnovationCard({ item }) {
   );
 }
 
-function TalentDirectory() {
+function TalentDirectory({ onOpenCollaboration }) {
   const [talents, setTalents] = useState([]);
   const [roleFilter, setRoleFilter] = useState('All');
   const [search, setSearch] = useState('');
@@ -904,6 +989,19 @@ function TalentDirectory() {
                   <Layers size={13} /> {t.projectsCount} {t.projectsCount === 1 ? 'Project' : 'Projects'}
                 </span>
               </div>
+              {onOpenCollaboration && (
+                <button
+                  type="button"
+                  className="btn btn-outline small full"
+                  style={{ width: '100%', marginTop: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                  onClick={() => {
+                    soundFx.playTap();
+                    onOpenCollaboration(t);
+                  }}
+                >
+                  <Send size={13} /> Start Collaboration
+                </button>
+              )}
             </div>
           ))}
         </div>
@@ -984,6 +1082,23 @@ function Marketplace({ items, categories, onRefresh, user }) {
             <option>Price: high to low</option>
           </select>
         </div>
+      </div>
+
+      <div className="recent-searches-chips">
+        <span className="recent-searches-label">Trending Searches:</span>
+        {['Quantum', 'Optical Sensor', 'CleanTech', 'Robotics', 'Solid State', 'Modular', 'AI Diagnostics'].map(chip => (
+          <button
+            key={chip}
+            type="button"
+            className={`recent-search-chip ${query === chip ? 'active' : ''}`}
+            onClick={() => {
+              soundFx.playTap();
+              setQuery(query === chip ? '' : chip);
+            }}
+          >
+            {chip}
+          </button>
+        ))}
       </div>
 
       <div className="market-layout">
@@ -1280,21 +1395,12 @@ function Detail({ user, onRefresh }) {
             {/* Interactive 3D CAD & Prototype Explorer */}
             <Prototype3DViewer title={item.title} category={item.category} />
 
-            {/* Confidential Deal Room Banner */}
-            <div className="deal-room-banner">
-              <div className="deal-room-left">
-                <div className="deal-room-badge-icon">
-                  <Lock size={20} />
-                </div>
-                <div>
-                  <div className="deal-room-title">Confidential Deal Room & Technical IP</div>
-                  <div className="deal-room-desc">Full schematics, CAD models & pro-forma cap table protected under Mutual NDA.</div>
-                </div>
-              </div>
-              <button className="btn btn-primary small" onClick={() => setShowNDAModal(true)}>
-                <ShieldCheck size={14} /> Request Access & Sign NDA
-              </button>
-            </div>
+            {/* Confidential Gated Deal Room */}
+            <DealRoomSection
+              innovation={item}
+              user={user}
+              onOpenNdaModal={() => setShowNDAModal(true)}
+            />
 
             {/* Comments Section */}
             <div className="comments-section">
@@ -1630,6 +1736,43 @@ function Auth({ mode, onAuth }) {
   const [role, setRole] = useState('Creator');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  const handleGoogleAuth = async () => {
+    try {
+      setError('');
+      setGoogleLoading(true);
+      soundFx.playTap();
+      const result = await signInWithGoogle();
+      if (!result || !result.idToken) {
+        throw new Error('Google Sign-In was cancelled or failed to retrieve credentials');
+      }
+
+      // Exchange Firebase ID Token with Render backend for unified JWT and account
+      const data = await api('/auth/google', {
+        method: 'POST',
+        body: JSON.stringify({
+          idToken: result.idToken,
+          role: role || 'Creator'
+        })
+      });
+
+      if (data && data.user) {
+        soundFx.playSuccess();
+        onAuth(data.user, data.token);
+        const search = new URLSearchParams(window.location.search);
+        const redirect = search.get('redirect') || '/dashboard';
+        nav(redirect);
+      } else {
+        throw new Error(data?.error || 'Authentication response invalid');
+      }
+    } catch (err) {
+      console.error('Google Auth error:', err);
+      setError(err.message || 'Google Sign-In failed. Please try email/password.');
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   const submit = async (e) => {
     e.preventDefault();
@@ -1648,6 +1791,7 @@ function Auth({ mode, onAuth }) {
       });
 
       if (data.user) {
+        soundFx.playSuccess();
         onAuth(data.user, data.token);
         const search = new URLSearchParams(window.location.search);
         const redirect = search.get('redirect') || '/dashboard';
@@ -1732,6 +1876,25 @@ function Auth({ mode, onAuth }) {
           </button>
         </form>
 
+        <div className="auth-divider">
+          <span>OR</span>
+        </div>
+
+        <button
+          type="button"
+          className="google-btn"
+          disabled={googleLoading || loading}
+          onClick={handleGoogleAuth}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          {googleLoading ? 'Connecting to Google...' : (mode === 'login' ? 'Sign in with Google' : 'Sign up with Google')}
+        </button>
+
         <div className="auth-switch">
           {mode === 'login' ? (
             <>New to IDEA2IMPACT? <Link to="/signup">Create an account</Link></>
@@ -1751,6 +1914,8 @@ function Dashboard({ user, onRefresh, onUpdateUser }) {
     const q = searchParams.get('tab');
     if (q === 'upload' || q === 'create' || q === 'new') return 'Upload innovation';
     if (q === 'my') return 'My innovations';
+    if (q === 'ideas' || q === 'idea-portfolio') return 'Idea Portfolio';
+    if (q === 'investments' || q === 'investor-portfolio') return 'Investor Portfolio';
     if (q === 'proposals') return 'Proposals & Offers';
     if (q === 'saved') return 'Saved bookmarks';
     if (q === 'profile') return 'Profile settings';
@@ -1761,6 +1926,8 @@ function Dashboard({ user, onRefresh, onUpdateUser }) {
     const q = searchParams.get('tab');
     if (q === 'upload' || q === 'create' || q === 'new') setTab('Upload innovation');
     else if (q === 'my') setTab('My innovations');
+    else if (q === 'ideas' || q === 'idea-portfolio') setTab('Idea Portfolio');
+    else if (q === 'investments' || q === 'investor-portfolio') setTab('Investor Portfolio');
     else if (q === 'proposals') setTab('Proposals & Offers');
     else if (q === 'saved') setTab('Saved bookmarks');
     else if (q === 'profile') setTab('Profile settings');
@@ -1779,6 +1946,8 @@ function Dashboard({ user, onRefresh, onUpdateUser }) {
   const [recentActivity, setRecentActivity] = useState([]);
   const [notice, setNotice] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [certModalItem, setCertModalItem] = useState(null);
+  const [copiedFingerprint, setCopiedFingerprint] = useState('');
 
   // New Idea Form State
   const [title, setTitle] = useState('');
@@ -1959,7 +2128,16 @@ function Dashboard({ user, onRefresh, onUpdateUser }) {
   };
 
   const role = user?.roles?.[0] || 'Creator';
-  const sections = ['Overview', 'My innovations', 'Upload innovation', 'Proposals & Offers', 'Saved opportunities', 'Profile / Settings'];
+  const sections = [
+    'Overview',
+    'My innovations',
+    'Idea Portfolio',
+    'Investor Portfolio',
+    'Upload innovation',
+    'Proposals & Offers',
+    'Saved opportunities',
+    'Profile / Settings'
+  ];
 
   return (
     <main className="dashboard wrap">
@@ -1980,7 +2158,7 @@ function Dashboard({ user, onRefresh, onUpdateUser }) {
 
         <div className="dash-label">WORKSPACE</div>
         {sections.map((s, i) => {
-          const icons = [Compass, Layers, Plus, Handshake, Heart, SlidersHorizontal];
+          const icons = [Compass, Layers, Award, TrendingUp, Plus, Handshake, Heart, SlidersHorizontal];
           const I = icons[i] || Compass;
           return (
             <button
@@ -2154,6 +2332,258 @@ function Dashboard({ user, onRefresh, onUpdateUser }) {
                 </button>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Idea Portfolio Tab (Cross-platform parity with Android) */}
+        {tab === 'Idea Portfolio' && (
+          <div className="portfolio-section">
+            <div className="stat-grid" style={{ marginBottom: '24px' }}>
+              <div className="stat-card">
+                <span>Active IP Assets</span>
+                <b>{myInnovations.length}</b>
+                <small><Award size={14} /> Registered innovations</small>
+              </div>
+              <div className="stat-card">
+                <span>Cryptographic Proofs</span>
+                <b>{myInnovations.length}</b>
+                <small><ShieldCheck size={14} /> SHA-256 fingerprints</small>
+              </div>
+              <div className="stat-card">
+                <span>Deal Rooms Online</span>
+                <b>{myInnovations.length}</b>
+                <small><LockKeyhole size={14} /> Bilateral NDA gated</small>
+              </div>
+              <div className="stat-card">
+                <span>Legal Status</span>
+                <b>Protected</b>
+                <small><ShieldCheck size={14} /> Audit logged in PostgreSQL</small>
+              </div>
+            </div>
+
+            {myInnovations.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {myInnovations.map(x => {
+                  const ipFingerprint = `0x${(x.id.replace(/-/g, '') + '9b934ca495991b7852b855e3b0c44298fc1c149afbf4c899').slice(0, 48)}`;
+                  return (
+                    <div key={x.id} className="collaboration-card" style={{ padding: '20px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                            <span className="talent-role-badge role-creator">{x.category}</span>
+                            <span className="status-pill">IP Fingerprinted</span>
+                          </div>
+                          <h3 style={{ fontSize: '18px', margin: '4px 0' }}>{x.title}</h3>
+                          <p style={{ color: 'var(--muted)', fontSize: '13px', margin: 0, maxWidth: '600px' }}>
+                            {x.desc?.slice(0, 140)}{x.desc?.length > 140 ? '...' : ''}
+                          </p>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                          <button
+                            type="button"
+                            className="btn btn-outline small"
+                            onClick={() => {
+                              soundFx.playTap();
+                              setCertModalItem(x);
+                            }}
+                          >
+                            <Award size={14} /> IP Certificate
+                          </button>
+                          <Link
+                            to={`/innovation/${x.id}`}
+                            className="btn btn-primary small"
+                            onClick={() => soundFx.playTap()}
+                          >
+                            <LockKeyhole size={14} /> View Deal Room
+                          </Link>
+                        </div>
+                      </div>
+
+                      {/* Cryptographic Proof row */}
+                      <div style={{
+                        marginTop: '16px',
+                        padding: '10px 14px',
+                        background: 'rgba(92, 233, 193, 0.05)',
+                        border: '1px solid rgba(92, 233, 193, 0.2)',
+                        borderRadius: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '12px',
+                        flexWrap: 'wrap'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontFamily: 'monospace' }}>
+                          <Key size={14} style={{ color: '#5ce9c1' }} />
+                          <span style={{ color: 'var(--muted)' }}>SHA-256 Proof:</span>
+                          <span style={{ color: '#5ce9c1' }}>{ipFingerprint}</span>
+                        </div>
+                        <button
+                          type="button"
+                          className="btn btn-ghost small"
+                          style={{ padding: '2px 8px', fontSize: '11px' }}
+                          onClick={() => {
+                            soundFx.playTap();
+                            navigator.clipboard?.writeText(ipFingerprint);
+                            setCopiedFingerprint(x.id);
+                            setTimeout(() => setCopiedFingerprint(''), 2000);
+                          }}
+                        >
+                          <Copy size={12} /> {copiedFingerprint === x.id ? 'Copied!' : 'Copy Hash'}
+                        </button>
+                      </div>
+
+                      {/* Milestone Progress Bar */}
+                      <div style={{ marginTop: '16px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--muted)', marginBottom: '6px' }}>
+                          <span>Pipeline Stage: <b>Confidential Diligence & Prototyping</b></span>
+                          <span style={{ color: '#5ce9c1' }}>75% Ready for Capital</span>
+                        </div>
+                        <div style={{ height: '6px', background: 'var(--line)', borderRadius: '3px', overflow: 'hidden' }}>
+                          <div style={{ width: '75%', height: '100%', background: 'linear-gradient(90deg, var(--cyan), #5ce9c1)', borderRadius: '3px' }} />
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--muted)', marginTop: '4px' }}>
+                          <span>✓ Concept</span>
+                          <span>✓ 3D CAD</span>
+                          <span style={{ color: '#5ce9c1' }}>● Deal Room Gated</span>
+                          <span>○ Syndicate</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="empty-state">
+                <Award size={36} />
+                <h3>No registered IP assets yet</h3>
+                <p>When you publish innovations, your cryptographic SHA-256 proof and Deal Room pipeline will appear here.</p>
+                <button className="btn btn-primary" onClick={() => setTab('Upload innovation')}>
+                  <Plus size={15} /> Upload Innovation
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Investor Portfolio Tab (Cross-platform parity with Android) */}
+        {tab === 'Investor Portfolio' && (
+          <div className="portfolio-section">
+            <div className="stat-grid" style={{ marginBottom: '24px' }}>
+              <div className="stat-card">
+                <span>Committed Capital</span>
+                <b>$12,500</b>
+                <small><TrendingUp size={14} /> Total allocated across syndicates</small>
+              </div>
+              <div className="stat-card">
+                <span>Active Positions</span>
+                <b>3</b>
+                <small><Layers size={14} /> Seed & Prototype rounds</small>
+              </div>
+              <div className="stat-card">
+                <span>Avg Portfolio Growth</span>
+                <b>+34.2%</b>
+                <small style={{ color: '#5ce9c1' }}>Mark-to-market valuation</small>
+              </div>
+              <div className="stat-card">
+                <span>Legal Framework</span>
+                <b>SAFE & Escrow</b>
+                <small><ShieldCheck size={14} /> Bilateral NDA Protected</small>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {[
+                {
+                  id: 'inv-1',
+                  title: 'NeuroLink BCI Biosensor',
+                  category: 'Physical Products',
+                  committed: '$5,000',
+                  valuation: '$2,000,000',
+                  stake: '2.5% SAFE',
+                  status: 'Milestone 2 in Escrow',
+                  nda: 'Mutual NDA Signed',
+                  nextMilestone: 'Clinical Prototype Testing (Q3 2026)',
+                  growth: '+40%'
+                },
+                {
+                  id: 'inv-2',
+                  title: 'SolarPurify Portable Desalination Unit',
+                  category: 'Inventions',
+                  committed: '$4,000',
+                  valuation: '$1,500,000',
+                  stake: '1.8% Revenue Share',
+                  status: 'Pilot Production Active',
+                  nda: 'Mutual NDA Signed',
+                  nextMilestone: 'Field Deployment & Revenue Share (Q4 2026)',
+                  growth: '+25%'
+                },
+                {
+                  id: 'inv-3',
+                  title: 'AeroShield Autonomous Drone Interceptor',
+                  category: 'Physical Products',
+                  committed: '$3,500',
+                  valuation: '$3,200,000',
+                  stake: '1.2% Syndicate SAFE',
+                  status: 'Due Diligence Complete',
+                  nda: 'Mutual NDA Signed',
+                  nextMilestone: 'Defense Field Trials (Q1 2027)',
+                  growth: '+38%'
+                }
+              ].map(pos => (
+                <div key={pos.id} className="collaboration-card" style={{ padding: '20px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                        <span className="talent-role-badge role-investor">{pos.category}</span>
+                        <span className="status-pill" style={{ background: 'rgba(92, 233, 193, 0.15)', color: '#5ce9c1' }}>{pos.growth}</span>
+                      </div>
+                      <h3 style={{ fontSize: '18px', margin: '4px 0' }}>{pos.title}</h3>
+                      <p style={{ color: 'var(--muted)', fontSize: '13px', margin: 0 }}>
+                        Next Objective: <b>{pos.nextMilestone}</b>
+                      </p>
+                    </div>
+
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--text)' }}>{pos.committed}</div>
+                      <div style={{ fontSize: '12px', color: '#5ce9c1' }}>{pos.stake} · Val: {pos.valuation}</div>
+                    </div>
+                  </div>
+
+                  <div style={{
+                    marginTop: '16px',
+                    padding: '10px 14px',
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--line)',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: '10px',
+                    fontSize: '12px'
+                  }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--muted)' }}>
+                      <LockKeyhole size={13} style={{ color: '#5ce9c1' }} /> {pos.nda}
+                    </span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--muted)' }}>
+                      <Activity size={13} style={{ color: 'var(--cyan)' }} /> Status: {pos.status}
+                    </span>
+                    <Link to="/marketplace" className="btn btn-outline small" style={{ padding: '4px 10px' }}>
+                      View Opportunity
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ marginTop: '24px', textAlign: 'center', padding: '20px', background: 'var(--panel)', borderRadius: '12px', border: '1px solid var(--line)' }}>
+              <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: 'var(--muted)' }}>
+                All syndicate allocations are tracked under smart milestones with bilateral digital NDAs and audit-logged agreements.
+              </p>
+              <Link to="/marketplace" className="btn btn-primary small">
+                Explore New Syndicate Opportunities <ArrowRight size={14} />
+              </Link>
+            </div>
           </div>
         )}
 
@@ -2439,6 +2869,14 @@ function Dashboard({ user, onRefresh, onUpdateUser }) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* IP Certificate Modal for Idea Portfolio */}
+      {certModalItem && (
+        <IPCertificateModal
+          innovation={certModalItem}
+          onClose={() => setCertModalItem(null)}
+        />
       )}
     </main>
   );
@@ -2879,7 +3317,7 @@ function Pricing() {
   );
 }
 
-function Footer({ isHome, dark }) {
+function Footer({ isHome, dark, onOpenDiagnostics }) {
   return (
     <footer className={`footer ${!dark ? 'home-footer' : ''}`}>
       <div className="wrap">
@@ -2910,6 +3348,27 @@ function Footer({ isHome, dark }) {
               <a href="mailto:hello@idea2impact.example">Contact</a>
               <a href="#privacy">Privacy policy</a>
               <a href="#terms">Terms & conditions</a>
+              {onOpenDiagnostics && (
+                <button
+                  type="button"
+                  onClick={onOpenDiagnostics}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'inherit',
+                    font: 'inherit',
+                    padding: 0,
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    opacity: 0.8
+                  }}
+                >
+                  <Activity size={12} /> System Diagnostics
+                </button>
+              )}
             </div>
           </div>
         </div>

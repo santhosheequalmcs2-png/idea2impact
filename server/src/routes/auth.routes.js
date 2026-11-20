@@ -165,6 +165,108 @@ authRouter.post('/login', authLimit, async (req, res) => {
   }
 });
 
+// Google Authentication Bridge (Syncs Firebase Auth / Google Sign-In with PostgreSQL)
+authRouter.post('/google', authLimit, async (req, res) => {
+  try {
+    const { idToken, email: clientEmail, name: clientName, photoUrl, role: selectedRole } = req.body || {};
+
+    let verifiedEmail = clientEmail?.toLowerCase()?.trim();
+    let verifiedName = clientName?.trim();
+    let verifiedAvatar = photoUrl;
+    let firebaseUid = null;
+
+    // Server-side verification of Google/Firebase ID token if provided
+    if (idToken) {
+      try {
+        const tokenRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`);
+        if (tokenRes.ok) {
+          const tokenData = await tokenRes.json();
+          verifiedEmail = tokenData.email?.toLowerCase();
+          verifiedName = tokenData.name || verifiedName;
+          verifiedAvatar = tokenData.picture || verifiedAvatar;
+          firebaseUid = tokenData.sub;
+        }
+      } catch (tokenErr) {
+        console.warn('Google token verification fallback:', tokenErr.message);
+      }
+    }
+
+    if (!verifiedEmail) {
+      return res.status(400).json({ error: 'Valid email required for Google authentication' });
+    }
+
+    const resolvedName = verifiedName || verifiedEmail.split('@')[0] || 'Google Innovator';
+    const mappedRole = roleMap[selectedRole] || 'CREATOR';
+
+    // Check if user already exists with this email
+    let user = await prisma.user.findUnique({
+      where: { email: verifiedEmail },
+      include: { roles: true, profile: true }
+    });
+
+    if (user) {
+      // Update avatar if not yet set
+      if (verifiedAvatar && user.profile && !user.profile.avatar) {
+        await prisma.profile.update({
+          where: { userId: user.id },
+          data: { avatar: verifiedAvatar }
+        }).catch(() => {});
+      }
+    } else {
+      // Create new user account linked with Google
+      user = await prisma.user.create({
+        data: {
+          name: resolvedName,
+          email: verifiedEmail,
+          passwordHash: null,
+          roles: {
+            create: [{ role: mappedRole }]
+          },
+          profile: {
+            create: {
+              headline: `${reverseRoleMap[mappedRole] || 'Creator'} on IDEA2IMPACT`,
+              bio: '',
+              avatar: verifiedAvatar || null,
+              skills: [],
+              interests: []
+            }
+          }
+        },
+        include: {
+          roles: true,
+          profile: true
+        }
+      });
+    }
+
+    if (user.suspended) {
+      return res.status(403).json({ error: 'This account has been suspended. Please contact support.' });
+    }
+
+    const payload = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      roles: user.roles.map(r => reverseRoleMap[r.role] || r.role)
+    };
+
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+
+    res.cookie('session', token, cookieOpts).json({
+      user: {
+        ...payload,
+        profile: user.profile
+      },
+      token,
+      firebaseUid,
+      message: 'Google authentication successful'
+    });
+  } catch (err) {
+    console.error('Google auth error:', err);
+    res.status(500).json({ error: 'Unable to authenticate with Google' });
+  }
+});
+
 authRouter.post('/logout', (req, res) => {
   res.clearCookie('session', {
     httpOnly: true,

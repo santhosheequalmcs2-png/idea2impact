@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { ShieldCheck, X, FileText, CheckCircle, Download, KeyRound } from 'lucide-react';
+import { api } from '../services/api';
+import { soundFx } from '../services/soundFx';
 
 export default function DigitalNDAModal({ innovation, user, onClose, onSigned }) {
   const [signerName, setSignerName] = useState(user?.name || '');
@@ -7,11 +9,14 @@ export default function DigitalNDAModal({ innovation, user, onClose, onSigned })
   const [agreed, setAgreed] = useState(false);
   const [signed, setSigned] = useState(false);
 
-  const handleSign = (e) => {
+  const handleSign = async (e) => {
     e.preventDefault();
     if (!signerName.trim() || !agreed) return;
 
+    soundFx.playTap();
     setSigned(true);
+    soundFx.playSuccess();
+
     // Persist signed NDA locally
     try {
       const signedList = JSON.parse(localStorage.getItem('i2i_signed_ndas') || '[]');
@@ -20,6 +25,16 @@ export default function DigitalNDAModal({ innovation, user, onClose, onSigned })
         localStorage.setItem('i2i_signed_ndas', JSON.stringify(signedList));
       }
     } catch {}
+
+    // Record electronic acceptance on backend
+    await api(`/innovations/${innovation.id}/sign-nda`, {
+      method: 'POST',
+      body: JSON.stringify({
+        signerName: signerName.trim(),
+        signerOrg: signerOrg.trim() || 'Independent Evaluator',
+        acceptedTerms: true
+      })
+    }).catch(err => console.warn('Backend NDA recording notice:', err.message));
 
     if (onSigned) onSigned();
   };
