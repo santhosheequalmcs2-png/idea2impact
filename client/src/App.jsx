@@ -172,6 +172,17 @@ function App() {
           <Link to="/ai-studio" onClick={() => setMenu(false)}>AI Studio</Link>
           <Link to="/pricing" onClick={() => setMenu(false)}>Pricing</Link>
           <a href="/#how" onClick={() => setMenu(false)}>How it works</a>
+          <a
+            href="/downloads/idea2impact-app.apk"
+            download="idea2impact-app.apk"
+            className="mobile-download-apk-btn"
+            onClick={() => {
+              soundFx.playSuccess();
+              setMenu(false);
+            }}
+          >
+            <Smartphone size={16} /> Download Android App
+          </a>
           <Link
             to={user ? "/dashboard?tab=upload" : "/login?redirect=/dashboard?tab=upload"}
             className="mobile-submit-btn"
@@ -181,6 +192,18 @@ function App() {
           </Link>
         </nav>
         <div className="nav-actions">
+          {/* Direct Android APK Download Button */}
+          <a
+            href="/downloads/idea2impact-app.apk"
+            download="idea2impact-app.apk"
+            className="btn-download-apk"
+            title="Download Official Android App (APK 35MB)"
+            onClick={() => soundFx.playSuccess()}
+          >
+            <Smartphone size={14} />
+            <span>Install App</span>
+          </a>
+
           {/* Sound FX Toggle */}
           <button
             className="sound-toggle-btn"
@@ -332,6 +355,15 @@ function HomeContent({ items, displayCategories, featuredWorkmen }) {
             <Link to="/talents" className="home-btn home-btn-secondary">
               Meet Elite Builders <Users size={16} />
             </Link>
+            <a
+              href="/downloads/idea2impact-app.apk"
+              download="idea2impact-app.apk"
+              className="home-btn home-btn-apk"
+              title="Download Android APK (35 MB)"
+              onClick={() => soundFx.playSuccess()}
+            >
+              <Smartphone size={16} /> Install App (APK)
+            </a>
           </div>
 
           <div className="home-hero-features-chips">
@@ -348,6 +380,15 @@ function HomeContent({ items, displayCategories, featuredWorkmen }) {
             <Link to="/dashboard?tab=ideas" className="home-feature-chip">
               <Award size={13} color="#a78bfa" /> IP & Portfolios
             </Link>
+            <a
+              href="/downloads/idea2impact-app.apk"
+              download="idea2impact-app.apk"
+              className="home-feature-chip"
+              style={{ borderColor: 'rgba(92, 233, 193, 0.4)', background: 'rgba(92, 233, 193, 0.08)' }}
+              onClick={() => soundFx.playSuccess()}
+            >
+              <Smartphone size={13} color="#5ce9c1" /> Download APK (35 MB)
+            </a>
           </div>
 
           <div className="home-hero-proof">
@@ -826,6 +867,66 @@ function HomeContent({ items, displayCategories, featuredWorkmen }) {
               <div>
                 <b>1-Minute Executive Pitch Deck</b>
                 <small>Generates investor-ready 5-slide summary ready to export.</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Native Android Mobile App Download Showcase */}
+      <section className="home-section wrap">
+        <div className="home-apk-download-banner">
+          <div className="home-apk-banner-copy">
+            <div className="home-eyebrow">
+              <span className="home-pulse-dot" />
+              <span>NATIVE ANDROID EXPERIENCE</span>
+            </div>
+            <h2 className="home-section-title">
+              Take IDEA2IMPACT <span className="home-gradient-text">everywhere you go.</span>
+            </h2>
+            <p className="home-section-desc">
+              Install the official Android application. Built with Jetpack Compose, Firebase Cloud Firestore real-time push sync, offline Room caching, biometric security, and startup sound effects.
+            </p>
+            <div className="home-apk-specs">
+              <span className="apk-spec-tag">v1.0.0 Release</span>
+              <span className="apk-spec-tag">Size: 35.1 MB</span>
+              <span className="apk-spec-tag">Android 8.0+</span>
+              <span className="apk-spec-tag">SHA-256 Verified</span>
+            </div>
+            <div className="home-apk-actions">
+              <a
+                href="/downloads/idea2impact-app.apk"
+                download="idea2impact-app.apk"
+                className="btn btn-primary"
+                style={{ padding: '12px 24px', fontSize: '15px', width: 'fit-content', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+                onClick={() => soundFx.playSuccess()}
+              >
+                <Smartphone size={18} /> Download Android APK (35 MB)
+              </a>
+              <span className="apk-direct-note">Direct Install · No Google Play account required</span>
+            </div>
+          </div>
+
+          <div className="home-apk-banner-visual">
+            <div className="home-apk-phone-frame">
+              <div className="phone-screen-preview">
+                <div className="phone-screen-header">
+                  <span className="phone-notch" />
+                </div>
+                <div className="phone-screen-content">
+                  <div className="phone-app-brand">
+                    <Sparkles size={16} color="var(--cyan)" />
+                    <b>IDEA2IMPACT Mobile</b>
+                  </div>
+                  <div className="phone-app-card">
+                    <span className="phone-badge">Live Sync</span>
+                    <p>Instant Firestore Chat & AI Matchmaking</p>
+                  </div>
+                  <div className="phone-app-card">
+                    <span className="phone-badge green">Deal Room</span>
+                    <p>Bilateral NDA Electronic Verification</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -3471,6 +3572,14 @@ function Footer({ isHome, dark, onOpenDiagnostics }) {
               <a href="/#how">How it works</a>
               <Link to="/signup">Join the community</Link>
               <Link to="/dashboard">Dashboard</Link>
+              <a
+                href="/downloads/idea2impact-app.apk"
+                download="idea2impact-app.apk"
+                style={{ color: '#5ce9c1', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '5px' }}
+                onClick={() => soundFx.playSuccess()}
+              >
+                <Smartphone size={13} /> Download Android APK
+              </a>
             </div>
             <div>
               <b>LEGAL & SUPPORT</b>
