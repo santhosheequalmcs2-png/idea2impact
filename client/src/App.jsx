@@ -159,67 +159,51 @@ function App() {
       <header className={`nav ${!dark ? 'light-nav' : ''} ${!dark && isHome ? 'home-nav' : ''}`}>
         <Link to="/" className="brand">
           <span className="brand-mark"><Sparkles size={18} /></span>
-          <span>IDEA<span className="brand-blue">2</span>IMPACT</span>
+          <span className="brand-text">IDEA<span className="brand-blue">2</span>IMPACT</span>
         </Link>
         <nav className={menu ? 'nav-links open' : 'nav-links'}>
-          <Link to="/marketplace" onClick={() => setMenu(false)}>Explore Ideas</Link>
+          <Link to="/marketplace" onClick={() => setMenu(false)}>Explore</Link>
           <Link to="/matches" onClick={() => setMenu(false)}>Matches</Link>
           <Link to="/collaborations" onClick={() => setMenu(false)}>Collaborations</Link>
-          <Link to="/messages" onClick={() => setMenu(false)} className="messages-nav-link">
-            Messages <span className="nav-badge">3</span>
-          </Link>
-          <Link to="/talents" onClick={() => setMenu(false)}>Talent & Partners</Link>
+          <Link to="/talents" onClick={() => setMenu(false)}>Talents</Link>
           <Link to="/ai-studio" onClick={() => setMenu(false)}>AI Studio</Link>
           <Link to="/pricing" onClick={() => setMenu(false)}>Pricing</Link>
-          <a href="/#how" onClick={() => setMenu(false)}>How it works</a>
           <a
             href="/downloads/idea2impact-app.apk"
             download="idea2impact-app.apk"
-            className="mobile-download-apk-btn"
+            className="mobile-only-link"
             onClick={() => {
               soundFx.playSuccess();
               setMenu(false);
             }}
           >
-            <Smartphone size={16} /> Download Android App
+            <Smartphone size={15} /> Download Android App
           </a>
           <Link
             to={user ? "/dashboard?tab=upload" : "/login?redirect=/dashboard?tab=upload"}
-            className="mobile-submit-btn"
+            className="mobile-only-link"
             onClick={() => setMenu(false)}
           >
-            <Plus size={16} /> Submit Idea
+            <Plus size={15} /> Submit Idea
           </Link>
         </nav>
         <div className="nav-actions">
-          {/* Direct Android APK Download Button */}
-          <a
-            href="/downloads/idea2impact-app.apk"
-            download="idea2impact-app.apk"
-            className="btn-download-apk"
-            title="Download Official Android App (APK 35MB)"
-            onClick={() => soundFx.playSuccess()}
+          {/* Messages Icon Button (Direct parity with Android header_messages_button) */}
+          <Link
+            to="/messages"
+            className="header-icon-btn"
+            title="Messages"
+            aria-label="Messages"
+            onClick={() => soundFx.playTap()}
           >
-            <Smartphone size={14} />
-            <span>Install App</span>
-          </a>
+            <MessageCircle size={17} />
+            <span className="icon-badge">3</span>
+          </Link>
 
-          {/* Sound FX Toggle */}
+          {/* Real-time Notification Bell (Direct parity with Android header_notifications_button) */}
           <button
-            className="sound-toggle-btn"
-            title={soundOn ? "Mute Sound Effects" : "Enable Sound Effects"}
-            aria-label="Toggle Sound Effects"
-            onClick={() => {
-              const next = soundFx.toggle();
-              setSoundOn(next);
-            }}
-          >
-            {soundOn ? <Volume2 size={15} /> : <VolumeX size={15} />}
-          </button>
-
-          {/* Real-time Notification Bell */}
-          <button
-            className="notif-bell-btn"
+            type="button"
+            className="header-icon-btn"
             title="Notification Center"
             aria-label="Notification Center"
             onClick={() => {
@@ -227,19 +211,27 @@ function App() {
               setShowNotifications(true);
             }}
           >
-            <Bell size={15} />
-            {unreadNotifs > 0 && <span className="bell-badge-count">{unreadNotifs}</span>}
+            <Bell size={17} />
+            {unreadNotifs > 0 && <span className="icon-badge">{unreadNotifs}</span>}
           </button>
 
-          <Link
-            to={user ? "/dashboard?tab=upload" : "/login?redirect=/dashboard?tab=upload"}
-            className="btn-submit-idea"
-            title="Submit a new innovation or idea"
-          >
-            <Plus size={15} />
-            <span>Submit Idea</span>
-          </Link>
+          {/* Sound FX Toggle (Direct parity with Android StartupSoundPlayer toggle) */}
           <button
+            type="button"
+            className="header-icon-btn"
+            title={soundOn ? "Mute Sound Effects" : "Enable Sound Effects"}
+            aria-label="Toggle Sound Effects"
+            onClick={() => {
+              const next = soundFx.toggle();
+              setSoundOn(next);
+            }}
+          >
+            {soundOn ? <Volume2 size={16} /> : <VolumeX size={16} />}
+          </button>
+
+          {/* Theme Toggle */}
+          <button
+            type="button"
             className="theme-toggle"
             aria-label={dark ? "Switch to Light Mode" : "Switch to Dark Mode"}
             title={dark ? "Switch to Light Mode" : "Switch to Dark Mode"}
@@ -252,6 +244,17 @@ function App() {
               <Moon size={15} />
             </span>
           </button>
+
+          {/* Submit Idea Action */}
+          <Link
+            to={user ? "/dashboard?tab=upload" : "/login?redirect=/dashboard?tab=upload"}
+            className="btn-submit-idea"
+            title="Submit a new innovation or idea"
+          >
+            <Plus size={14} />
+            <span>Submit Idea</span>
+          </Link>
+
           {user ? (
             <>
               <Link className="nav-user" to="/dashboard" title="Go to Dashboard">
@@ -261,20 +264,26 @@ function App() {
                   user.name?.slice(0, 1)?.toUpperCase() || 'U'
                 )}
               </Link>
-              <button className="btn btn-ghost small logout" onClick={logout}>
-                <LogOut size={15} /> Log out
+              <button className="btn btn-ghost small logout" onClick={logout} title="Log out">
+                <LogOut size={15} />
               </button>
             </>
           ) : (
             <>
               <Link className="login-link" to="/login">Log in</Link>
               <Link className="btn btn-primary small" to="/signup">
-                Get started <ArrowUpRight size={15} />
+                Get started <ArrowUpRight size={14} />
               </Link>
             </>
           )}
-          <button className="icon-btn mobile-menu" onClick={() => setMenu(!menu)}>
-            {menu ? <X /> : <Menu />}
+
+          <button
+            type="button"
+            className="icon-btn mobile-menu"
+            onClick={() => setMenu(!menu)}
+            aria-label="Toggle menu"
+          >
+            {menu ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </header>
@@ -362,32 +371,7 @@ function HomeContent({ items, displayCategories, featuredWorkmen }) {
               title="Download Android APK (35 MB)"
               onClick={() => soundFx.playSuccess()}
             >
-              <Smartphone size={16} /> Install App (APK)
-            </a>
-          </div>
-
-          <div className="home-hero-features-chips">
-            <span className="home-hero-chips-label">App Features:</span>
-            <Link to="/matches" className="home-feature-chip">
-              <Sparkles size={13} color="#5ce9c1" /> AI Matches
-            </Link>
-            <Link to="/collaborations" className="home-feature-chip">
-              <Layers size={13} color="var(--cyan)" /> Kanban Workspaces
-            </Link>
-            <Link to="/messages" className="home-feature-chip">
-              <MessageCircle size={13} color="#ffb84d" /> Live Messages
-            </Link>
-            <Link to="/dashboard?tab=ideas" className="home-feature-chip">
-              <Award size={13} color="#a78bfa" /> IP & Portfolios
-            </Link>
-            <a
-              href="/downloads/idea2impact-app.apk"
-              download="idea2impact-app.apk"
-              className="home-feature-chip"
-              style={{ borderColor: 'rgba(92, 233, 193, 0.4)', background: 'rgba(92, 233, 193, 0.08)' }}
-              onClick={() => soundFx.playSuccess()}
-            >
-              <Smartphone size={13} color="#5ce9c1" /> Download APK (35 MB)
+              <Smartphone size={16} /> Get Android App
             </a>
           </div>
 
