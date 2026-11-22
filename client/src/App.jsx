@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import {
-  ArrowRight, ArrowUpRight, Sparkles, Lightbulb, Code2, Smartphone, Gamepad2,
+  ArrowRight, ArrowUpRight, ArrowLeft, Home as HomeIcon, Sparkles, Lightbulb, Code2, Smartphone, Gamepad2,
   Package, Palette, Globe2, Menu, X, Search, Plus, Heart, SlidersHorizontal,
   MessageCircle, Compass, Users, ShieldCheck, Zap, Sun, Moon,
   Send, Check, Layers, LockKeyhole, TrendingUp, LogOut, Filter,
@@ -165,12 +165,55 @@ function App() {
           <span className="brand-text">IDEA<span className="brand-blue">2</span>IMPACT</span>
         </Link>
         <nav className={menu ? 'nav-links open' : 'nav-links'}>
-          <Link to="/marketplace" onClick={() => setMenu(false)}>Explore</Link>
-          <Link to="/matches" onClick={() => setMenu(false)}>Matches</Link>
-          <Link to="/collaborations" onClick={() => setMenu(false)}>Collaborations</Link>
-          <Link to="/talents" onClick={() => setMenu(false)}>Talents</Link>
-          <Link to="/ai-sana" onClick={() => setMenu(false)}>AI Sana</Link>
-          <Link to="/pricing" onClick={() => setMenu(false)}>Pricing</Link>
+          <Link
+            to="/"
+            onClick={() => setMenu(false)}
+            className={location.pathname === '/' ? 'nav-link-active' : ''}
+          >
+            Home
+          </Link>
+          <Link
+            to="/marketplace"
+            onClick={() => setMenu(false)}
+            className={location.pathname === '/marketplace' ? 'nav-link-active' : ''}
+          >
+            Explore
+          </Link>
+          <Link
+            to="/matches"
+            onClick={() => setMenu(false)}
+            className={location.pathname === '/matches' ? 'nav-link-active' : ''}
+          >
+            Matches
+          </Link>
+          <Link
+            to="/collaborations"
+            onClick={() => setMenu(false)}
+            className={location.pathname.startsWith('/collaborations') ? 'nav-link-active' : ''}
+          >
+            Collaborations
+          </Link>
+          <Link
+            to="/talents"
+            onClick={() => setMenu(false)}
+            className={location.pathname === '/talents' ? 'nav-link-active' : ''}
+          >
+            Talents
+          </Link>
+          <Link
+            to="/ai-sana"
+            onClick={() => setMenu(false)}
+            className={location.pathname === '/ai-sana' || location.pathname === '/ai-studio' ? 'nav-link-active' : ''}
+          >
+            AI Sana
+          </Link>
+          <Link
+            to="/pricing"
+            onClick={() => setMenu(false)}
+            className={location.pathname === '/pricing' ? 'nav-link-active' : ''}
+          >
+            Pricing
+          </Link>
           <a
             href="/downloads/idea2impact-app.apk"
             download="idea2impact-app.apk"
@@ -1134,6 +1177,10 @@ function TalentDirectory({ onOpenCollaboration }) {
 
   return (
     <main className="page wrap">
+      <Link to="/" className="back-link" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
+        <ArrowLeft size={14} /> Back to Home
+      </Link>
+
       <div className="page-top page-top-with-3d">
         <div className="page-top-copy">
           <div className="eyebrow">CREATOR & BUILDER ECOSYSTEM</div>
@@ -1270,6 +1317,10 @@ function Marketplace({ items, categories, onRefresh, user }) {
 
   return (
     <main className="page wrap">
+      <Link to="/" className="back-link" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '16px' }}>
+        <ArrowLeft size={14} /> Back to Home
+      </Link>
+
       <div className="page-top page-top-with-3d">
         <div className="page-top-copy">
           <div className="eyebrow">THE INNOVATION MARKETPLACE</div>
