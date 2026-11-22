@@ -5104,3 +5104,120 @@ body, .nav, .footer, .innovation-card, .btn, .stat-card, .chat-shell, .filter-pa
   background: var(--cyan);
   box-shadow: 0 0 6px var(--cyan);
 }
+
+/* Homepage Hero Feature Chips & Ecosystem Grid */
+.home-hero-features-chips {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.home-hero-chips-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+}
+.home-feature-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  text-decoration: none;
+  transition: all .2s ease;
+}
+.home-feature-chip:hover {
+  background: var(--panel2);
+  border-color: var(--cyan);
+  transform: translateY(-1px);
+  color: var(--text);
+}
+
+.home-ecosystem-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 32px;
+}
+.home-ecosystem-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  transition: all .25s ease;
+  position: relative;
+  overflow: hidden;
+}
+.home-ecosystem-card:hover {
+  border-color: rgba(92, 233, 193, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+.home-ecosystem-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 14px;
+  width: fit-content;
+}
+.home-ecosystem-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  color: var(--text);
+}
+.home-ecosystem-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0 0 16px 0;
+  flex: 1;
+}
+.home-ecosystem-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+.eco-pill {
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+.eco-kanban-cols {
+  display: flex;
+  gap: 6px;
+}
+.eco-col {
+  flex: 1;
+  text-align: center;
+  padding: 5px 6px;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.eco-col.active {
+  background: rgba(77, 182, 255, 0.15);
+  border-color: var(--cyan);
+  color: var(--cyan);
+}

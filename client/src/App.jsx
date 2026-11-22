@@ -334,6 +334,22 @@ function HomeContent({ items, displayCategories, featuredWorkmen }) {
             </Link>
           </div>
 
+          <div className="home-hero-features-chips">
+            <span className="home-hero-chips-label">App Features:</span>
+            <Link to="/matches" className="home-feature-chip">
+              <Sparkles size={13} color="#5ce9c1" /> AI Matches
+            </Link>
+            <Link to="/collaborations" className="home-feature-chip">
+              <Layers size={13} color="var(--cyan)" /> Kanban Workspaces
+            </Link>
+            <Link to="/messages" className="home-feature-chip">
+              <MessageCircle size={13} color="#ffb84d" /> Live Messages
+            </Link>
+            <Link to="/dashboard?tab=ideas" className="home-feature-chip">
+              <Award size={13} color="#a78bfa" /> IP & Portfolios
+            </Link>
+          </div>
+
           <div className="home-hero-proof">
             <div className="home-avatar-stack">
               {featuredWorkmen.map((w, idx) => (
@@ -452,6 +468,119 @@ function HomeContent({ items, displayCategories, featuredWorkmen }) {
               <p className="home-step-text">{d}</p>
             </article>
           ))}
+        </div>
+      </section>
+
+      {/* Connected Ecosystem Engine (Android App Parity Features) */}
+      <section className="home-section wrap">
+        <div className="home-section-head">
+          <div>
+            <div className="home-eyebrow">
+              <span className="home-pulse-dot" />
+              <span>CROSS-PLATFORM ECOSYSTEM ENGINE</span>
+            </div>
+            <h2 className="home-section-title">
+              Complete app features, <span className="home-gradient-text">fully connected to web.</span>
+            </h2>
+          </div>
+          <p className="home-section-desc">
+            Shared with the IDEA2IMPACT Android application: real-time Cloud Firestore chat, AI matchmaking algorithms, agile sprint boards, and confidential Deal Rooms.
+          </p>
+        </div>
+
+        <div className="home-ecosystem-grid">
+          {/* 1. AI Matches */}
+          <div className="home-ecosystem-card">
+            <div className="home-ecosystem-badge" style={{ background: 'rgba(92, 233, 193, 0.15)', color: '#5ce9c1' }}>
+              <Sparkles size={14} /> 94% Compatibility Match
+            </div>
+            <h3 className="home-ecosystem-title">AI Ecosystem Matchmaking</h3>
+            <p className="home-ecosystem-desc">
+              Multi-factor matching connects creators with specialized robotics engineers, IP attorneys, and angel funds based on complementary skills and market readiness.
+            </p>
+            <div className="home-ecosystem-preview">
+              <div className="eco-pill">● Dr. Elena Vance (Robotics) · 98% Synergy</div>
+              <div className="eco-pill">● Marcus Sterling (Angel LP) · 92% Synergy</div>
+            </div>
+            <Link to="/matches" className="btn btn-outline small full">
+              Explore Matches <ArrowUpRight size={14} />
+            </Link>
+          </div>
+
+          {/* 2. Collaborations Kanban */}
+          <div className="home-ecosystem-card">
+            <div className="home-ecosystem-badge" style={{ background: 'rgba(77, 182, 255, 0.15)', color: 'var(--cyan)' }}>
+              <Layers size={14} /> Interactive Kanban Boards
+            </div>
+            <h3 className="home-ecosystem-title">Collaborations & Tasks</h3>
+            <p className="home-ecosystem-desc">
+              Organize multi-disciplinary engineering projects with live 4-column sprint boards (TODO, In Progress, In Review, Done), team file vaults, and activity timelines.
+            </p>
+            <div className="home-ecosystem-preview">
+              <div className="eco-kanban-cols">
+                <span className="eco-col">TODO (4)</span>
+                <span className="eco-col active">DOING (2)</span>
+                <span className="eco-col">DONE (8)</span>
+              </div>
+            </div>
+            <Link to="/collaborations" className="btn btn-outline small full">
+              Open Workspaces <ArrowUpRight size={14} />
+            </Link>
+          </div>
+
+          {/* 3. Real-Time Messages */}
+          <div className="home-ecosystem-card">
+            <div className="home-ecosystem-badge" style={{ background: 'rgba(255, 184, 77, 0.15)', color: '#ffb84d' }}>
+              <MessageCircle size={14} /> Cloud Firestore Sync
+            </div>
+            <h3 className="home-ecosystem-title">Real-Time Messaging</h3>
+            <p className="home-ecosystem-desc">
+              Direct and team messaging with active presence indicators, suggested AI quick responses, bilateral NDA status verification, and moderation controls.
+            </p>
+            <div className="home-ecosystem-preview">
+              <div className="eco-pill">Active Presence: <span style={{ color: '#5ce9c1' }}>● Online cross-platform</span></div>
+              <div className="eco-pill">Quick Reply: "Let's review the Deal Room NDA"</div>
+            </div>
+            <Link to="/messages" className="btn btn-outline small full">
+              Open Messages <ArrowUpRight size={14} />
+            </Link>
+          </div>
+
+          {/* 4. Gated Deal Room */}
+          <div className="home-ecosystem-card">
+            <div className="home-ecosystem-badge" style={{ background: 'rgba(255, 77, 106, 0.15)', color: '#ff4d6a' }}>
+              <LockKeyhole size={14} /> Bilateral NDA Protected
+            </div>
+            <h3 className="home-ecosystem-title">Confidential Deal Rooms</h3>
+            <p className="home-ecosystem-desc">
+              Server-enforced access gating for proprietary engineering assets: Bill of Materials (BOM), unit economics, interactive 3D CAD prototypes, and cap tables.
+            </p>
+            <div className="home-ecosystem-preview">
+              <div className="eco-pill">🔒 Electronic NDA Acceptance Required</div>
+              <div className="eco-pill">📄 Cryptographic IP Audit Log in PostgreSQL</div>
+            </div>
+            <Link to="/marketplace" className="btn btn-outline small full">
+              Explore Innovations <ArrowUpRight size={14} />
+            </Link>
+          </div>
+
+          {/* 5. Creator & Investor Portfolios */}
+          <div className="home-ecosystem-card">
+            <div className="home-ecosystem-badge" style={{ background: 'rgba(167, 139, 250, 0.15)', color: '#a78bfa' }}>
+              <Award size={14} /> Dual Portfolio Ledger
+            </div>
+            <h3 className="home-ecosystem-title">Idea & Investor Portfolios</h3>
+            <p className="home-ecosystem-desc">
+              Creators track SHA-256 IP proof certificates and commercial licensing pipelines. Investors monitor syndicate micro-pledges, SAFE escrow tranches, and valuation growth.
+            </p>
+            <div className="home-ecosystem-preview">
+              <div className="eco-pill">SHA-256: 0x7f83b1657ff1fc53b92dc181...</div>
+              <div className="eco-pill">Portfolio: $12,500 across 3 Seed rounds (+34%)</div>
+            </div>
+            <Link to="/dashboard" className="btn btn-outline small full">
+              Go to Workspace <ArrowUpRight size={14} />
+            </Link>
+          </div>
         </div>
       </section>
 
