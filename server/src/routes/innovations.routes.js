@@ -692,7 +692,7 @@ innovationsRouter.post('/:id/proposal', requireAuth, async (req, res) => {
   }
 });
 
-// POST /api/innovations/:id/pitch-deck - Generate AI Investor One-Pager
+// POST /api/innovations/:id/pitch-deck - Generate AI 5-Slide Pitch Deck
 innovationsRouter.post('/:id/pitch-deck', async (req, res) => {
   try {
     const item = await prisma.innovation.findUnique({
@@ -707,16 +707,75 @@ innovationsRouter.post('/:id/pitch-deck', async (req, res) => {
       return res.status(404).json({ error: 'Innovation not found' });
     }
 
+    const catName = item.category?.name || 'General Innovation';
+    const creatorName = item.creator?.name || 'Innovator & Founder';
+    const creatorHeadline = item.creator?.profile?.headline || 'Technology Architect & Founder';
+    const valuationText = item.price ? `$${Number(item.price) * 1000}` : 'Early Stage / Open';
+
+    const slides = [
+      {
+        slideNumber: 1,
+        title: 'Problem & Market Friction',
+        subtitle: `Critical challenges facing modern ${catName} operations`,
+        bullets: [
+          `Severe fragmentation and manual friction in legacy ${catName} workflows.`,
+          'Escalating operational overhead and lack of real-time verified data pipelines.',
+          'Incumbent solutions are closed-siloed, high-cost, and fail to deliver modern ROI.'
+        ]
+      },
+      {
+        slideNumber: 2,
+        title: `The Solution: ${item.title}`,
+        subtitle: 'Proprietary breakthrough architecture with validated execution velocity',
+        bullets: [
+          item.description.length > 160 ? `${item.description.slice(0, 160)}...` : item.description,
+          'Modular, high-performance integration cutting deployment friction by over 50%.',
+          'Engineered for rapid field prototyping and enterprise collaboration.'
+        ]
+      },
+      {
+        slideNumber: 3,
+        title: 'Market Opportunity & Unit Economics',
+        subtitle: `Capturing global market demand across ${catName}`,
+        bullets: [
+          `Multi-billion addressable market with high double-digit CAGR across ${catName}.`,
+          'High-margin unit economics with projected gross margins exceeding 70%.',
+          `Indicative entry valuation: ${valuationText}.`
+        ]
+      },
+      {
+        slideNumber: 4,
+        title: 'Defensibility & Intellectual Property',
+        subtitle: 'Protected technological moat and zero-knowledge confidentiality',
+        bullets: [
+          'Provisional patent priority date strategy locked on IDEA2IMPACT platform.',
+          'Zero-knowledge Deal Room enabled for mutual bilateral NDA document security.',
+          'Proprietary engineering architecture and trade secrets preventing reverse engineering.'
+        ]
+      },
+      {
+        slideNumber: 5,
+        title: 'The Ask & 12-Month Milestones',
+        subtitle: 'Targeted capital deployment and commercial milestone roadmap',
+        bullets: [
+          item.funding ? 'Seeking $50,000 – $250,000 Pre-Seed / Seed Tranche' : 'Open to Strategic B2B Partnerships & Licensing',
+          'Next 6 Months: Complete field pilot validation with 5 enterprise launch partners.',
+          'Next 12 Months: Scale production, expand commercial licensing, and reach cashflow break-even.'
+        ]
+      }
+    ];
+
+    // Maintain backward compatibility with previous { deck } schema
     const deck = {
       title: item.title,
-      category: item.category.name,
-      creator: item.creator.name,
-      creatorTitle: item.creator.profile?.headline || 'Innovator & Founder',
-      valuationIndicative: item.price ? `$${Number(item.price) * 1000}` : 'Early Stage / Open',
-      executiveSummary: `A high-potential ${item.category.name.toLowerCase()} venture solving critical real-world friction through proprietary innovation.`,
-      problemStatement: `Existing alternatives in ${item.category.name} are fragmented, high-cost, and fail to satisfy emerging market expectations.`,
+      category: catName,
+      creator: creatorName,
+      creatorTitle: creatorHeadline,
+      valuationIndicative: valuationText,
+      executiveSummary: `A high-potential ${catName.toLowerCase()} venture solving critical real-world friction through proprietary innovation.`,
+      problemStatement: `Existing alternatives in ${catName} are fragmented, high-cost, and fail to satisfy emerging market expectations.`,
       solutionAdvantage: item.description,
-      marketOpportunity: `Targeting global addressable demand across ${item.category.name} with validated early-adopter engagement.`,
+      marketOpportunity: `Targeting global addressable demand across ${catName} with validated early-adopter engagement.`,
       milestones: [
         { phase: 'Phase 1: Proof of Concept', status: 'Completed', detail: 'Functional architecture and initial user feedback recorded.' },
         { phase: 'Phase 2: Intellectual Property & Field Testing', status: 'Active', detail: 'Provisional patent strategy and pilot batch fabrication.' },
@@ -725,10 +784,56 @@ innovationsRouter.post('/:id/pitch-deck', async (req, res) => {
       suggestedTranche: item.funding ? 'Seeking $50,000 – $250,000 Pre-Seed / Seed Tranche' : 'Open to Strategic B2B Partnerships & Licensing'
     };
 
-    res.json({ deck });
+    res.json({ slides, deck });
   } catch (err) {
     console.error('Error generating pitch deck:', err);
-    res.status(500).json({ error: 'Failed to generate investor summary' });
+    res.status(500).json({ error: 'Failed to generate pitch deck summary' });
+  }
+});
+
+// POST /api/innovations/:id/investor-memo - Generate AI Investor One-Pager Memo
+innovationsRouter.post('/:id/investor-memo', async (req, res) => {
+  try {
+    const item = await prisma.innovation.findUnique({
+      where: { id: req.params.id },
+      include: {
+        category: true,
+        creator: { select: { name: true, profile: true } }
+      }
+    });
+
+    if (!item) {
+      return res.status(404).json({ error: 'Innovation not found' });
+    }
+
+    const catName = item.category?.name || 'General Innovation';
+    const creatorName = item.creator?.name || 'Innovator & Founder';
+    const creatorHeadline = item.creator?.profile?.headline || 'Technology Architect & Founder';
+
+    const memo = {
+      id: item.id,
+      title: item.title,
+      category: catName,
+      creator: creatorName,
+      creatorTitle: creatorHeadline,
+      executiveSummary: `A high-impact ${catName.toLowerCase()} initiative addressing systemic industry bottlenecks through proprietary technology and agile field deployment.`,
+      problemStatement: `Current solutions in ${catName} suffer from excessive capital expenditure, high integration friction, and vulnerability to obsolescence.`,
+      solutionAdvantage: item.description,
+      marketOpportunity: `Global multi-billion TAM driven by regulatory pressure, ESG commitments, and modernization mandates across ${catName}.`,
+      suggestedTranche: item.funding ? 'Seeking $50,000 – $250,000 Pre-Seed / Seed Tranche' : 'Open to Strategic B2B Partnerships & Licensing',
+      milestones: [
+        { phase: 'Phase 1: Proof of Concept', status: 'Completed', detail: 'Core prototype validated with positive benchmark data.' },
+        { phase: 'Phase 2: IP Strategy & Alpha Pilot', status: 'Active', detail: 'Provisional patent priority date locked; bilateral mutual NDA deal room live.' },
+        { phase: 'Phase 3: Beta Commercialization', status: 'Next Step', detail: 'Deploying with 5 commercial partners to validate unit economics.' },
+        { phase: 'Phase 4: Scale & Strategic Licensing', status: 'Planned', detail: 'Expanding enterprise distribution and institutional venture co-investment.' }
+      ],
+      generatedAt: new Date().toISOString()
+    };
+
+    res.json({ memo });
+  } catch (err) {
+    console.error('Error generating investor memo:', err);
+    res.status(500).json({ error: 'Failed to generate investor memo' });
   }
 });
 

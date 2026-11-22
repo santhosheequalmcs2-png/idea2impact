@@ -72,3 +72,108 @@ export const demoAI = async (prompt, context = '') => {
     };
   }
 };
+
+/**
+ * AI Sana Real-Time SSE Streaming Client
+ */
+export async function streamAiChat({
+  prompt,
+  context,
+  innovationId,
+  mode = 'deep',
+  fastMode = false,
+  apiKey,
+  imageBase64,
+  imageMimeType,
+  history = [],
+  onPhase,
+  onChunk,
+  onMeta,
+  onError,
+  onDone,
+  signal
+}) {
+  const token = getAuthToken();
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const url = `${BASE}/ai/chat`;
+
+  const body = JSON.stringify({
+    prompt,
+    context,
+    innovationId,
+    mode,
+    fastMode,
+    apiKey,
+    customApiKey: apiKey,
+    imageBase64,
+    imageMimeType,
+    history,
+    stream: true
+  });
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers,
+    body,
+    signal,
+    credentials: 'include'
+  });
+
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    const message = errData.message || errData.error || `HTTP ${res.status}`;
+    const err = new Error(message);
+    err.code = errData.error || 'SERVER_ERROR';
+    if (onError) onError(err);
+    return;
+  }
+
+  if (!res.body) {
+    if (onDone) onDone();
+    return;
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder('utf-8');
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || '';
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('data:')) {
+        const jsonStr = trimmed.slice(5).trim();
+        if (jsonStr) {
+          try {
+            const event = JSON.parse(jsonStr);
+            if (event.type === 'phase' && onPhase) onPhase(event);
+            else if (event.type === 'chunk' && onChunk) onChunk(event.text);
+            else if (event.type === 'meta' && onMeta) onMeta(event);
+            else if (event.type === 'error' && onError) onError(new Error(event.message || event.error));
+            else if (event.type === 'done' && onDone) onDone(event.meta);
+          } catch {}
+        }
+      }
+    }
+  }
+
+  if (buffer.trim().startsWith('data:')) {
+    const jsonStr = buffer.trim().slice(5).trim();
+    try {
+      const event = JSON.parse(jsonStr);
+      if (event.type === 'phase' && onPhase) onPhase(event);
+      else if (event.type === 'chunk' && onChunk) onChunk(event.text);
+      else if (event.type === 'meta' && onMeta) onMeta(event);
+      else if (event.type === 'error' && onError) onError(new Error(event.message || event.error));
+      else if (event.type === 'done' && onDone) onDone(event.meta);
+    } catch {}
+  }
+}

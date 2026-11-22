@@ -11,7 +11,8 @@ import { z } from 'zod';
 
 import { prisma } from './prisma.js';
 import { requireAuth, requireRole } from './middleware/auth.js';
-import { askAI } from './services/ai.js';
+import { askAI, streamAI } from './services/ai.js';
+import { buildReferenceContext, classifyError } from './services/sanaPromptEngine.js';
 
 import { authRouter } from './routes/auth.routes.js';
 import { innovationsRouter } from './routes/innovations.routes.js';
@@ -105,23 +106,106 @@ app.use('/api/dashboard', dashboardRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/talents', talentsRouter);
 
-// AI Studio chat endpoint (preserves existing AI assistant feature with multi-LLM support)
+// Dedicated rate limiting for AI endpoints (60 req/min)
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many AI requests. Please slow down and try again shortly.' }
+});
+app.use('/api/ai', aiLimiter);
+
+// AI Sana Chat & Advisory endpoint (Dual-mode: SSE Streaming & Backward-Compatible JSON)
 app.post('/api/ai/chat', async (req, res) => {
   try {
     const v = z.object({
-      prompt: z.string().min(2).max(8000),
-      context: z.string().max(8000).optional(),
-      apiKey: z.string().max(256).optional()
+      prompt: z.string().min(1).max(12000),
+      context: z.string().max(12000).optional(),
+      apiKey: z.string().max(256).optional(),
+      customApiKey: z.string().max(256).optional(),
+      stream: z.boolean().optional(),
+      mode: z.enum(['deep', 'fast']).optional(),
+      fastMode: z.boolean().optional(),
+      innovationId: z.string().max(128).optional(),
+      imageBase64: z.string().max(6000000).optional(),
+      imageMimeType: z.enum(['image/jpeg', 'image/png', 'image/webp']).optional(),
+      history: z.array(z.object({
+        role: z.enum(['user', 'assistant', 'model']),
+        content: z.string().max(12000)
+      })).optional()
     }).parse(req.body);
 
-    const result = await askAI(v.prompt, v.context, v.apiKey);
+    // Build grounded reference context from Prisma (read-only app state)
+    const refBundle = await buildReferenceContext({
+      prisma,
+      innovationId: v.innovationId,
+      prompt: v.prompt,
+      hasAttachedImage: Boolean(v.imageBase64)
+    });
+
+    const activeApiKey = (v.customApiKey && v.customApiKey.trim()) || (v.apiKey && v.apiKey.trim()) || undefined;
+
+    // A. SSE Streaming Mode
+    if (v.stream === true) {
+      res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+      res.setHeader('Cache-Control', 'no-cache, no-transform');
+      res.setHeader('Connection', 'keep-alive');
+      res.setHeader('X-Accel-Buffering', 'no');
+      if (res.flushHeaders) res.flushHeaders();
+
+      const abortController = new AbortController();
+      req.on('close', () => {
+        abortController.abort();
+      });
+
+      const sseEmitter = (event) => {
+        if (res.writableEnded) return;
+        res.write(`data: ${JSON.stringify(event)}\n\n`);
+      };
+
+      try {
+        await streamAI(v.prompt, {
+          context: v.context,
+          referenceBlock: refBundle.referenceContextBlock,
+          customApiKey: activeApiKey,
+          mode: v.mode,
+          fastMode: v.fastMode,
+          hasAttachedImage: Boolean(v.imageBase64),
+          imageBase64: v.imageBase64,
+          imageMimeType: v.imageMimeType,
+          history: v.history,
+          signal: abortController.signal
+        }, sseEmitter);
+      } catch (err) {
+        if (!abortController.signal.aborted) {
+          const classified = classifyError(err);
+          sseEmitter({ type: 'error', error: classified.code, message: classified.userMessage });
+        }
+      } finally {
+        if (!res.writableEnded) res.end();
+      }
+      return;
+    }
+
+    // B. Non-Streaming JSON Mode (100% Backward-Compatible with Android & standard clients)
+    const result = await askAI(v.prompt, v.context, activeApiKey, {
+      referenceBlock: refBundle.referenceContextBlock,
+      fastMode: v.fastMode || v.mode === 'fast',
+      mode: v.mode,
+      imageBase64: v.imageBase64,
+      imageMimeType: v.imageMimeType,
+      history: v.history
+    });
+
     res.json(result);
   } catch (e) {
     if (e instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Invalid prompt format' });
+      return res.status(400).json({ error: 'Invalid prompt or payload format', details: e.errors });
     }
     console.error('AI chat error:', e);
-    res.status(503).json({ error: 'AI service unavailable', detail: e.message });
+    const classified = classifyError(e);
+    res.status(503).json({ error: classified.code, message: classified.userMessage });
   }
 });
 
