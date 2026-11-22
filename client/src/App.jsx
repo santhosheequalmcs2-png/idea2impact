@@ -161,7 +161,7 @@ function App() {
     <>
       <header className={`nav ${!dark ? 'light-nav' : ''} ${!dark && isHome ? 'home-nav' : ''}`}>
         <Link to="/" className="brand">
-          <span className="brand-mark"><Sparkles size={18} /></span>
+          <span className="brand-mark"><img src="/brand-icon.png" alt="IDEA2IMPACT" className="brand-mark-img" /></span>
           <span className="brand-text">IDEA<span className="brand-blue">2</span>IMPACT</span>
         </Link>
         <nav className={menu ? 'nav-links open' : 'nav-links'}>
@@ -946,7 +946,7 @@ function HomeContent({ items, displayCategories, featuredWorkmen }) {
                 </div>
                 <div className="phone-screen-content">
                   <div className="phone-app-brand">
-                    <Sparkles size={16} color="var(--cyan)" />
+                    <img src="/brand-icon.png" alt="IDEA2IMPACT" style={{ width: 18, height: 18, borderRadius: 4, objectFit: 'cover' }} />
                     <b>IDEA2IMPACT Mobile</b>
                   </div>
                   <div className="phone-app-card">
@@ -2048,7 +2048,7 @@ function Auth({ mode, onAuth }) {
           <Page3DObject type="auth" size={135} />
         </div>
         <Link to="/" className="brand">
-          <span className="brand-mark"><Sparkles size={18} /></span>
+          <span className="brand-mark"><img src="/brand-icon.png" alt="IDEA2IMPACT" className="brand-mark-img" /></span>
           IDEA<span className="brand-blue">2</span>IMPACT
         </Link>
         <div className="eyebrow">YOUR NEXT CHAPTER STARTS HERE</div>
@@ -3172,7 +3172,7 @@ function Footer({ isHome, dark, onOpenDiagnostics }) {
         <div className="footer-main">
           <div>
             <Link to="/" className="brand">
-              <span className="brand-mark"><Sparkles size={18} /></span>
+              <span className="brand-mark"><img src="/brand-icon.png" alt="IDEA2IMPACT" className="brand-mark-img" /></span>
               IDEA<span className="brand-blue">2</span>IMPACT
             </Link>
             <p>A platform where ideas<br />find their next step.</p>

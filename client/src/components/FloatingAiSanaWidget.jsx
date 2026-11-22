@@ -48,8 +48,8 @@ export default function FloatingAiSanaWidget({ activeInnovation = null }) {
   const abortControllerRef = useRef(null);
   const messagesEndRef = useRef(null);
 
-  // Detect innovation ID from URL if on detail page
-  const innovationMatch = location.pathname.match(/\/innovations\/([a-zA-Z0-9_-]+)/);
+  // Detect innovation ID from URL if on detail page (/innovation/:id or /innovations/:id)
+  const innovationMatch = location.pathname.match(/\/innovations?\/([a-zA-Z0-9_-]+)/);
   const detectedInnovationId = activeInnovation?.id || (innovationMatch ? innovationMatch[1] : null);
 
   useEffect(() => {
@@ -213,7 +213,7 @@ export default function FloatingAiSanaWidget({ activeInnovation = null }) {
           }}
         >
           <div className="ai-btn-pulse" />
-          <Sparkles size={17} />
+          <img src="/brand-icon.png" alt="AI Sana" style={{ width: 18, height: 18, borderRadius: 4, objectFit: 'cover' }} />
           <span>AI Sana</span>
           <span className="ai-btn-badge" style={{ background: 'rgba(255,255,255,0.2)' }}>
             Gemini
@@ -254,7 +254,7 @@ export default function FloatingAiSanaWidget({ activeInnovation = null }) {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span className="brand-mark" style={{ width: '26px', height: '26px' }}>
-                <Sparkles size={14} />
+                <img src="/brand-icon.png" alt="AI Sana" className="brand-mark-img" />
               </span>
               <div>
                 <b style={{ fontSize: '12.5px', display: 'block' }}>AI Sana</b>

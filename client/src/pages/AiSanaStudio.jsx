@@ -376,7 +376,7 @@ Select an innovation context, upload a prototype image, or pick a starter action
           <div className="chat-brand" style={{ justifyContent: 'space-between', width: '100%' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span className="brand-mark" style={{ width: '32px', height: '32px' }}>
-                <Sparkles size={16} />
+                <img src="/brand-icon.png" alt="AI Sana" className="brand-mark-img" />
               </span>
               <div>
                 <b style={{ fontSize: '13px', display: 'block' }}>AI Sana</b>

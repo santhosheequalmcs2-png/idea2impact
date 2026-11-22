@@ -5586,3 +5586,46 @@ body, .nav, .footer, .innovation-card, .btn, .stat-card, .chat-shell, .filter-pa
     border-bottom: 1px solid var(--line);
   }
 }
+
+/* =========================================================
+   OFFICIAL IDEA2IMPACT CELESTIAL STAR BRAND ICON
+   ========================================================= */
+.brand-mark {
+  position: relative;
+  height: 34px !important;
+  width: 34px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  overflow: hidden;
+  border: 1.5px solid rgba(84, 230, 245, 0.45) !important;
+  background: #081526 !important;
+  box-shadow: 0 0 16px rgba(84, 230, 245, 0.28) !important;
+  flex-shrink: 0;
+  padding: 0 !important;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+.brand:hover .brand-mark {
+  transform: scale(1.05);
+  box-shadow: 0 0 22px rgba(84, 230, 245, 0.48) !important;
+}
+.brand-mark-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+[data-theme="light"] .brand-mark,
+.nav.light-nav .brand-mark,
+.nav.home-nav .brand-mark {
+  border: 1.5px solid #B99AFF !important;
+  background: #081526 !important;
+  box-shadow: 0 4px 14px rgba(112, 65, 199, 0.25) !important;
+}
+[data-theme="light"] .brand:hover .brand-mark,
+.nav.light-nav .brand:hover .brand-mark,
+.nav.home-nav .brand:hover .brand-mark {
+  box-shadow: 0 6px 20px rgba(112, 65, 199, 0.45) !important;
+}
+
