@@ -2009,7 +2009,15 @@ function Auth({ mode, onAuth }) {
       }
     } catch (err) {
       console.error('Google Auth error:', err);
-      setError(err.message || 'Google Sign-In failed. Please try email/password.');
+      if (err.code === 'auth/unauthorized-domain' || err.message?.includes('unauthorized-domain')) {
+        setError(
+          `Domain not authorized: "${window.location.hostname}" must be added to your Firebase Authorized Domains (Firebase Console → Authentication → Settings → Authorized Domains). You can also log in directly using Email & Password below.`
+        );
+      } else if (err.code === 'auth/popup-closed-by-user') {
+        setError('Google Sign-In popup was closed. Please try again.');
+      } else {
+        setError(err.message || 'Google Sign-In failed. Please try email/password.');
+      }
     } finally {
       setGoogleLoading(false);
     }
