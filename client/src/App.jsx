@@ -232,6 +232,12 @@ function App() {
           >
             <Plus size={15} /> Submit Idea
           </Link>
+          {!user && (
+            <div className="mobile-only-auth">
+              <Link to="/login" onClick={() => setMenu(false)} className="btn btn-outline small">Log in</Link>
+              <Link to="/signup" onClick={() => setMenu(false)} className="btn btn-primary small">Get started</Link>
+            </div>
+          )}
         </nav>
         <div className="nav-actions">
           {/* Messages Icon Button (Direct parity with Android header_messages_button) */}
@@ -264,7 +270,7 @@ function App() {
           {/* Sound FX Toggle (Direct parity with Android StartupSoundPlayer toggle) */}
           <button
             type="button"
-            className="header-icon-btn"
+            className="header-icon-btn sound-toggle-btn"
             title={soundOn ? "Mute Sound Effects" : "Enable Sound Effects"}
             aria-label="Toggle Sound Effects"
             onClick={() => {
@@ -317,7 +323,7 @@ function App() {
           ) : (
             <>
               <Link className="login-link" to="/login">Log in</Link>
-              <Link className="btn btn-primary small" to="/signup">
+              <Link className="btn btn-primary small nav-get-started" to="/signup">
                 Get started <ArrowUpRight size={14} />
               </Link>
             </>
