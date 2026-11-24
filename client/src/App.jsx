@@ -21,6 +21,9 @@ import MatchesPage from './pages/MatchesPage';
 import MessagesPage from './pages/MessagesPage';
 import CollaborationsPage from './pages/CollaborationsPage';
 import AiSanaStudio from './pages/AiSanaStudio';
+import ContactPage from './pages/ContactPage';
+import PrivacyPage from './pages/PrivacyPage';
+import TermsPage from './pages/TermsPage';
 import FloatingAiSanaWidget from './components/FloatingAiSanaWidget';
 import NotificationDrawer from './components/NotificationDrawer';
 import OnboardingModal from './components/OnboardingModal';
@@ -82,6 +85,17 @@ function App() {
   const location = useLocation();
   const isHome = location.pathname === '/' || location.pathname === '';
   const isAISana = location.pathname === '/ai-sana' || location.pathname === '/ai-studio';
+
+  // Support legacy hash anchors by seamlessly routing to real pages
+  useEffect(() => {
+    if (location.hash === '#privacy') {
+      navigate('/privacy', { replace: true });
+    } else if (location.hash === '#terms') {
+      navigate('/terms', { replace: true });
+    } else if (location.hash === '#contact') {
+      navigate('/contact', { replace: true });
+    }
+  }, [location.hash, navigate]);
 
   const activeInnovationId = location.pathname.startsWith('/innovation/') ? location.pathname.split('/innovation/')[1] : null;
   const activeContextItem = useMemo(() => {
@@ -355,6 +369,9 @@ function App() {
         <Route path="/ai-sana" element={<AiSanaStudio />} />
         <Route path="/ai-studio" element={<AiSanaStudio />} />
         <Route path="/pricing" element={<Pricing />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
         <Route path="*" element={<Home items={items} categories={categories} dark={dark} />} />
       </Routes>
 
@@ -390,6 +407,56 @@ function App() {
 }
 
 function HomeContent({ items, displayCategories, featuredWorkmen }) {
+  // Ensure the section titled "Inventions worth a closer look" displays actual inventions
+  const displayedInventions = useMemo(() => {
+    const inventions = items.filter(
+      (x) =>
+        x.categorySlug === 'inventions' ||
+        (typeof x.category === 'string' && x.category.trim().toLowerCase() === 'inventions')
+    );
+    if (inventions.length > 0) {
+      return inventions.slice(0, 3);
+    }
+    return [
+      {
+        id: 'inv-fallback-1',
+        title: 'AquaSense — Smart Water Monitor',
+        desc: 'A low-cost sensor concept that helps households spot micro-leaks and understand daily water use with high precision. Integrates with mobile notifications and municipal water conservation goals.',
+        category: 'Inventions',
+        categorySlug: 'inventions',
+        price: 120,
+        author: 'Maya Chen',
+        imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
+        likeCount: 42,
+        commentCount: 7
+      },
+      {
+        id: 'inv-fallback-2',
+        title: 'AeroGlide Solar Drone — Multi-Day Aerial Sentinel',
+        desc: 'Autonomous carbon-composite drone powered by 24% efficient perovskite-silicon tandem solar cells, delivering 72+ hours of non-stop flight for wildfire detection and ocean monitoring.',
+        category: 'Inventions',
+        categorySlug: 'inventions',
+        price: 1250,
+        author: 'Elena Rostova',
+        imageUrl: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=800&q=80',
+        likeCount: 68,
+        commentCount: 14
+      },
+      {
+        id: 'inv-fallback-3',
+        title: 'ThermaHarvest — Industrial Waste-Heat Thermoelectric Generator',
+        desc: 'Solid-state bismuth-telluride thermoelectric generator capturing factory exhaust heat (150-450°C) and converting it to electricity with a 3-year commercial payback period.',
+        category: 'Inventions',
+        categorySlug: 'inventions',
+        price: 450,
+        author: 'Maya Chen',
+        imageUrl: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=800&q=80',
+        likeCount: 35,
+        commentCount: 5
+      }
+    ];
+  }, [items]);
+
   return (
     <div className="home-brand-theme">
       {/* 1. Hero Section */}
@@ -808,13 +875,13 @@ function HomeContent({ items, displayCategories, featuredWorkmen }) {
               Inventions worth a <span className="home-gradient-text">closer look.</span>
             </h2>
           </div>
-          <Link to="/marketplace" className="home-text-link">
-            View All Innovations <ArrowUpRight size={16} />
+          <Link to="/marketplace?category=Inventions" className="home-text-link">
+            View All Inventions <ArrowUpRight size={16} />
           </Link>
         </div>
 
         <div className="home-listing-grid">
-          {items.slice(0, 3).map((x) => (
+          {displayedInventions.map((x) => (
             <InnovationCard item={x} key={x.id} />
           ))}
         </div>
@@ -3215,9 +3282,9 @@ function Footer({ isHome, dark, onOpenDiagnostics }) {
             </div>
             <div>
               <b>LEGAL & SUPPORT</b>
-              <a href="mailto:hello@idea2impact.example">Contact</a>
-              <a href="#privacy">Privacy policy</a>
-              <a href="#terms">Terms & conditions</a>
+              <Link to="/contact">Contact</Link>
+              <Link to="/privacy">Privacy policy</Link>
+              <Link to="/terms">Terms & conditions</Link>
               {onOpenDiagnostics && (
                 <button
                   type="button"

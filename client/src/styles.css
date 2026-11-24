@@ -5799,4 +5799,11 @@ html, body {
   }
 }
 
+/* Responsive Contact Layout */
+@media (max-width: 768px) {
+  .contact-layout {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 
