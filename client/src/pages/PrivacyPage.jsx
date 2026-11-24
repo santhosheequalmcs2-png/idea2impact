@@ -101,7 +101,7 @@ export default function PrivacyPage() {
                 <FileText size={15} /> Bilateral Mutual NDAs
               </div>
               <p style={{ fontSize: '13px', margin: 0, color: 'var(--muted)', lineHeight: 1.6 }}>
-                Unlocking protected documentation requires signing our binding Mutual Non-Disclosure Agreement (v2.4) under penalty of perjury.
+                Unlocking protected documentation requires executing an authenticated Mutual Non-Disclosure Agreement (v2.4) governing confidential disclosures.
               </p>
             </div>
           </div>

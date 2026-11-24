@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import {
   MessageSquare,
   Send,
@@ -13,7 +14,8 @@ import {
   UserX,
   Sparkles,
   Paperclip,
-  Smile
+  Smile,
+  AlertCircle
 } from 'lucide-react';
 import {
   subscribeUserConversations,
@@ -31,6 +33,7 @@ export default function MessagesPage({ user }) {
   const [search, setSearch] = useState('');
   const [showOptions, setShowOptions] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [showDemoWhenEmpty, setShowDemoWhenEmpty] = useState(false);
   const messagesEndRef = useRef(null);
 
   // Fallback initial mock conversations if Firestore has not synced yet
@@ -42,8 +45,9 @@ export default function MessagesPage({ user }) {
       peerAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
       lastMessage: 'The provisional patent claims for your optical sensor have been drafted.',
       timestamp: '10:42 AM',
-      unreadCount: 1,
-      isOnline: true
+      unreadCount: 0,
+      isOnline: false,
+      isDemo: true
     },
     {
       id: 'convo_marcus_build',
@@ -53,7 +57,8 @@ export default function MessagesPage({ user }) {
       lastMessage: 'Updated the 3D STEP assembly in the project file vault. Take a look!',
       timestamp: 'Yesterday',
       unreadCount: 0,
-      isOnline: false
+      isOnline: false,
+      isDemo: true
     },
     {
       id: 'convo_alex_seed',
@@ -63,7 +68,8 @@ export default function MessagesPage({ user }) {
       lastMessage: 'We would love to discuss a $150,000 SAFE tranche next Tuesday.',
       timestamp: '2d ago',
       unreadCount: 0,
-      isOnline: true
+      isOnline: false,
+      isDemo: true
     }
   ], []);
 
@@ -85,7 +91,7 @@ export default function MessagesPage({ user }) {
     ]
   }), []);
 
-  // Initialize conversations
+  // Initialize conversations - Strictly gate real user records to authorized account
   useEffect(() => {
     let unsubscribe = () => {};
     if (user?.id) {
@@ -93,18 +99,23 @@ export default function MessagesPage({ user }) {
       unsubscribe = subscribeUserConversations(user.id, (cloudConvos) => {
         if (cloudConvos && cloudConvos.length > 0) {
           setConversations(cloudConvos);
-        } else {
+        } else if (showDemoWhenEmpty) {
           setConversations(defaultConversations);
+        } else {
+          setConversations([]);
         }
       });
     } else {
+      // Unauthenticated visitors receive clearly marked demo conversations
       setConversations(defaultConversations);
     }
     return () => {
       unsubscribe();
       if (user?.id) setOnlinePresence(user.id, false);
     };
-  }, [user, defaultConversations]);
+  }, [user, defaultConversations, showDemoWhenEmpty]);
+
+  const isDemoMode = !user || conversations === defaultConversations;
 
   // Set default selection
   useEffect(() => {
@@ -177,6 +188,22 @@ export default function MessagesPage({ user }) {
   return (
     <div className="messages-layout-page">
       <div className="container">
+        {isDemoMode && (
+          <div className="demo-mode-alert-banner">
+            <div className="demo-mode-alert-info">
+              <AlertCircle size={17} className="text-amber flex-shrink-0" />
+              <span>
+                <strong>Demo Preview Mode:</strong> You are viewing simulated sample conversations. Personal messages and real-time presence data are strictly restricted to authenticated accounts.
+              </span>
+            </div>
+            {!user && (
+              <Link to="/login" className="btn btn-secondary btn-xs demo-auth-link">
+                Log In to Your Account
+              </Link>
+            )}
+          </div>
+        )}
+
         <div className="messages-shell-card">
           {/* Left Panel: Conversation List */}
           <aside className="conversations-sidebar">
@@ -186,7 +213,9 @@ export default function MessagesPage({ user }) {
                   <MessageSquare size={20} className="text-cyan mr-2" />
                   Messages
                 </h2>
-                <span className="convo-count-badge">{conversations.length}</span>
+                <span className="convo-count-badge">
+                  {conversations.length} {isDemoMode ? 'Demo' : ''}
+                </span>
               </div>
               <div className="convo-search-box">
                 <Search size={16} className="search-icon" />
@@ -219,19 +248,22 @@ export default function MessagesPage({ user }) {
                           {c.peerName?.slice(0, 1) || 'U'}
                         </div>
                       )}
-                      {c.isOnline && <span className="online-presence-dot" />}
+                      {!c.isDemo && c.isOnline && <span className="online-presence-dot" />}
                     </div>
 
                     <div className="convo-preview-info">
                       <div className="convo-name-row">
-                        <span className="convo-name">{c.peerName}</span>
+                        <div className="flex items-center gap-1">
+                          <span className="convo-name">{c.peerName}</span>
+                          {c.isDemo && <span className="demo-tag-pill">DEMO</span>}
+                        </div>
                         <span className="convo-timestamp">{c.timestamp}</span>
                       </div>
                       <span className="convo-role-tag">{c.peerRole}</span>
                       <p className="convo-snippet">{c.lastMessage}</p>
                     </div>
 
-                    {c.unreadCount > 0 && (
+                    {!c.isDemo && c.unreadCount > 0 && (
                       <span className="convo-unread-pill">{c.unreadCount}</span>
                     )}
                   </div>
@@ -255,14 +287,21 @@ export default function MessagesPage({ user }) {
                           {selectedConvo.peerName?.slice(0, 1) || 'U'}
                         </div>
                       )}
-                      {selectedConvo.isOnline && <span className="online-presence-dot" />}
+                      {!selectedConvo.isDemo && selectedConvo.isOnline && <span className="online-presence-dot" />}
                     </div>
                     <div>
-                      <h3 className="chat-peer-name">{selectedConvo.peerName}</h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="chat-peer-name">{selectedConvo.peerName}</h3>
+                        {selectedConvo.isDemo && (
+                          <span className="demo-tag-pill">DEMO PREVIEW</span>
+                        )}
+                      </div>
                       <div className="chat-peer-sub">
                         <span className="peer-role-text">{selectedConvo.peerRole}</span>
                         <span className="presence-text">
-                          {selectedConvo.isOnline ? 'Active Now' : 'Offline'}
+                          {selectedConvo.isDemo
+                            ? 'Simulated Sample Profile'
+                            : (selectedConvo.isOnline ? 'Active Now' : 'Offline')}
                         </span>
                       </div>
                     </div>
@@ -306,8 +345,15 @@ export default function MessagesPage({ user }) {
                 <div className="chat-messages-stream">
                   <div className="chat-encryption-banner">
                     <Shield size={14} className="text-cyan mr-1" />
-                    <span>Cross-Platform End-to-End Synced Message Thread</span>
+                    <span>Cross-Platform Cloud-Synced Collaboration Thread</span>
                   </div>
+
+                  {selectedConvo.isDemo && (
+                    <div className="demo-thread-notice">
+                      <AlertCircle size={13} className="text-amber mr-1 flex-shrink-0" />
+                      <span>Simulated demo thread. Real communications are private and account-gated.</span>
+                    </div>
+                  )}
 
                   {messages.map((m, idx) => {
                     const isMe = m.senderId === 'me' || m.senderId === user?.id;
@@ -354,22 +400,37 @@ export default function MessagesPage({ user }) {
                 </div>
 
                 {/* Message Input Composer */}
-                <form className="chat-composer-box" onSubmit={handleSendMessage}>
-                  <input
-                    type="text"
-                    placeholder={`Message ${selectedConvo.peerName}...`}
-                    value={messageText}
-                    onChange={e => setMessageText(e.target.value)}
-                  />
-                  <button
-                    type="submit"
-                    className="btn btn-primary small composer-send-btn"
-                    disabled={!messageText.trim()}
-                  >
-                    <span>Send</span>
-                    <Send size={15} />
-                  </button>
-                </form>
+                {!user ? (
+                  <div className="chat-composer-box demo-mode-composer">
+                    <input
+                      type="text"
+                      disabled
+                      placeholder="Log in to send private messages and collaborate..."
+                      className="demo-disabled-input"
+                    />
+                    <Link to="/login" className="btn btn-primary small composer-send-btn">
+                      <span>Log In to Chat</span>
+                      <Send size={14} />
+                    </Link>
+                  </div>
+                ) : (
+                  <form className="chat-composer-box" onSubmit={handleSendMessage}>
+                    <input
+                      type="text"
+                      placeholder={`Message ${selectedConvo.peerName}...`}
+                      value={messageText}
+                      onChange={e => setMessageText(e.target.value)}
+                    />
+                    <button
+                      type="submit"
+                      className="btn btn-primary small composer-send-btn"
+                      disabled={!messageText.trim()}
+                    >
+                      <span>Send</span>
+                      <Send size={15} />
+                    </button>
+                  </form>
+                )}
               </>
             ) : (
               <div className="empty-chat-state">

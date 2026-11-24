@@ -105,9 +105,13 @@ export default function DigitalNDAModal({ innovation, user, onClose, onSigned })
                 onChange={(e) => setAgreed(e.target.checked)}
               />
               <label htmlFor="nda-agree">
-                I declare under penalty of perjury that I am authorized to execute this agreement and accept all terms of this Mutual Non-Disclosure Agreement.
+                I confirm that I am authorized to execute this agreement and accept all terms of this Mutual Non-Disclosure Agreement.
               </label>
             </div>
+
+            <p className="text-muted" style={{ fontSize: '11px', marginTop: '8px', lineHeight: 1.5 }}>
+              * Platform Notice: This Mutual NDA template facilitates bilateral confidentiality on IDEA2IMPACT. It does not constitute formal legal counsel. Parties should consult qualified legal counsel for jurisdiction-specific legal guarantees.
+            </p>
 
             <div className="modal-actions">
               <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>

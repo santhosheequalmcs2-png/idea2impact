@@ -83,10 +83,10 @@ export default function TermsPage() {
           </p>
           <div style={{ background: 'var(--panel2)', padding: '20px', borderRadius: '10px', border: '1px solid var(--line)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#5ce9c1', marginBottom: '8px', fontWeight: 600 }}>
-              <FileCheck size={16} /> Legal Enforceability
+              <FileCheck size={16} /> Confidentiality Obligations
             </div>
             <p style={{ fontSize: '13px', margin: 0, color: 'var(--muted)', lineHeight: 1.6 }}>
-              Any user executing a Mutual NDA agrees under penalty of perjury to hold disclosed information in strictest confidence and refrain from reproducing, reverse-engineering, or commercializing proprietary assets without express written consent.
+              Any user executing a Mutual NDA agrees in writing to hold disclosed information in strictest confidence and refrain from reproducing, reverse-engineering, or commercializing proprietary assets without express written consent. Platform agreement templates are provided for transactional convenience; users are advised to seek review from qualified legal counsel.
             </p>
           </div>
         </section>

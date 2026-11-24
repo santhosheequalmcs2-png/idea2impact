@@ -44,6 +44,7 @@ export default function FloatingAiSanaWidget({ activeInnovation = null }) {
   const [pos, setPos] = useState({ x: 0, y: 0 }); // offset from bottom-right (0, 0)
   const isDraggingRef = useRef(false);
   const dragStartRef = useRef({ mouseX: 0, mouseY: 0, startX: 0, startY: 0 });
+  const hasMovedRef = useRef(false);
 
   const abortControllerRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -71,35 +72,77 @@ export default function FloatingAiSanaWidget({ activeInnovation = null }) {
     { label: '🛡️ Patent Strategy', prompt: 'What is the recommended provisional patent filing timeline for a hardware prototype?' }
   ];
 
-  const handleMouseDown = (e) => {
-    // Only drag from widget header or minimized button
-    if (e.target.closest('button') && !e.target.closest('.ai-orb-drag-handle')) return;
+  const startDrag = (clientX, clientY) => {
     isDraggingRef.current = true;
+    hasMovedRef.current = false;
     dragStartRef.current = {
-      mouseX: e.clientX,
-      mouseY: e.clientY,
+      mouseX: clientX,
+      mouseY: clientY,
       startX: pos.x,
       startY: pos.y
     };
+  };
+
+  const moveDrag = (clientX, clientY) => {
+    if (!isDraggingRef.current) return;
+    const dx = clientX - dragStartRef.current.mouseX;
+    const dy = clientY - dragStartRef.current.mouseY;
+    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+      hasMovedRef.current = true;
+    }
+    setPos({
+      x: Math.max(-window.innerWidth + 320, Math.min(20, dragStartRef.current.startX + dx)),
+      y: Math.max(-window.innerHeight + 400, Math.min(20, dragStartRef.current.startY + dy))
+    });
+  };
+
+  const endDrag = () => {
+    isDraggingRef.current = false;
+  };
+
+  const handleMouseDown = (e) => {
+    if (e.target.closest('button') && !e.target.closest('.ai-orb-drag-handle') && !e.target.closest('.ai-floating-btn')) return;
+    startDrag(e.clientX, e.clientY);
 
     const handleMouseMove = (moveEvent) => {
-      if (!isDraggingRef.current) return;
-      const dx = moveEvent.clientX - dragStartRef.current.mouseX;
-      const dy = moveEvent.clientY - dragStartRef.current.mouseY;
-      setPos({
-        x: Math.max(-window.innerWidth + 380, Math.min(0, dragStartRef.current.startX + dx)),
-        y: Math.max(-window.innerHeight + 500, Math.min(0, dragStartRef.current.startY + dy))
-      });
+      moveDrag(moveEvent.clientX, moveEvent.clientY);
     };
 
     const handleMouseUp = () => {
-      isDraggingRef.current = false;
+      endDrag();
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
 
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
+  };
+
+  const handleTouchStart = (e) => {
+    const touch = e.touches[0];
+    if (!touch) return;
+    if (e.target.closest('button') && !e.target.closest('.ai-orb-drag-handle') && !e.target.closest('.ai-floating-btn')) return;
+    startDrag(touch.clientX, touch.clientY);
+  };
+
+  const handleTouchMove = (e) => {
+    const touch = e.touches[0];
+    if (touch && isDraggingRef.current) {
+      moveDrag(touch.clientX, touch.clientY);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    endDrag();
+  };
+
+  const handleButtonClick = (e) => {
+    if (hasMovedRef.current) {
+      e.preventDefault();
+      return;
+    }
+    setIsOpen(true);
+    soundFx.playTap();
   };
 
   const handleCopy = (text, id) => {
@@ -184,6 +227,7 @@ export default function FloatingAiSanaWidget({ activeInnovation = null }) {
 
   return (
     <div
+      className="ai-floating-widget"
       style={{
         position: 'fixed',
         bottom: `${28 - pos.y}px`,
@@ -192,31 +236,35 @@ export default function FloatingAiSanaWidget({ activeInnovation = null }) {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-end',
-        touchAction: 'none'
+        touchAction: 'none',
+        pointerEvents: 'none'
       }}
     >
       {/* Minimized Glowing AI Sana Trigger Button */}
       {!isOpen && (
         <button
           type="button"
-          onClick={() => {
-            setIsOpen(true);
-            soundFx.playTap();
-          }}
-          title="Open AI Sana Assistant"
+          onClick={handleButtonClick}
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          title="Open AI Sana Assistant (Drag to reposition)"
           className="ai-floating-btn"
           style={{
             position: 'relative',
             bottom: 'auto',
             right: 'auto',
-            boxShadow: '0 8px 30px rgba(112,65,199,0.4), 0 0 20px rgba(37,99,255,0.35)'
+            pointerEvents: 'auto',
+            boxShadow: '0 8px 30px rgba(112,65,199,0.4), 0 0 20px rgba(37,99,255,0.35)',
+            cursor: isDraggingRef.current ? 'grabbing' : 'pointer'
           }}
         >
           <div className="ai-btn-pulse" />
           <img src="/brand-icon.png" alt="AI Sana" style={{ width: 18, height: 18, borderRadius: 4, objectFit: 'cover' }} />
           <span>AI Sana</span>
           <span className="ai-btn-badge" style={{ background: 'rgba(255,255,255,0.2)' }}>
-            Gemini
+            Gemini 2.0 Flash
           </span>
         </button>
       )}
@@ -234,13 +282,17 @@ export default function FloatingAiSanaWidget({ activeInnovation = null }) {
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
-            backdropFilter: 'blur(20px)'
+            backdropFilter: 'blur(20px)',
+            pointerEvents: 'auto'
           }}
         >
           {/* Header (Drag Handle) */}
           <div
             className="ai-orb-drag-handle"
             onMouseDown={handleMouseDown}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
             style={{
               padding: '12px 16px',
               borderBottom: '1px solid var(--line)',
@@ -248,7 +300,7 @@ export default function FloatingAiSanaWidget({ activeInnovation = null }) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              cursor: 'grab',
+              cursor: isDraggingRef.current ? 'grabbing' : 'grab',
               userSelect: 'none'
             }}
           >
@@ -257,8 +309,13 @@ export default function FloatingAiSanaWidget({ activeInnovation = null }) {
                 <img src="/brand-icon.png" alt="AI Sana" className="brand-mark-img" />
               </span>
               <div>
-                <b style={{ fontSize: '12.5px', display: 'block' }}>AI Sana</b>
-                <small style={{ fontSize: '9.5px', color: 'var(--cyan)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <b style={{ fontSize: '12.5px', display: 'block' }}>AI Sana</b>
+                  <span style={{ fontSize: '9px', background: 'rgba(84,230,245,0.12)', color: 'var(--cyan)', padding: '1px 5px', borderRadius: '4px', fontWeight: 600 }}>
+                    Gemini 2.0 Flash
+                  </span>
+                </div>
+                <small style={{ fontSize: '9.5px', color: 'var(--muted)' }}>
                   {detectedInnovationId ? 'Grounded in Active Innovation' : 'Venture Assistant'}
                 </small>
               </div>

@@ -24,7 +24,7 @@ import {
   Layers,
   ArrowUpRight
 } from 'lucide-react';
-import { api, streamAiChat } from '../services/api';
+import { api, streamAiChat, checkAiServiceStatus } from '../services/api';
 import Page3DObject from '../components/Page3DObject';
 import { soundFx } from '../services/soundFx';
 
@@ -73,6 +73,19 @@ Select an innovation context, upload a prototype image, or pick a starter action
   const abortControllerRef = useRef(null);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  // Probe real AI service status matching System Diagnostics
+  const [serviceStatus, setServiceStatus] = useState({
+    status: 'checking',
+    message: 'Checking AI status...',
+    model: 'Gemini 2.0 Flash'
+  });
+
+  useEffect(() => {
+    checkAiServiceStatus()
+      .then(res => setServiceStatus(res))
+      .catch(() => setServiceStatus({ status: 'error', message: 'AI service offline', model: 'Gemini 2.0 Flash' }));
+  }, []);
 
   // Load marketplace innovations for Context Picker
   useEffect(() => {
@@ -248,7 +261,7 @@ Select an innovation context, upload a prototype image, or pick a starter action
     setInput('');
     setLastError(null);
     setStreaming(true);
-    setStreamingPhase('Checking AI connection...');
+    setStreamingPhase('Connecting to AI service...');
 
     const currentImage = attachedImage;
     removeAttachedImage();
@@ -295,6 +308,8 @@ Select an innovation context, upload a prototype image, or pick a starter action
         },
         onError: (err) => {
           console.error('Streaming error:', err);
+          setStreaming(false);
+          setStreamingPhase('');
           setLastError({
             message: err.message || 'AI request failed.',
             prompt: promptToSend,
@@ -304,7 +319,7 @@ Select an innovation context, upload a prototype image, or pick a starter action
             if (m.id === assistantMsgId && !m.content) {
               return {
                 ...m,
-                content: `⚠️ **AI Sana notice:** ${err.message || 'Could not complete request.'} Please check connection, switch to Fast mode, or tap Retry below.`
+                content: `⚠️ **AI Service Notice:** ${err.message || 'Could not complete request.'} The service may be offline or starting up. Please check System Diagnostics in the footer or tap Retry below.`
               };
             }
             return m;
@@ -313,6 +328,26 @@ Select an innovation context, upload a prototype image, or pick a starter action
         onDone: (meta) => {
           setStreaming(false);
           setStreamingPhase('');
+          if (meta?.error) {
+            setLastError({
+              message: meta.error.message || 'Could not complete request.',
+              prompt: promptToSend,
+              mode: activeMode
+            });
+            return;
+          }
+          if (meta?.receivedNone) {
+            setMessages(prev => prev.map(m => {
+              if (m.id === assistantMsgId && !m.content) {
+                return {
+                  ...m,
+                  content: '⚠️ **AI Service Notice:** No response data received from the AI engine. Please verify backend connection in System Diagnostics and try again.'
+                };
+              }
+              return m;
+            }));
+            return;
+          }
           if (meta?.engine) {
             setMessages(prev => prev.map(m => {
               if (m.id === assistantMsgId) {
@@ -325,15 +360,24 @@ Select an innovation context, upload a prototype image, or pick a starter action
         }
       });
     } catch (err) {
+      setStreaming(false);
+      setStreamingPhase('');
       if (err.name !== 'AbortError') {
         setLastError({
           message: err.message || 'Connection interrupted.',
           prompt: promptToSend,
           mode: activeMode
         });
+        setMessages(prev => prev.map(m => {
+          if (m.id === assistantMsgId && !m.content) {
+            return {
+              ...m,
+              content: `⚠️ **AI Service Notice:** ${err.message || 'Connection interrupted.'} Please check connection and try again.`
+            };
+          }
+          return m;
+        }));
       }
-      setStreaming(false);
-      setStreamingPhase('');
     }
   };
 
@@ -386,9 +430,9 @@ Select an innovation context, upload a prototype image, or pick a starter action
 
             <span style={{
               fontSize: '10px',
-              color: '#10b981',
-              background: 'rgba(16, 185, 129, 0.12)',
-              border: '1px solid rgba(16, 185, 129, 0.35)',
+              color: serviceStatus.status === 'success' ? '#10b981' : (serviceStatus.status === 'warning' ? '#f59e0b' : (serviceStatus.status === 'error' ? '#ef4444' : 'var(--muted)')),
+              background: serviceStatus.status === 'success' ? 'rgba(16, 185, 129, 0.12)' : (serviceStatus.status === 'warning' ? 'rgba(245, 158, 11, 0.12)' : (serviceStatus.status === 'error' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(255, 255, 255, 0.05)')),
+              border: `1px solid ${serviceStatus.status === 'success' ? 'rgba(16, 185, 129, 0.35)' : (serviceStatus.status === 'warning' ? 'rgba(245, 158, 11, 0.35)' : (serviceStatus.status === 'error' ? 'rgba(239, 68, 68, 0.35)' : 'var(--line)'))}`,
               borderRadius: '20px',
               padding: '3px 8px',
               fontWeight: 700,
@@ -396,7 +440,7 @@ Select an innovation context, upload a prototype image, or pick a starter action
               alignItems: 'center',
               gap: '4px'
             }}>
-              ● {customKey ? 'Custom Key' : 'Gemini 2.0'}
+              ● {customKey ? 'Custom Key' : (serviceStatus.status === 'success' ? 'Operational · Gemini 2.0 Flash' : (serviceStatus.status === 'warning' ? 'Heuristic Mode · Gemini 2.0 Flash' : (serviceStatus.status === 'error' ? 'AI Offline' : 'Checking AI...')))}
             </span>
           </div>
 

@@ -90,10 +90,21 @@ app.use('/api', apiLimiter);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
+  const hasGemini = Boolean(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY);
+  const hasOpenAI = Boolean(process.env.OPENAI_API_KEY);
+  const aiStatus = (hasGemini || hasOpenAI) ? 'operational' : 'heuristic_mode';
+  const configuredModel = hasGemini ? (process.env.GEMINI_MODEL || 'gemini-2.0-flash') : (hasOpenAI ? (process.env.OPENAI_MODEL || 'gpt-4o-mini') : 'autonomous-heuristic');
+
   res.json({
     status: 'ok',
     service: 'idea2impact-api',
     environment: process.env.NODE_ENV || 'development',
+    ai: {
+      status: aiStatus,
+      configured: hasGemini || hasOpenAI,
+      provider: hasGemini ? 'google-gemini' : (hasOpenAI ? 'openai' : 'autonomous-heuristic'),
+      model: configuredModel
+    },
     timestamp: new Date().toISOString()
   });
 });

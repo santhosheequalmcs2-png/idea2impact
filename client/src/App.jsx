@@ -544,7 +544,7 @@ function HomeContent({ items, displayCategories, featuredWorkmen }) {
             </span>
             <div className="home-float-info">
               <b>Mutual NDA Protected</b>
-              <small>Zero-knowledge encrypted deal rooms</small>
+              <small>Access-controlled private deal rooms</small>
             </div>
           </div>
 
@@ -1915,7 +1915,7 @@ function Detail({ user, onRefresh }) {
           </button>
 
           <p className="detail-disclaimer">
-            <LockKeyhole size={14} /> Direct encrypted communication. Proposals and negotiations are delivered privately to the creator's workspace.
+            <LockKeyhole size={14} /> Direct confidential communication. Proposals and negotiations are delivered privately to the creator's workspace.
           </p>
         </aside>
       </div>

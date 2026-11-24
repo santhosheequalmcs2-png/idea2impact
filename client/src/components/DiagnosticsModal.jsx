@@ -12,7 +12,7 @@ import {
   X,
   RotateCw
 } from 'lucide-react';
-import { api } from '../services/api';
+import { api, checkAiServiceStatus } from '../services/api';
 import { db, auth } from '../services/firebase';
 import { soundFx } from '../services/soundFx';
 
@@ -24,6 +24,8 @@ export default function DiagnosticsModal({ isOpen, onClose }) {
     dbStatus: 'pending',
     firebaseStatus: 'pending',
     aiStatus: 'pending',
+    aiLatency: 0,
+    aiDetails: '',
     networkOnline: true
   });
 
@@ -37,6 +39,8 @@ export default function DiagnosticsModal({ isOpen, onClose }) {
       dbStatus: 'checking',
       firebaseStatus: 'checking',
       aiStatus: 'checking',
+      aiLatency: 0,
+      aiDetails: '',
       networkOnline: navigator.onLine
     };
     setResults({ ...next });
@@ -66,11 +70,15 @@ export default function DiagnosticsModal({ isOpen, onClose }) {
       next.firebaseStatus = 'error';
     }
 
-    // 3. Probe AI Service
+    // 3. Probe Real AI Service status using shared health check
     try {
-      next.aiStatus = 'success'; // Google Gemini 2.0 Flash is wired
+      const aiProbe = await checkAiServiceStatus();
+      next.aiStatus = aiProbe.status; // 'success' | 'warning' | 'error'
+      next.aiDetails = aiProbe.message;
+      next.aiLatency = aiProbe.latency || 0;
     } catch {
-      next.aiStatus = 'warning';
+      next.aiStatus = 'error';
+      next.aiDetails = 'AI service probe failed or timed out';
     }
 
     setResults({ ...next });
@@ -181,10 +189,11 @@ export default function DiagnosticsModal({ isOpen, onClose }) {
               <div className="diag-icon-box"><Cpu size={18} className="text-gold" /></div>
               <div>
                 <h4>Impact AI Copilot (Gemini 2.0 Flash)</h4>
-                <p>Novelty scans, TAM/SAM/SOM sizing & BOM structuring</p>
+                <p>{results.aiDetails || 'Novelty scans, TAM/SAM/SOM sizing & BOM structuring'}</p>
               </div>
             </div>
             <div className="diag-item-right">
+              {results.aiLatency > 0 && <span className="latency-text">{results.aiLatency}ms</span>}
               {renderBadge(results.aiStatus)}
             </div>
           </div>

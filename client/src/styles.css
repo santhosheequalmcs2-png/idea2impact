@@ -4059,6 +4059,65 @@ body, .nav, .footer, .innovation-card, .btn, .stat-card, .chat-shell, .filter-pa
   gap: 6px;
 }
 
+/* Messages Demo Mode Indicators & Notice */
+.demo-mode-alert-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 10px;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--text);
+  flex-wrap: wrap;
+}
+.demo-mode-alert-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+.demo-auth-link {
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+}
+.demo-tag-pill {
+  background: rgba(245, 158, 11, 0.18);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  display: inline-block;
+}
+.demo-thread-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px dashed rgba(245, 158, 11, 0.25);
+  padding: 6px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+.demo-mode-composer {
+  background: var(--panel2) !important;
+}
+.demo-disabled-input {
+  background: var(--panel) !important;
+  color: var(--muted) !important;
+  cursor: not-allowed;
+  border-style: dashed !important;
+}
+
 /* ==========================================================================
    COLLABORATIONS & KANBAN WORKSPACE
    ========================================================================== */
@@ -5791,16 +5850,30 @@ html, body {
   /* 5. Floating AI Sana Widget on Mobile */
   .ai-floating-widget {
     right: 14px !important;
-    bottom: 16px !important;
+    bottom: 14px !important;
+    pointer-events: none !important;
+  }
+  .ai-floating-widget > * {
+    pointer-events: auto !important;
   }
   .ai-floating-btn {
     padding: 8px 12px !important;
-    font-size: 12px !important;
+    font-size: 11.5px !important;
+    gap: 6px !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+    max-width: calc(100vw - 28px) !important;
+  }
+  .ai-floating-btn .ai-btn-badge {
+    font-size: 9px !important;
+    padding: 1px 5px !important;
   }
 }
 
-/* Responsive Contact Layout */
+/* Responsive Hero and Contact Layout */
 @media (max-width: 768px) {
+  .home-hero {
+    padding-bottom: 75px !important;
+  }
   .contact-layout {
     grid-template-columns: 1fr !important;
   }

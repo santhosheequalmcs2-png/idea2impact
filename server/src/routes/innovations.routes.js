@@ -746,10 +746,10 @@ innovationsRouter.post('/:id/pitch-deck', async (req, res) => {
       {
         slideNumber: 4,
         title: 'Defensibility & Intellectual Property',
-        subtitle: 'Protected technological moat and zero-knowledge confidentiality',
+        subtitle: 'Protected technological moat and authenticated deal-room confidentiality',
         bullets: [
           'Provisional patent priority date strategy locked on IDEA2IMPACT platform.',
-          'Zero-knowledge Deal Room enabled for mutual bilateral NDA document security.',
+          'Authenticated Deal Room enabled for mutual bilateral NDA document security.',
           'Proprietary engineering architecture and trade secrets preventing reverse engineering.'
         ]
       },
