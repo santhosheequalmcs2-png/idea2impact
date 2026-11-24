@@ -17,7 +17,7 @@ import {
   ShieldCheck,
   Paperclip
 } from 'lucide-react';
-import { streamAiChat } from '../services/api';
+import { streamAiChat, checkAiServiceStatus } from '../services/api';
 import { soundFx } from '../services/soundFx';
 
 export default function FloatingAiSanaWidget({ activeInnovation = null }) {
@@ -28,6 +28,7 @@ export default function FloatingAiSanaWidget({ activeInnovation = null }) {
   const isStudioPage = location.pathname === '/ai-sana' || location.pathname === '/ai-studio';
 
   const [isOpen, setIsOpen] = useState(false);
+  const [serviceStatus, setServiceStatus] = useState(null);
   const [messages, setMessages] = useState([
     {
       id: 'welcome',
@@ -48,6 +49,10 @@ export default function FloatingAiSanaWidget({ activeInnovation = null }) {
 
   const abortControllerRef = useRef(null);
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    checkAiServiceStatus().then(st => setServiceStatus(st)).catch(() => {});
+  }, []);
 
   // Detect innovation ID from URL if on detail page (/innovation/:id or /innovations/:id)
   const innovationMatch = location.pathname.match(/\/innovations?\/([a-zA-Z0-9_-]+)/);
@@ -264,7 +269,7 @@ export default function FloatingAiSanaWidget({ activeInnovation = null }) {
           <img src="/brand-icon.png" alt="AI Sana" style={{ width: 18, height: 18, borderRadius: 4, objectFit: 'cover' }} />
           <span>AI Sana</span>
           <span className="ai-btn-badge" style={{ background: 'rgba(255,255,255,0.2)' }}>
-            Gemini 2.0 Flash
+            {serviceStatus?.configured ? 'Gemini 2.0 Flash' : 'AI Sana'}
           </span>
         </button>
       )}
@@ -311,8 +316,15 @@ export default function FloatingAiSanaWidget({ activeInnovation = null }) {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <b style={{ fontSize: '12.5px', display: 'block' }}>AI Sana</b>
-                  <span style={{ fontSize: '9px', background: 'rgba(84,230,245,0.12)', color: 'var(--cyan)', padding: '1px 5px', borderRadius: '4px', fontWeight: 600 }}>
-                    Gemini 2.0 Flash
+                  <span style={{
+                    fontSize: '9px',
+                    background: serviceStatus?.configured ? 'rgba(84,230,245,0.12)' : 'rgba(245,158,11,0.15)',
+                    color: serviceStatus?.configured ? 'var(--cyan)' : '#f59e0b',
+                    padding: '1px 5px',
+                    borderRadius: '4px',
+                    fontWeight: 600
+                  }}>
+                    {serviceStatus?.configured ? 'Gemini 2.0 Flash' : 'Heuristic Mode'}
                   </span>
                 </div>
                 <small style={{ fontSize: '9.5px', color: 'var(--muted)' }}>
@@ -417,6 +429,11 @@ export default function FloatingAiSanaWidget({ activeInnovation = null }) {
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {m.content}
                   </ReactMarkdown>
+                  {m.role === 'assistant' && m.id !== 'welcome' && !serviceStatus?.configured && (
+                    <div style={{ marginTop: '5px', fontSize: '9px', color: '#f59e0b', opacity: 0.9 }}>
+                      * Rule-based heuristic evaluation (Gemini API offline)
+                    </div>
+                  )}
                 </div>
 
                 {m.role === 'assistant' && m.content && (

@@ -272,6 +272,26 @@ export async function streamAiChat({
       } catch {}
     }
 
+    // Fallback: If no SSE 'data:' chunks were parsed, check if response was standard JSON (e.g. heuristic response or non-SSE gateway)
+    if (!receivedChunks && buffer.trim()) {
+      try {
+        const json = JSON.parse(buffer.trim());
+        const replyText = json.reply || json.text || json.content || json.response;
+        if (replyText) {
+          receivedChunks = true;
+          if (onChunk) onChunk(replyText);
+          if (onDone) {
+            onDone({
+              engine: json.engine || (json.mode === 'heuristic' ? 'AI Sana Heuristic Engine' : 'AI Service Engine'),
+              mode: json.mode || 'heuristic',
+              provider: json.provider || 'autonomous'
+            });
+          }
+          return;
+        }
+      } catch {}
+    }
+
     if (!receivedChunks && onDone) {
       onDone({ receivedNone: true });
     }

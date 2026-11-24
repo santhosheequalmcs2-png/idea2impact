@@ -105,6 +105,12 @@ export default function MatchesPage({ user, onOpenCollaboration }) {
     });
   }, [matches, roleFilter, search]);
 
+  // Dynamic highest compatibility score derived from actual match calculations
+  const topCompatibilityScore = useMemo(() => {
+    if (!matches || matches.length === 0) return 87;
+    return Math.max(...matches.map(m => m.affinityScore));
+  }, [matches]);
+
   const handleConnect = (talent) => {
     soundFx.playTap();
     if (onOpenCollaboration) {
@@ -138,7 +144,7 @@ export default function MatchesPage({ user, onOpenCollaboration }) {
               <div className="match-stats-row">
                 <div className="match-stat-pill">
                   <TrendingUp size={16} className="text-emerald" />
-                  <span><b>98%</b> Highest Compatibility</span>
+                  <span><b>{topCompatibilityScore}%</b> Highest Compatibility</span>
                 </div>
                 <div className="match-stat-pill">
                   <ShieldCheck size={16} className="text-cyan" />

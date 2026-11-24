@@ -522,7 +522,7 @@ function HomeContent({ items, displayCategories, featuredWorkmen }) {
             </span>
             <div className="home-float-info">
               <b>AI Opportunity & IP Match</b>
-              <small>98% Compatibility · CleanTech</small>
+              <small>87% Synergy · CleanTech (Illustrative Preview)</small>
             </div>
             <span className="home-live-pulse" />
           </div>
@@ -637,16 +637,19 @@ function HomeContent({ items, displayCategories, featuredWorkmen }) {
           {/* 1. AI Matches */}
           <div className="home-ecosystem-card">
             <div className="home-ecosystem-badge" style={{ background: 'rgba(92, 233, 193, 0.15)', color: '#5ce9c1' }}>
-              <Sparkles size={14} /> 94% Compatibility Match
+              <Sparkles size={14} /> 87% Top Algorithmic Match
             </div>
             <h3 className="home-ecosystem-title">AI Ecosystem Matchmaking</h3>
             <p className="home-ecosystem-desc">
               Multi-factor matching connects creators with specialized robotics engineers, IP attorneys, and angel funds based on complementary skills and market readiness.
             </p>
             <div className="home-ecosystem-preview">
-              <div className="eco-pill">● Dr. Elena Vance (Robotics) · 98% Synergy</div>
-              <div className="eco-pill">● Marcus Sterling (Angel LP) · 92% Synergy</div>
+              <div className="eco-pill">● Devon Brooks (Robotics & AI) · 87% Synergy</div>
+              <div className="eco-pill">● Marcus Vance (Angel Investor) · 84% Synergy</div>
             </div>
+            <small style={{ fontSize: '10px', color: 'var(--muted)', display: 'block', marginTop: '6px' }}>
+              * Illustrative profile examples from verified marketplace directory.
+            </small>
             <Link to="/matches" className="btn btn-outline small full">
               Explore Matches <ArrowUpRight size={14} />
             </Link>

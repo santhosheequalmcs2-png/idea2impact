@@ -250,18 +250,24 @@ Select an innovation context, upload a prototype image, or pick a starter action
     };
 
     // Staging Assistant Message
+    const isHeuristicMode = !serviceStatus?.configured;
+    const defaultEngineLabel = isHeuristicMode
+      ? 'Autonomous Heuristic Core (Rule-Based Simulation)'
+      : (activeMode === 'deep' ? 'AI Sana Deep (Gemini 2.0 Flash)' : 'AI Sana Fast (Gemini 2.0 Flash-Lite)');
+
     const stagedAssistantMsg = {
       id: assistantMsgId,
       role: 'assistant',
       content: '',
-      engine: activeMode === 'deep' ? 'AI Sana Deep (Gemini 2.0 Flash)' : 'AI Sana Fast (Gemini 2.0 Flash-Lite)'
+      engine: defaultEngineLabel,
+      isHeuristic: isHeuristicMode
     };
 
     setMessages(prev => [...prev, userMsg, stagedAssistantMsg]);
     setInput('');
     setLastError(null);
     setStreaming(true);
-    setStreamingPhase('Connecting to AI service...');
+    setStreamingPhase(isHeuristicMode ? 'Running heuristic analysis rubric...' : 'Connecting to AI service...');
 
     const currentImage = attachedImage;
     removeAttachedImage();
@@ -319,7 +325,7 @@ Select an innovation context, upload a prototype image, or pick a starter action
             if (m.id === assistantMsgId && !m.content) {
               return {
                 ...m,
-                content: `⚠️ **AI Service Notice:** ${err.message || 'Could not complete request.'} The service may be offline or starting up. Please check System Diagnostics in the footer or tap Retry below.`
+                content: `⚠️ **AI Service Notice:** ${err.message || 'Could not complete request.'} The live external AI service is currently unavailable. You can retry with a custom Gemini key or view the heuristic fallback analysis.`
               };
             }
             return m;
@@ -341,17 +347,28 @@ Select an innovation context, upload a prototype image, or pick a starter action
               if (m.id === assistantMsgId && !m.content) {
                 return {
                   ...m,
-                  content: '⚠️ **AI Service Notice:** No response data received from the AI engine. Please verify backend connection in System Diagnostics and try again.'
+                  content: '⚠️ **AI Service Notice:** No response received from the live AI engine. Live API key is unconfigured. Tap "Retry with Heuristic Fallback" below for an offline rule-based evaluation.'
                 };
               }
               return m;
             }));
             return;
           }
-          if (meta?.engine) {
+          if (meta?.mode === 'heuristic' || meta?.engine?.includes('Heuristic') || !serviceStatus?.configured) {
             setMessages(prev => prev.map(m => {
               if (m.id === assistantMsgId) {
-                return { ...m, engine: meta.engine };
+                return {
+                  ...m,
+                  engine: meta?.engine || 'Autonomous Heuristic Core (Rule-Based Simulation)',
+                  isHeuristic: true
+                };
+              }
+              return m;
+            }));
+          } else if (meta?.engine) {
+            setMessages(prev => prev.map(m => {
+              if (m.id === assistantMsgId) {
+                return { ...m, engine: meta.engine, isHeuristic: false };
               }
               return m;
             }));
@@ -430,9 +447,9 @@ Select an innovation context, upload a prototype image, or pick a starter action
 
             <span style={{
               fontSize: '10px',
-              color: serviceStatus.status === 'success' ? '#10b981' : (serviceStatus.status === 'warning' ? '#f59e0b' : (serviceStatus.status === 'error' ? '#ef4444' : 'var(--muted)')),
-              background: serviceStatus.status === 'success' ? 'rgba(16, 185, 129, 0.12)' : (serviceStatus.status === 'warning' ? 'rgba(245, 158, 11, 0.12)' : (serviceStatus.status === 'error' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(255, 255, 255, 0.05)')),
-              border: `1px solid ${serviceStatus.status === 'success' ? 'rgba(16, 185, 129, 0.35)' : (serviceStatus.status === 'warning' ? 'rgba(245, 158, 11, 0.35)' : (serviceStatus.status === 'error' ? 'rgba(239, 68, 68, 0.35)' : 'var(--line)'))}`,
+              color: serviceStatus.status === 'success' || customKey ? '#10b981' : (serviceStatus.status === 'warning' ? '#f59e0b' : (serviceStatus.status === 'error' ? '#ef4444' : 'var(--muted)')),
+              background: serviceStatus.status === 'success' || customKey ? 'rgba(16, 185, 129, 0.12)' : (serviceStatus.status === 'warning' ? 'rgba(245, 158, 11, 0.12)' : (serviceStatus.status === 'error' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(255, 255, 255, 0.05)')),
+              border: `1px solid ${serviceStatus.status === 'success' || customKey ? 'rgba(16, 185, 129, 0.35)' : (serviceStatus.status === 'warning' ? 'rgba(245, 158, 11, 0.35)' : (serviceStatus.status === 'error' ? 'rgba(239, 68, 68, 0.35)' : 'var(--line)'))}`,
               borderRadius: '20px',
               padding: '3px 8px',
               fontWeight: 700,
@@ -440,7 +457,7 @@ Select an innovation context, upload a prototype image, or pick a starter action
               alignItems: 'center',
               gap: '4px'
             }}>
-              ● {customKey ? 'Custom Key' : (serviceStatus.status === 'success' ? 'Operational · Gemini 2.0 Flash' : (serviceStatus.status === 'warning' ? 'Heuristic Mode · Gemini 2.0 Flash' : (serviceStatus.status === 'error' ? 'AI Offline' : 'Checking AI...')))}
+              ● {customKey ? 'Custom Key' : (serviceStatus.status === 'success' ? 'Operational · Gemini 2.0 Flash' : (serviceStatus.status === 'warning' ? 'Heuristic Mode · Rule-Based' : (serviceStatus.status === 'error' ? 'AI Offline' : 'Checking AI...')))}
             </span>
           </div>
 
@@ -598,7 +615,9 @@ Select an innovation context, upload a prototype image, or pick a starter action
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontWeight: 700, fontSize: '13px' }}>AI Sana Session</span>
               <span style={{ fontSize: '10px', color: 'var(--muted)' }}>
-                · {mode === 'deep' ? 'Deep Mode (Gemini 2.0 Flash)' : 'Fast Mode (Gemini 2.0 Flash-Lite)'}
+                · {customKey || serviceStatus?.configured
+                    ? (mode === 'deep' ? 'Deep Mode (Gemini 2.0 Flash)' : 'Fast Mode (Gemini 2.0 Flash-Lite)')
+                    : 'Heuristic Mode (Rule-Based Simulation)'}
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -612,6 +631,36 @@ Select an innovation context, upload a prototype image, or pick a starter action
               </button>
             </div>
           </div>
+
+          {/* Degraded / Heuristic Mode Explanatory Notice */}
+          {serviceStatus && !serviceStatus.configured && !customKey && (
+            <div style={{
+              background: 'rgba(245, 158, 11, 0.08)',
+              borderBottom: '1px solid rgba(245, 158, 11, 0.25)',
+              padding: '10px 18px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px',
+              fontSize: '11.5px',
+              color: 'var(--text)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <AlertCircle size={15} color="#f59e0b" style={{ flexShrink: 0 }} />
+                <span>
+                  <strong>AI Service Degraded (Heuristic Mode):</strong> No external Gemini API key is configured. Live multimodal reasoning and patent registry search are offline; calibrated startup rubrics and heuristic evaluations are active.
+                </span>
+              </div>
+              <button
+                type="button"
+                className="btn btn-ghost small"
+                onClick={() => setShowKeyModal(true)}
+                style={{ whiteSpace: 'nowrap', fontSize: '11px', padding: '4px 8px' }}
+              >
+                Provide Gemini Key
+              </button>
+            </div>
+          )}
 
           {/* Custom Key Modal Overlay */}
           {showKeyModal && (
@@ -675,9 +724,29 @@ Select an innovation context, upload a prototype image, or pick a starter action
                 </div>
 
                 <div style={{ minWidth: 0, flex: 1 }}>
-                  <div className="message-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span>{m.role === 'user' ? 'YOU' : 'AI SANA'}</span>
-                    {m.engine && <span style={{ opacity: 0.65, fontSize: '8px' }}>{m.engine}</span>}
+                  <div className="message-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span>{m.role === 'user' ? 'YOU' : 'AI SANA'}</span>
+                      {m.role === 'assistant' && (m.isHeuristic || m.engine?.includes('Heuristic') || (!serviceStatus?.configured && !customKey)) && (
+                        <span style={{
+                          background: 'rgba(245, 158, 11, 0.18)',
+                          color: '#f59e0b',
+                          border: '1px solid rgba(245, 158, 11, 0.35)',
+                          borderRadius: '4px',
+                          fontSize: '8.5px',
+                          padding: '1px 5px',
+                          fontWeight: 700,
+                          letterSpacing: '0.04em'
+                        }}>
+                          HEURISTIC SIMULATION
+                        </span>
+                      )}
+                    </div>
+                    {m.engine && (
+                      <span style={{ opacity: 0.75, fontSize: '8.5px', color: (m.isHeuristic || (!serviceStatus?.configured && !customKey)) ? '#f59e0b' : 'inherit' }}>
+                        {m.engine}
+                      </span>
+                    )}
                   </div>
 
                   {/* Attached Image Preview if User message */}
@@ -723,6 +792,25 @@ Select an innovation context, upload a prototype image, or pick a starter action
                         {copiedId === m.id ? <Check size={11} color="#10b981" /> : <Copy size={11} />}
                         <span>{copiedId === m.id ? 'Copied' : 'Copy'}</span>
                       </button>
+                    </div>
+                  )}
+
+                  {/* Heuristic Transparency Advisory Note */}
+                  {m.role === 'assistant' && (m.isHeuristic || m.engine?.includes('Heuristic') || (!serviceStatus?.configured && !customKey)) && m.content && (
+                    <div style={{
+                      marginTop: '8px',
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      background: 'rgba(245, 158, 11, 0.08)',
+                      border: '1px solid rgba(245, 158, 11, 0.25)',
+                      fontSize: '11px',
+                      color: 'var(--text)',
+                      lineHeight: 1.5
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700, color: '#f59e0b', marginBottom: '2px' }}>
+                        <AlertCircle size={12} /> Heuristic Fallback Output
+                      </div>
+                      Generated using IDEA2IMPACT calibrated venture evaluation rubrics and rule-based heuristics because external Gemini API credentials are unconfigured. Not an external LLM completion.
                     </div>
                   )}
                 </div>

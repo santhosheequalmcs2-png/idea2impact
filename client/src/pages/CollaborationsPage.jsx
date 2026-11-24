@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Kanban,
   FileText,
@@ -16,7 +17,8 @@ import {
   ArrowLeft,
   X,
   ShieldCheck,
-  Cpu
+  Cpu,
+  AlertCircle
 } from 'lucide-react';
 import { soundFx } from '../services/soundFx';
 import {
@@ -27,21 +29,14 @@ import {
 export default function CollaborationsPage({ user }) {
   const [activeTab, setActiveTab] = useState('kanban'); // 'kanban' | 'files' | 'activity'
   const [selectedProjectId, setSelectedProjectId] = useState('proj_quantum_sensor');
-  const [tasks, setTasks] = useState([]);
-  const [showAddTaskModal, setShowAddTaskModal] = useState(false);
-  const [newTaskTitle, setNewTaskTitle] = useState('');
-  const [newTaskDesc, setNewTaskDesc] = useState('');
-  const [newTaskPriority, setNewTaskPriority] = useState('MEDIUM');
-  const [newTaskAssignee, setNewTaskAssignee] = useState('Marcus Vance');
-  const [newTaskDueDate, setNewTaskDueDate] = useState('');
 
-  // Sample collaboration projects
-  const projects = [
+  // Sample collaboration projects (clearly tagged as demo datasets when unauthenticated)
+  const projects = useMemo(() => [
     {
       id: 'proj_quantum_sensor',
       name: 'Bio-Photonic Optical Scanner (v2.0)',
       stage: 'Engineering Prototype',
-      progress: 68,
+      isDemo: true,
       members: [
         { name: 'Dr. Elena Rostova', role: 'Patent Lead', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' },
         { name: 'Marcus Vance', role: 'Hardware Lead', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' },
@@ -52,57 +47,143 @@ export default function CollaborationsPage({ user }) {
       id: 'proj_cleantech_mesh',
       name: 'Modular Hyper-Filtration Grid',
       stage: 'BOM Optimization & Testing',
-      progress: 42,
+      isDemo: true,
       members: [
         { name: 'David Kim', role: 'Fluidics Engineer', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150' },
         { name: 'Amina Nour', role: 'Materials Scientist', avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=150' }
       ]
     }
-  ];
-
-  const defaultTasks = useMemo(() => [
-    {
-      id: 'task_1',
-      title: 'CNC Housing Tolerances & Snap-Fit Verification',
-      desc: 'Verify clearance fit for the primary injection chassis and battery clip.',
-      status: 'TODO',
-      priority: 'HIGH',
-      assignee: 'Marcus Vance',
-      dueDate: 'Dec 4'
-    },
-    {
-      id: 'task_2',
-      title: 'Draft Provisional Patent Application Claims',
-      desc: 'Formulate claims 1-12 covering the multi-spectral emitter optical path.',
-      status: 'IN_PROGRESS',
-      priority: 'URGENT',
-      assignee: 'Dr. Elena Rostova',
-      dueDate: 'Nov 28'
-    },
-    {
-      id: 'task_3',
-      title: 'Low-Power Sleep Firmware Optimization',
-      desc: 'Reduce standby current draw below 18 microamps in BLE sleep cycle.',
-      status: 'IN_REVIEW',
-      priority: 'MEDIUM',
-      assignee: 'Sarah Lin',
-      dueDate: 'Nov 30'
-    },
-    {
-      id: 'task_4',
-      title: 'BOM Component Cost Benchmark & Supplier Vetting',
-      desc: 'Locked secondary suppliers for microcontroller and optics with Protolabs.',
-      status: 'DONE',
-      priority: 'LOW',
-      assignee: 'Marcus Vance',
-      dueDate: 'Nov 20'
-    }
   ], []);
 
-  // Subscribe to real-time project tasks
+  // Supporting tasks that back the milestone completion figures
+  const projectTasksMap = useMemo(() => ({
+    proj_quantum_sensor: [
+      {
+        id: 'task_qs_1',
+        title: 'Optical Spectral Calibration Matrix & Lens Alignment',
+        desc: 'Completed calibration benchmarks for multi-spectral photodiodes.',
+        status: 'DONE',
+        priority: 'HIGH',
+        assignee: 'Dr. Elena Rostova',
+        dueDate: 'Nov 14'
+      },
+      {
+        id: 'task_qs_2',
+        title: 'BOM Component Cost Benchmark & Supplier Lock',
+        desc: 'Negotiated volume tiers for injection mold and optical lenses.',
+        status: 'DONE',
+        priority: 'LOW',
+        assignee: 'Marcus Vance',
+        dueDate: 'Nov 18'
+      },
+      {
+        id: 'task_qs_3',
+        title: 'Draft Provisional Patent Application Claims 1–12',
+        desc: 'Formulate claims covering multi-spectral optical beam splitter.',
+        status: 'DONE',
+        priority: 'URGENT',
+        assignee: 'Dr. Elena Rostova',
+        dueDate: 'Nov 20'
+      },
+      {
+        id: 'task_qs_4',
+        title: 'Rapid SLA Chassis 3D Print Form-Factor Verification',
+        desc: 'Form factor validated with internal lithium polymer battery envelope.',
+        status: 'DONE',
+        priority: 'MEDIUM',
+        assignee: 'Marcus Vance',
+        dueDate: 'Nov 22'
+      },
+      {
+        id: 'task_qs_5',
+        title: 'Low-Power Sleep Firmware Optimization',
+        desc: 'Reduce standby current draw below 18 microamps in BLE sleep cycle.',
+        status: 'IN_REVIEW',
+        priority: 'MEDIUM',
+        assignee: 'Sarah Lin',
+        dueDate: 'Nov 30'
+      },
+      {
+        id: 'task_qs_6',
+        title: 'CNC Housing Tolerances & Snap-Fit Verification',
+        desc: 'Verify clearance fit for the primary injection chassis and battery clip.',
+        status: 'IN_PROGRESS',
+        priority: 'HIGH',
+        assignee: 'Marcus Vance',
+        dueDate: 'Dec 4'
+      }
+    ],
+    proj_cleantech_mesh: [
+      {
+        id: 'task_cm_1',
+        title: 'Graphene Mesh Porosity & Pressure Drop Simulation',
+        desc: 'Computational fluid dynamics completed at 2.4 bar pressure.',
+        status: 'DONE',
+        priority: 'HIGH',
+        assignee: 'David Kim',
+        dueDate: 'Nov 10'
+      },
+      {
+        id: 'task_cm_2',
+        title: 'Ceramic Membrane Sintering Temperature Tests',
+        desc: 'Verified micro-fracture resistance under 650°C thermal stress.',
+        status: 'DONE',
+        priority: 'MEDIUM',
+        assignee: 'Amina Nour',
+        dueDate: 'Nov 16'
+      },
+      {
+        id: 'task_cm_3',
+        title: 'Filter Housing Fast-Clamp Seal Analysis',
+        desc: 'EPDM gasket compression test under cyclic hydrostatic pressure.',
+        status: 'IN_PROGRESS',
+        priority: 'HIGH',
+        assignee: 'David Kim',
+        dueDate: 'Nov 28'
+      },
+      {
+        id: 'task_cm_4',
+        title: 'BOM Cost Model & Industrial Scale Quoting',
+        desc: 'Supplier quotes for extrusion tooling from regional fabricators.',
+        status: 'TODO',
+        priority: 'MEDIUM',
+        assignee: 'Amina Nour',
+        dueDate: 'Dec 2'
+      },
+      {
+        id: 'task_cm_5',
+        title: 'Field Pilot Water Quality Sensor Calibration',
+        desc: 'Turbidity and heavy metal sensor integration with IoT gateway.',
+        status: 'TODO',
+        priority: 'LOW',
+        assignee: 'David Kim',
+        dueDate: 'Dec 10'
+      }
+    ]
+  }), []);
+
+  const defaultTasks = useMemo(() => {
+    return projectTasksMap[selectedProjectId] || projectTasksMap.proj_quantum_sensor;
+  }, [projectTasksMap, selectedProjectId]);
+
+  // Initialize with supporting tasks so columns are never empty on initial load
+  const [tasks, setTasks] = useState(defaultTasks);
+  const [showAddTaskModal, setShowAddTaskModal] = useState(false);
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [newTaskDesc, setNewTaskDesc] = useState('');
+  const [newTaskPriority, setNewTaskPriority] = useState('MEDIUM');
+  const [newTaskAssignee, setNewTaskAssignee] = useState('Marcus Vance');
+  const [newTaskDueDate, setNewTaskDueDate] = useState('');
+
+  // Dynamically compute progress directly from actual board tasks
+  const doneTasksCount = tasks.filter(t => t.status === 'DONE').length;
+  const totalTasksCount = tasks.length;
+  const computedProgress = totalTasksCount > 0 ? Math.round((doneTasksCount / totalTasksCount) * 100) : 0;
+
+  // Subscribe to real-time project tasks if authenticated, otherwise use sample demo tasks
   useEffect(() => {
     let unsubscribe = () => {};
-    if (selectedProjectId) {
+    if (selectedProjectId && user?.id) {
       unsubscribe = subscribeProjectTasks(selectedProjectId, (cloudTasks) => {
         if (cloudTasks && cloudTasks.length > 0) {
           setTasks(cloudTasks);
@@ -110,9 +191,11 @@ export default function CollaborationsPage({ user }) {
           setTasks(defaultTasks);
         }
       });
+    } else {
+      setTasks(defaultTasks);
     }
     return () => unsubscribe();
-  }, [selectedProjectId, defaultTasks]);
+  }, [selectedProjectId, defaultTasks, user]);
 
   const currentProject = projects.find(p => p.id === selectedProjectId) || projects[0];
 
@@ -180,23 +263,77 @@ export default function CollaborationsPage({ user }) {
 
   return (
     <div className="collaborations-page-container">
+      {/* Demo Alert Banner for Logged-Out Visitors */}
+      {!user && (
+        <div className="container" style={{ paddingTop: '20px', paddingBottom: '0' }}>
+          <div className="demo-mode-alert-banner">
+            <div className="demo-mode-alert-info">
+              <AlertCircle size={17} className="text-amber flex-shrink-0" />
+              <span>
+                <strong>Demo Preview Workspace:</strong> You are viewing a simulated sample project and Kanban sprint board. Personal venture workspaces and team permissions require an authenticated account.
+              </span>
+            </div>
+            <Link to="/login" className="btn btn-secondary btn-xs demo-auth-link">
+              Log In to Collaborate
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Project Top Bar */}
       <section className="collab-hero-header">
         <div className="container">
+          {/* Project Switcher */}
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '14px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.06em' }}>
+              Select Venture:
+            </span>
+            {projects.map(p => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => {
+                  soundFx.playTap();
+                  setSelectedProjectId(p.id);
+                }}
+                style={{
+                  background: selectedProjectId === p.id ? 'rgba(84, 230, 245, 0.15)' : 'var(--panel2)',
+                  borderColor: selectedProjectId === p.id ? 'var(--cyan)' : 'var(--line)',
+                  color: selectedProjectId === p.id ? 'var(--cyan)' : 'var(--text)',
+                  borderWidth: 1,
+                  borderStyle: 'solid',
+                  borderRadius: 20,
+                  padding: '4px 12px',
+                  fontSize: '12px',
+                  fontWeight: selectedProjectId === p.id ? 700 : 500,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6
+                }}
+              >
+                <span>{p.name}</span>
+                {p.isDemo && <span className="demo-tag-pill" style={{ fontSize: '8.5px', padding: '1px 4px' }}>DEMO</span>}
+              </button>
+            ))}
+          </div>
+
           <div className="collab-header-flex">
             <div>
               <div className="eyebrow-badge">
                 <Kanban size={14} className="text-cyan mr-1" />
                 <span>COLLABORATIVE VENTURE WORKSPACE</span>
               </div>
-              <h1 className="collab-title">{currentProject.name}</h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', margin: '4px 0 10px' }}>
+                <h1 className="collab-title" style={{ margin: 0 }}>{currentProject.name}</h1>
+                {!user && <span className="demo-tag-pill">DEMO DATA</span>}
+              </div>
               <div className="collab-meta-row">
                 <span className="collab-stage-badge">{currentProject.stage}</span>
                 <span className="collab-progress-text">
-                  <b>{currentProject.progress}%</b> Milestone Completion
+                  <b>{computedProgress}%</b> Milestone Completion ({doneTasksCount}/{totalTasksCount} Tasks Done)
                 </span>
                 <div className="collab-progress-bar">
-                  <div className="collab-progress-fill" style={{ width: `${currentProject.progress}%` }} />
+                  <div className="collab-progress-fill" style={{ width: `${computedProgress}%` }} />
                 </div>
               </div>
             </div>
